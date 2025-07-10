@@ -1,7 +1,5 @@
 <template>
   <div class="customize-container">
-<template>
-  <div class="customize-container">
     <div class="modern-page-header">
       <div class="header-content">
         <div class="header-icon">
@@ -188,6 +186,7 @@
       />
     </div>
   </div>
+</template>
 
 <script>
 export default {
@@ -294,8 +293,7 @@ export default {
         timestamp: new Date().toISOString()
       };
       localStorage.setItem('interview_customization', JSON.stringify(customizationData));
-    },
-    
+    }
   }
 }
 </script>
@@ -645,94 +643,6 @@ export default {
   .save-btn, .clear-btn {
     width: 100%;
     max-width: 280px;
-  }
-}
-
-.resume-textarea-container {
-  position: relative;
-}
-
-.resume-textarea {
-  width: 100%;
-}
-
-.resume-textarea .el-textarea__inner {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 16px;
-  border-radius: 6px;
-  border: 2px solid #dcdfe6;
-  transition: border-color 0.3s;
-  resize: vertical;
-  min-height: 300px;
-  max-height: 500px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.resume-textarea .el-textarea__inner:focus {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
-}
-
-.format-tips {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 8px 12px;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 4px;
-  color: #0369a1;
-  font-size: 12px;
-}
-
-.format-tips .el-icon-info {
-  color: #0ea5e9;
-}
-
-.job-form {
-  margin-top: 16px;
-}
-
-.job-form .el-form-item {
-  margin-bottom: 20px;
-}
-
-.action-section {
-  text-align: center;
-  margin: 30px 0;
-}
-
-.action-section .el-button {
-  margin: 0 10px;
-}
-
-.status-section {
-  margin-top: 20px;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .customize-container {
-    padding: 10px;
-  }
-  
-  .section-card {
-    padding: 16px;
-  }
-  
-  .job-form {
-    margin-top: 12px;
-  }
-  
-  .action-section .el-button {
-    display: block;
-    width: 100%;
-    margin: 10px 0;
   }
 }
 </style>
