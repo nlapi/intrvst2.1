@@ -274,11 +274,13 @@ export default {
 }
 
 .openai-icon {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
 }
 
 .azure-icon {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
 }
 
 .card-info {
