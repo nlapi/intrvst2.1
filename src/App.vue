@@ -4,12 +4,9 @@
       <div class="header-container">
         <div class="brand-section">
           <div class="brand-logo">
-            <div class="logo-icon">
-              <span class="logo-text">IS</span>
-            </div>
-            <div class="brand-text">
-              <h1 class="brand-title">InterviewSignal</h1>
-            </div>
+            <h1 class="brand-title">
+              <span class="interview-part">interview</span><span class="signal-part">Signal</span>
+            </h1>
           </div>
         </div>
         
@@ -99,41 +96,33 @@
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.logo-icon {
-  width: 48px;
-  height: 48px;
-  background: #0a66c2;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.logo-text {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
 }
 
 .brand-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #1e293b;
-  line-height: 1.2;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
   margin: 0;
-  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+}
+
+.interview-part {
+  background: #0a66c2;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.signal-part {
+  background: white;
+  color: #0a66c2;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  border: 2px solid #0a66c2;
+  margin-left: -2px;
 }
 
 .navigation {
@@ -220,19 +209,13 @@
     height: 70px;
   }
   
-  .brand-logo {
-    gap: 12px;
-  }
-  
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
-    border-radius: 4px;
-  }
-  
   .brand-title {
-    font-size: 18px;
+    font-size: 22px;
+  }
+  
+  .interview-part,
+  .signal-part {
+    padding: 6px 10px;
   }
   
   .navigation {
@@ -263,8 +246,13 @@
 }
 
 @media (max-width: 480px) {
-  .brand-text {
-    display: none;
+  .brand-title {
+    font-size: 18px;
+  }
+  
+  .interview-part,
+  .signal-part {
+    padding: 4px 8px;
   }
   
   .nav-text {
