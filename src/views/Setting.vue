@@ -307,23 +307,27 @@ export default {
 .info-banner {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px 16px;
   background: #e7f3ff;
   border: 1px solid #0a66c2;
-  border-radius: 12px;
-  margin-bottom: 24px;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
 .banner-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #0a66c2;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
+}
+
+.banner-icon i {
+  font-size: 14px;
 }
 
 .banner-content {
@@ -331,7 +335,7 @@ export default {
 }
 
 .banner-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #004182;
   margin: 0;
   line-height: 1.5;
@@ -340,7 +344,7 @@ export default {
 .banner-link {
   color: #0a66c2;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .banner-link:hover {
@@ -496,31 +500,31 @@ export default {
 }
 
 .language-help {
-  padding: 16px;
+  padding: 12px 16px;
   background: #f1f5f9;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .help-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .help-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #475569;
   font-weight: 500;
 }
 
 .language-tag {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 2px 6px;
   background: #e2e8f0;
   color: #475569;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 600;
   font-family: 'Courier New', monospace;
 }
@@ -528,7 +532,7 @@ export default {
 .help-link {
   color: #0a66c2;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 

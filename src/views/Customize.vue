@@ -437,26 +437,30 @@ export default {
 .input-tip {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px 16px;
   background: #e7f3ff;
   border: 1px solid #0a66c2;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .tip-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #0a66c2;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
+}
+
+.tip-icon i {
+  font-size: 14px;
 }
 
 .tip-text {
-  font-size: 13px;
+  font-size: 12px;
   color: #004182;
   margin: 0;
   line-height: 1.5;
@@ -524,14 +528,14 @@ export default {
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e2e8f0;
-  padding: 32px;
+  padding: 20px 24px;
 }
 
 .action-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
 }
 
 .action-info {
@@ -539,14 +543,14 @@ export default {
 }
 
 .action-title {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: #1e293b;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .action-description {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748b;
   margin: 0;
   line-height: 1.5;
@@ -554,29 +558,31 @@ export default {
 
 .action-buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .save-button {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 24px;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 18px;
   font-weight: 600;
+  font-size: 13px;
   background: linear-gradient(135deg, #0a66c2, #004182);
   border: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .clear-button {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 24px;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 18px;
   font-weight: 600;
+  font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   border: 2px solid #ef4444;
   color: #ef4444;
 }
