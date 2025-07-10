@@ -1,21 +1,13 @@
 <template>
   <div class="interview-workspace">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-info">
-          <h1 class="page-title">Live Interview Session</h1>
-          <p class="page-description">Real-time speech recognition with AI-powered coaching assistance</p>
-        </div>
-        <div class="session-status">
-          <div class="status-indicator" :class="{ active: state === 'ing' }">
-            <div class="status-dot"></div>
-            <span class="status-text">{{ state === 'ing' ? 'Recording' : 'Ready' }}</span>
-          </div>
-          <div class="session-timer">
-            <MyTimer ref="MyTimer"/>
-          </div>
-        </div>
+    <!-- Compact Status Bar -->
+    <div class="status-bar">
+      <div class="status-indicator" :class="{ active: state === 'ing' }">
+        <div class="status-dot"></div>
+        <span class="status-text">{{ state === 'ing' ? 'Recording' : 'Ready' }}</span>
+      </div>
+      <div class="session-timer">
+        <MyTimer ref="MyTimer"/>
       </div>
     </div>
 
@@ -374,61 +366,32 @@ async function sleep(ms) {
   max-width: 100%;
 }
 
-.page-header {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  border-radius: 20px;
-  padding: 32px;
-  color: white;
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
-}
-
-.header-content {
+.status-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
-}
-
-.header-info {
-  flex: 1;
-}
-
-.page-title {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  line-height: 1.2;
-}
-
-.page-description {
-  font-size: 16px;
-  opacity: 0.9;
-  margin: 0;
-  font-weight: 400;
-}
-
-.session-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
 }
 
 .status-indicator {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
+  background: #94a3b8;
   transition: all 0.3s ease;
 }
 
@@ -437,16 +400,15 @@ async function sleep(ms) {
   animation: pulse 2s infinite;
 }
 
-.status-text {
-  font-size: 14px;
-  font-weight: 600;
+.status-indicator.active .status-text {
+  color: #10b981;
 }
 
 .session-timer {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #374151;
 }
 
 .content-grid {
@@ -714,26 +676,10 @@ async function sleep(ms) {
     gap: 24px;
   }
   
-  .page-header {
-    padding: 24px;
-  }
-  
-  .header-content {
+  .status-bar {
+    padding: 12px 16px;
     flex-direction: column;
-    text-align: center;
-    gap: 16px;
-  }
-  
-  .page-title {
-    font-size: 24px;
-  }
-  
-  .page-description {
-    font-size: 14px;
-  }
-  
-  .session-status {
-    align-items: center;
+    gap: 12px;
   }
   
   .panel-header {
