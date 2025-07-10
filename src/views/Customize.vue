@@ -112,44 +112,25 @@
             type="textarea"
             v-model="jobInfo.qualifications"
             placeholder="Required qualifications, skills, experience..."
-            :rows="4"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
-        
-        <el-form-item label="Additional Notes">
-          <el-input
-            type="textarea"
-            v-model="jobInfo.notes"
-            placeholder="Any additional information about the role or company..."
-            :rows="3"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
-      </el-form>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-section">
-      <el-button type="primary" size="large" @click="saveCustomization" :disabled="!isDataValid">
-        <i class="el-icon-check"></i>
-        Save Customization
-      </el-button>
-      <el-button size="large" @click="clearAllData">
-        <i class="el-icon-delete"></i>
-        Clear All Data
-      </el-button>
-    </div>
-
-    <!-- Status Display -->
-    <div v-if="savedStatus" class="status-section">
-      <el-alert
-        :title="savedStatus.title"
-        :type="savedStatus.type"
-        :description="savedStatus.description"
-        show-icon
-        :closable="false"
-      />
+    <div class="resume-input-section">
+      <div class="input-label">
+        <span>Resume Content</span>
+        <span class="char-count">{{ resumeText.length }} characters</span>
+      </div>
+      <div class="resume-textarea-container">
+        <el-input
+          type="textarea"
+          placeholder="Paste your resume content here...&#10;&#10;You can paste large amounts of text - it will be automatically formatted and scrollable."
+          v-model="resumeText"
+          :rows="15"
+          @change="onResumeTextChange"
+          class="resume-textarea"
+        />
+      </div>
+      <div class="format-tips">
+        <i class="el-icon-info"></i>
+        <span>Tip: Paste your complete resume here. Large text will be automatically formatted and scrollable.</span>
+      </div>
     </div>
   </div>
 </template>
@@ -159,10 +140,7 @@ export default {
   name: 'Customize',
   data() {
     return {
-      resumeInputMethod: 'text',
       resumeText: '',
-      pdfText: '',
-      fileList: [],
       jobInfo: {
         position: '',
         company: '',
@@ -177,47 +155,15 @@ export default {
   },
   computed: {
     isDataValid() {
-      const hasResume = this.resumeText.trim() || this.pdfText.trim();
+      const hasResume = this.resumeText.trim();
       const hasJobInfo = this.jobInfo.position.trim() || this.jobInfo.description.trim();
       return hasResume && hasJobInfo;
-    },
-    currentResumeContent() {
-      return this.resumeInputMethod === 'upload' ? this.pdfText : this.resumeText;
     }
   },
   mounted() {
     this.loadSavedData();
   },
   methods: {
-    handleResumeTabClick(tab) {
-      this.resumeInputMethod = tab.name;
-    },
-    
-    handleFileChange(file, fileList) {
-      this.fileList = fileList;
-      if (file.raw && file.raw.type === 'application/pdf') {
-        this.extractPdfText(file.raw);
-      }
-    },
-    
-    async extractPdfText(file) {
-      try {
-        // For now, we'll simulate PDF text extraction
-        // In a real implementation, you'd use a library like pdf-parse or PDF.js
-        this.pdfText = `[PDF Content Extracted from: ${file.name}]\n\nNote: PDF text extraction is simulated. In a real implementation, this would contain the actual extracted text from your PDF resume.\n\nTo implement actual PDF parsing, you would need to integrate a PDF parsing library.`;
-        
-        this.$message.success('PDF uploaded successfully! (Text extraction simulated)');
-      } catch (error) {
-        this.$message.error('Failed to extract text from PDF');
-        console.error('PDF extraction error:', error);
-      }
-    },
-    
-    clearPdfContent() {
-      this.pdfText = '';
-      this.fileList = [];
-    },
-    
     onResumeTextChange() {
       this.saveToLocalStorage();
     },
@@ -228,7 +174,7 @@ export default {
     
     saveCustomization() {
       const customizationData = {
-        resume: this.currentResumeContent,
+        resume: this.resumeText,
         jobInfo: this.jobInfo,
         timestamp: new Date().toISOString()
       };
@@ -253,8 +199,6 @@ export default {
         type: 'warning'
       }).then(() => {
         this.resumeText = '';
-        this.pdfText = '';
-        this.fileList = [];
         this.jobInfo = {
           position: '',
           company: '',
@@ -291,7 +235,7 @@ export default {
     saveToLocalStorage() {
       // Auto-save functionality
       const customizationData = {
-        resume: this.currentResumeContent,
+        resume: this.resumeText,
         jobInfo: this.jobInfo,
         timestamp: new Date().toISOString()
       };
@@ -341,50 +285,69 @@ export default {
   gap: 8px;
 }
 
-.upload-section {
+.resume-input-section {
   margin-top: 16px;
 }
 
-.upload-dragger {
-  width: 100%;
-}
-
-.pdf-preview {
-  margin-top: 20px;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
-
-.pdf-preview h4 {
-  margin-bottom: 12px;
+.input-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
   color: #2c3e50;
 }
 
-.pdf-content {
-  background: white;
-  padding: 12px;
-  border-radius: 4px;
-  max-height: 200px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1.4;
-  border: 1px solid #ddd;
-  margin-bottom: 12px;
-}
-
-.text-input-section {
-  margin-top: 16px;
-}
-
 .char-count {
-  text-align: right;
   color: #999;
   font-size: 12px;
+  font-weight: normal;
+}
+
+.resume-textarea-container {
+  position: relative;
+}
+
+.resume-textarea {
+  width: 100%;
+}
+
+.resume-textarea .el-textarea__inner {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 16px;
+  border-radius: 6px;
+  border: 2px solid #dcdfe6;
+  transition: border-color 0.3s;
+  resize: vertical;
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.resume-textarea .el-textarea__inner:focus {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+}
+
+.format-tips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 8px;
+  padding: 8px 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 4px;
+  color: #0369a1;
+  font-size: 12px;
+}
+
+.format-tips .el-icon-info {
+  color: #0ea5e9;
 }
 
 .job-form {
