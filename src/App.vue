@@ -116,13 +116,9 @@
 }
 
 .signal-part {
-  background: white;
   color: #0a66c2;
-  padding: 6px 8px;
-  border-radius: 4px;
   font-weight: 700;
-  border: 2px solid #0a66c2;
-  margin-left: -2px;
+  font-size: inherit;
 }
 
 .navigation {
