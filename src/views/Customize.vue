@@ -169,6 +169,9 @@ export default {
   data() {
     return {
       resumeText: '',
+      resumeInputMethod: 'upload',
+      pdfText: '',
+      fileList: [],
       jobInfo: {
         position: '',
         company: '',
@@ -268,6 +271,19 @@ export default {
         timestamp: new Date().toISOString()
       };
       localStorage.setItem('interview_customization', JSON.stringify(customizationData));
+    },
+    
+    handleResumeTabClick() {
+      // Handle tab click event
+    },
+    
+    handleFileChange() {
+      // Handle file change event
+    },
+    
+    clearPdfContent() {
+      this.pdfText = '';
+      this.fileList = [];
     }
   }
 }
