@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { getProductByPriceId } from '../stripe-config.ts'
+import { getProductByPriceId } from '../stripe-config'
 
 export default {
   name: 'Success',
