@@ -377,7 +377,7 @@ async function sleep(ms) {
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #10b981;
+  color: #0a66c2;
   margin-right: 16px;
 }
 
@@ -385,7 +385,7 @@ async function sleep(ms) {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
+  background: #0a66c2;
   transition: all 0.3s ease;
   animation: pulse 2s infinite;
 }
@@ -404,8 +404,8 @@ async function sleep(ms) {
   font-size: 14px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  color: #0a66c2;
+  background: rgba(10, 102, 194, 0.1);
   padding: 4px 8px;
   border-radius: 6px;
 }
@@ -454,11 +454,11 @@ async function sleep(ms) {
 }
 
 .speech-icon {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #0a66c2, #004182);
 }
 
 .ai-icon {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #0a66c2, #004182);
 }
 
 .panel-info {
@@ -489,7 +489,7 @@ async function sleep(ms) {
 }
 
 .coaching-button {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, #0a66c2, #004182);
   border: none;
   font-weight: 600;
 }
@@ -553,9 +553,9 @@ async function sleep(ms) {
   border-radius: 28px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #0a66c2, #004182);
   border: none;
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(10, 102, 194, 0.3);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -564,7 +564,7 @@ async function sleep(ms) {
 
 .prominent-start-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 8px -1px rgba(10, 102, 194, 0.4);
 }
 
 .thinking-state {
@@ -589,7 +589,7 @@ async function sleep(ms) {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #0a66c2;
   animation: thinking 1.4s infinite ease-in-out both;
 }
 
@@ -635,14 +635,14 @@ async function sleep(ms) {
   gap: 12px;
   justify-content: center;
   transition: all 0.2s ease;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #d93025, #b52d20);
   border: none;
-  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.3);
 }
 
 .stop-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 6px 8px -1px rgba(217, 48, 37, 0.4);
 }
 
 @keyframes pulse {

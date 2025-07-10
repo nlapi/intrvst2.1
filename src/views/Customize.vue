@@ -358,11 +358,11 @@ export default {
 }
 
 .resume-icon {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, #0a66c2, #004182);
 }
 
 .job-icon {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #0a66c2, #004182);
 }
 
 .card-info {
@@ -427,8 +427,8 @@ export default {
 }
 
 .resume-textarea .el-textarea__inner:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
   background: white;
 }
 
@@ -437,8 +437,8 @@ export default {
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: #e7f3ff;
+  border: 1px solid #0a66c2;
   border-radius: 12px;
 }
 
@@ -448,14 +448,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
+  color: #0a66c2;
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .tip-text {
   font-size: 13px;
-  color: #1e40af;
+  color: #004182;
   margin: 0;
   line-height: 1.5;
 }
@@ -495,8 +495,8 @@ export default {
 }
 
 .modern-input .el-input__inner:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
   background: white;
 }
 
@@ -512,8 +512,8 @@ export default {
 }
 
 .modern-textarea .el-textarea__inner:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
   background: white;
 }
 
@@ -560,7 +560,7 @@ export default {
   padding: 0 24px;
   border-radius: 24px;
   font-weight: 600;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, #0a66c2, #004182);
   border: none;
   display: flex;
   align-items: center;
@@ -580,7 +580,7 @@ export default {
 }
 
 .clear-button:hover {
-  background: #ef4444;
+  background: #d93025;
   color: white;
 }
 
@@ -600,7 +600,7 @@ export default {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-left: 4px solid #10b981;
+  border-left: 4px solid #0a66c2;
   min-width: 320px;
 }
 
@@ -614,7 +614,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10b981;
+  color: #0a66c2;
   font-size: 16px;
 }
 
