@@ -1,5 +1,17 @@
 <template>
   <div id="app">
+    <!-- Authentication Modal -->
+    <AuthModal 
+      :visible="showAuthModal" 
+      @auth-success="handleAuthSuccess"
+    />
+    
+    <!-- Admin Panel -->
+    <AdminPanel 
+      :visible="showAdminPanel" 
+      @update:visible="showAdminPanel = $event"
+    />
+    
     <div class="app-header">
       <div class="header-container">
         <div class="brand-section">
@@ -44,14 +56,114 @@
             <span class="nav-text">Settings</span>
           </router-link>
         </nav>
+        
+        <!-- User Menu or Sign In Button -->
+        <div class="auth-section">
+          <UserMenu 
+            v-if="currentUser"
+            :user="currentUser"
+            @signed-out="handleSignOut"
+            @show-admin="showAdminPanel = true"
+          />
+          <el-button
+            v-else
+            type="primary"
+            @click="showAuthModal = true"
+            class="sign-in-button"
+          >
+            <i class="el-icon-user"></i>
+            <span>Sign In</span>
+          </el-button>
+        </div>
       </div>
     </div>
     
     <main class="app-main">
-      <router-view/>
+      <div v-if="!currentUser && !showAuthModal" class="auth-required-overlay">
+        <div class="auth-required-content">
+          <div class="auth-required-icon">
+            <i class="el-icon-lock"></i>
+          </div>
+          <h3 class="auth-required-title">Authentication Required</h3>
+          <p class="auth-required-description">
+            Please sign in to access InterviewSignal and start your interview preparation journey.
+          </p>
+          <el-button
+            type="primary"
+            size="large"
+            @click="showAuthModal = true"
+            class="auth-required-button"
+          >
+            <i class="el-icon-user"></i>
+            <span>Sign In to Continue</span>
+          </el-button>
+        </div>
+      </div>
+      <router-view v-else/>
     </main>
   </div>
 </template>
+
+<script>
+import AuthModal from '@/components/AuthModal.vue'
+import UserMenu from '@/components/UserMenu.vue'
+import AdminPanel from '@/components/AdminPanel.vue'
+import { authHelpers, supabase } from '@/utils/supabase'
+
+export default {
+  name: 'App',
+  components: {
+    AuthModal,
+    UserMenu,
+    AdminPanel
+  },
+  data() {
+    return {
+      currentUser: null,
+      showAuthModal: false,
+      showAdminPanel: false,
+      authLoading: true
+    }
+  },
+  async mounted() {
+    await this.initializeAuth()
+  },
+  methods: {
+    async initializeAuth() {
+      try {
+        // Get current user
+        this.currentUser = await authHelpers.getCurrentUser()
+        
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+          this.currentUser = session?.user || null
+          
+          if (event === 'SIGNED_IN') {
+            this.showAuthModal = false
+          } else if (event === 'SIGNED_OUT') {
+            this.currentUser = null
+          }
+        })
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+      } finally {
+        this.authLoading = false
+      }
+    },
+
+    handleAuthSuccess(user) {
+      this.currentUser = user
+      this.showAuthModal = false
+      this.$message.success('Welcome to InterviewSignal!')
+    },
+
+    handleSignOut() {
+      this.currentUser = null
+      this.showAdminPanel = false
+    }
+  }
+}
+</script>
 
 <style>
 * {
@@ -86,6 +198,7 @@
   justify-content: space-between;
   padding: 0 32px;
   height: 80px;
+  gap: 24px;
 }
 
 .brand-section {
@@ -124,6 +237,24 @@
 
 .navigation {
   display: flex;
+  gap: 8px;
+}
+
+.auth-section {
+  display: flex;
+  align-items: center;
+}
+
+.sign-in-button {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  border: none;
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -189,6 +320,63 @@
   min-height: calc(100vh - 80px);
 }
 
+.auth-required-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.auth-required-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 40px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.auth-required-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  color: white;
+  font-size: 24px;
+}
+
+.auth-required-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+}
+
+.auth-required-description {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+}
+
+.auth-required-button {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .header-container {
@@ -240,6 +428,10 @@
   .app-main {
     padding: 16px;
   }
+  
+  .auth-section {
+    margin-left: auto;
+  }
 }
 
 @media (max-width: 480px) {
@@ -259,6 +451,17 @@
   .nav-link {
     padding: 8px;
     min-width: 44px;
+  }
+  
+  .sign-in-button {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+  
+  .auth-required-content {
+    padding: 32px 24px;
+    margin: 0 16px;
   }
 }
 </style>
