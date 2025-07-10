@@ -188,7 +188,6 @@
       />
     </div>
   </div>
-</template>
 
 <script>
 export default {
@@ -648,7 +647,6 @@ export default {
     max-width: 280px;
   }
 }
-</style>
 
 .resume-textarea-container {
   position: relative;
@@ -737,4 +735,5 @@ export default {
     margin: 10px 0;
   }
 }
+</style>
 </style>
