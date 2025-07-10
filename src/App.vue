@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="app-header">
+    <div v-if="!isAuthPage" class="app-header">
       <div class="header-container">
         <div class="brand-section">
           <div class="brand-logo">
@@ -34,6 +34,17 @@
           </router-link>
           
           <router-link 
+            to="/pricing" 
+            class="nav-link"
+            :class="{ active: $router.currentRoute.path === '/pricing' }"
+          >
+            <div class="nav-icon">
+              <i class="el-icon-coin"></i>
+            </div>
+            <span class="nav-text">Pricing</span>
+          </router-link>
+          
+          <router-link 
             to="/setting" 
             class="nav-link"
             :class="{ active: $router.currentRoute.path === '/setting' }"
@@ -43,15 +54,72 @@
             </div>
             <span class="nav-text">Settings</span>
           </router-link>
+          
+          <div class="nav-divider"></div>
+          
+          <button @click="handleSignOut" class="nav-link logout-link">
+            <div class="nav-icon">
+              <i class="el-icon-switch-button"></i>
+            </div>
+            <span class="nav-text">Sign Out</span>
+          </button>
         </nav>
       </div>
     </div>
     
-    <main class="app-main">
+    <main class="app-main" :class="{ 'auth-main': isAuthPage }">
+      <SubscriptionStatus v-if="!isAuthPage && user" />
       <router-view/>
     </main>
   </div>
 </template>
+
+<script>
+import { supabase, signOut } from './utils/supabase'
+import SubscriptionStatus from './components/SubscriptionStatus.vue'
+
+export default {
+  name: 'App',
+  components: {
+    SubscriptionStatus
+  },
+  data() {
+    return {
+      user: null
+    }
+  },
+  computed: {
+    isAuthPage() {
+      return ['/login', '/signup'].includes(this.$route.path)
+    }
+  },
+  async mounted() {
+    // Get initial session
+    const { data: { session } } = await supabase.auth.getSession()
+    this.user = session?.user || null
+
+    // Listen for auth changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      this.user = session?.user || null
+      
+      if (event === 'SIGNED_IN') {
+        this.$router.push('/')
+      } else if (event === 'SIGNED_OUT') {
+        this.$router.push('/login')
+      }
+    })
+  },
+  methods: {
+    async handleSignOut() {
+      try {
+        await signOut()
+      } catch (error) {
+        console.error('Error signing out:', error)
+      }
+    }
+  }
+}
+</script>
 
 <style>
 * {
@@ -124,6 +192,7 @@
 
 .navigation {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -139,6 +208,10 @@
   font-weight: 500;
   min-width: 80px;
   position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .nav-icon {
@@ -182,11 +255,35 @@
   color: #3b82f6;
 }
 
+.nav-divider {
+  width: 1px;
+  height: 32px;
+  background: #e2e8f0;
+  margin: 0 8px;
+}
+
+.logout-link:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.logout-link:hover .nav-icon {
+  background: #fecaca;
+  color: #ef4444;
+}
+
 .app-main {
   max-width: 1400px;
   margin: 0 auto;
   padding: 32px;
   min-height: calc(100vh - 80px);
+}
+
+.app-main.auth-main {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
 /* Responsive Design */
