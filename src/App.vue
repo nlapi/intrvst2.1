@@ -5,7 +5,7 @@
         <div class="brand-section">
           <div class="brand-logo">
             <h1 class="brand-title">
-              <span class="interview-part">interview</span><span class="signal-part">Signal</span>
+              <span class="interview-part">Interview</span><span class="signal-part">Signal</span>
             </h1>
           </div>
         </div>
@@ -99,7 +99,7 @@
 }
 
 .brand-title {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
   margin: 0;
@@ -110,7 +110,7 @@
 .interview-part {
   background: #0a66c2;
   color: white;
-  padding: 4px 6px;
+  padding: 6px 8px;
   border-radius: 4px;
   font-weight: 700;
 }
@@ -118,7 +118,7 @@
 .signal-part {
   background: white;
   color: #0a66c2;
-  padding: 4px 6px;
+  padding: 6px 8px;
   border-radius: 4px;
   font-weight: 700;
   border: 2px solid #0a66c2;
@@ -210,12 +210,12 @@
   }
   
   .brand-title {
-    font-size: 11px;
+    font-size: 14px;
   }
   
   .interview-part,
   .signal-part {
-    padding: 3px 5px;
+    padding: 5px 7px;
   }
   
   .navigation {
@@ -247,12 +247,12 @@
 
 @media (max-width: 480px) {
   .brand-title {
-    font-size: 10px;
+    font-size: 12px;
   }
   
   .interview-part,
   .signal-part {
-    padding: 2px 4px;
+    padding: 4px 6px;
   }
   
   .nav-text {
