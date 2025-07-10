@@ -112,25 +112,53 @@
             type="textarea"
             v-model="jobInfo.qualifications"
             placeholder="Required qualifications, skills, experience..."
-    <div class="resume-input-section">
-      <div class="input-label">
-        <span>Resume Content</span>
-        <span class="char-count">{{ resumeText.length }} characters</span>
-      </div>
-      <div class="resume-textarea-container">
-        <el-input
-          type="textarea"
-          placeholder="Paste your resume content here...&#10;&#10;You can paste large amounts of text - it will be automatically formatted and scrollable."
-          v-model="resumeText"
-          :rows="15"
-          @change="onResumeTextChange"
-          class="resume-textarea"
-        />
-      </div>
-      <div class="format-tips">
-        <i class="el-icon-info"></i>
-        <span>Tip: Paste your complete resume here. Large text will be automatically formatted and scrollable.</span>
-      </div>
+            :rows="4"
+            @change="onJobInfoChange"
+          />
+        </el-form-item>
+        
+        <el-form-item label="Additional Notes">
+          <el-input
+            type="textarea"
+            v-model="jobInfo.notes"
+            placeholder="Any additional notes or information..."
+            :rows="3"
+            @change="onJobInfoChange"
+          />
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <!-- Action Section -->
+    <div class="action-section">
+      <el-button 
+        type="primary" 
+        size="large"
+        @click="saveCustomization"
+        :disabled="!isDataValid"
+      >
+        Save Customization
+      </el-button>
+      
+      <el-button 
+        type="danger" 
+        size="large"
+        plain
+        @click="clearAllData"
+      >
+        Clear All Data
+      </el-button>
+    </div>
+
+    <!-- Status Section -->
+    <div v-if="savedStatus" class="status-section">
+      <el-alert
+        :title="savedStatus.title"
+        :type="savedStatus.type"
+        :description="savedStatus.description"
+        show-icon
+        :closable="false"
+      />
     </div>
   </div>
 </template>
