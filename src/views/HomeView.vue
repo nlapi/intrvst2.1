@@ -1,16 +1,5 @@
 <template>
   <div class="interview-workspace">
-    <!-- Compact Status Bar -->
-    <div class="status-bar">
-      <div class="status-indicator" :class="{ active: state === 'ing' }">
-        <div class="status-dot"></div>
-        <span class="status-text">{{ state === 'ing' ? 'Recording' : 'Ready' }}</span>
-      </div>
-      <div class="session-timer">
-        <MyTimer ref="MyTimer"/>
-      </div>
-    </div>
-
     <!-- Main Content Grid -->
     <div class="content-grid">
       <!-- Speech Recognition Panel -->
@@ -25,7 +14,26 @@
               <p class="panel-subtitle">Live conversation transcript</p>
             </div>
           </div>
-          <div class="panel-controls">
+          <div class="panel-controls" v-if="state === 'ing'">
+            <div class="recording-indicator">
+              <div class="recording-dot"></div>
+              <span class="recording-text">Recording</span>
+              <div class="session-timer">
+                <MyTimer ref="MyTimer"/>
+              </div>
+            </div>
+            <el-button 
+              type="text" 
+              icon="el-icon-delete" 
+              :disabled="!currentText" 
+              @click="clearASRContent"
+              class="control-button"
+              size="small"
+            >
+              Clear
+            </el-button>
+          </div>
+          <div class="panel-controls" v-else>
             <el-button 
               type="text" 
               icon="el-icon-delete" 
@@ -45,7 +53,22 @@
               <i class="el-icon-chat-dot-round"></i>
             </div>
             <h4 class="empty-title">Ready to Listen</h4>
-            <p class="empty-description">Start the interview session to see the conversation transcript here</p>
+            <p class="empty-description">Click the start button to begin recording</p>
+            
+            <!-- Prominent Start Button -->
+            <div class="start-button-container" v-if="state === 'end'">
+              <el-button
+                size="large"
+                type="success"
+                @click="startCopilot" 
+                :loading="copilot_starting"
+                :disabled="copilot_starting"
+                class="prominent-start-button"
+              >
+                <i class="el-icon-video-play"></i>
+                <span>Start Interview Session</span>
+              </el-button>
+            </div>
           </div>
           <div v-else class="transcript-content">
             <div class="transcript-text">{{ currentText }}</div>
@@ -107,36 +130,18 @@
       </div>
     </div>
 
-    <!-- Control Center -->
-    <div class="control-center">
-      <div class="control-panel">
-        <div class="control-section">
-          <el-button
-            size="large"
-            type="success"
-            @click="startCopilot" 
-            v-show="state==='end'" 
-            :loading="copilot_starting"
-            :disabled="copilot_starting"
-            class="primary-control start-control"
-          >
-            <i class="el-icon-video-play"></i>
-            <span>Start Interview Session</span>
-          </el-button>
-          
-          <el-button
-            size="large"
-            type="danger"
-            :loading="copilot_stopping"
-            @click="userStopCopilot" 
-            v-show="state==='ing'"
-            class="primary-control stop-control"
-          >
-            <i class="el-icon-video-pause"></i>
-            <span>Stop Session</span>
-          </el-button>
-        </div>
-      </div>
+    <!-- Stop Button (when recording) -->
+    <div class="stop-control-center" v-if="state === 'ing'">
+      <el-button
+        size="large"
+        type="danger"
+        :loading="copilot_stopping"
+        @click="userStopCopilot"
+        class="stop-button"
+      >
+        <i class="el-icon-video-pause"></i>
+        <span>Stop Session</span>
+      </el-button>
     </div>
   </div>
 </template>
@@ -362,53 +367,47 @@ async function sleep(ms) {
 .interview-workspace {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   max-width: 100%;
 }
 
-.status-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  margin-bottom: 24px;
-}
-
-.status-indicator {
+.recording-indicator {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #64748b;
+  color: #10b981;
+  margin-right: 16px;
 }
 
-.status-dot {
+.recording-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #94a3b8;
-  transition: all 0.3s ease;
-}
-
-.status-indicator.active .status-dot {
   background: #10b981;
+  transition: all 0.3s ease;
   animation: pulse 2s infinite;
 }
 
-.status-indicator.active .status-text {
-  color: #10b981;
+.recording-text {
+  font-weight: 600;
+}
+
+.panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .session-timer {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
-  color: #374151;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .content-grid {
@@ -425,7 +424,7 @@ async function sleep(ms) {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: 500px;
 }
 
 .panel-header {
@@ -478,11 +477,6 @@ async function sleep(ms) {
   font-size: 14px;
   color: #64748b;
   margin: 0;
-}
-
-.panel-controls {
-  display: flex;
-  gap: 8px;
 }
 
 .control-button {
@@ -549,6 +543,30 @@ async function sleep(ms) {
   line-height: 1.5;
 }
 
+.start-button-container {
+  margin-top: 16px;
+}
+
+.prominent-start-button {
+  height: 56px;
+  padding: 0 32px;
+  border-radius: 28px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.prominent-start-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+}
+
 .thinking-state {
   display: flex;
   flex-direction: column;
@@ -596,25 +614,17 @@ async function sleep(ms) {
   word-wrap: break-word;
 }
 
-.control-center {
+.stop-control-center {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e2e8f0;
-  padding: 32px;
-}
-
-.control-panel {
+  padding: 20px;
   display: flex;
   justify-content: center;
 }
 
-.control-section {
-  display: flex;
-  gap: 16px;
-}
-
-.primary-control {
+.stop-button {
   height: 56px;
   padding: 0 32px;
   border-radius: 28px;
@@ -623,29 +633,14 @@ async function sleep(ms) {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 200px;
   justify-content: center;
   transition: all 0.2s ease;
-}
-
-.start-control {
-  background: linear-gradient(135deg, #10b981, #059669);
-  border: none;
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
-}
-
-.start-control:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
-}
-
-.stop-control {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   border: none;
   box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
 }
 
-.stop-control:hover {
+.stop-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.4);
 }
@@ -667,7 +662,7 @@ async function sleep(ms) {
   }
   
   .panel {
-    height: 500px;
+    height: 400px;
   }
 }
 
@@ -676,10 +671,10 @@ async function sleep(ms) {
     gap: 24px;
   }
   
-  .status-bar {
-    padding: 12px 16px;
+  .recording-indicator {
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    margin-right: 8px;
   }
   
   .panel-header {
@@ -693,16 +688,11 @@ async function sleep(ms) {
     padding: 20px;
   }
   
-  .control-center {
+  .stop-control-center {
     padding: 24px;
   }
   
-  .control-section {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .primary-control {
+  .stop-button, .prominent-start-button {
     width: 100%;
   }
 }
