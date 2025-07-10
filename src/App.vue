@@ -99,7 +99,7 @@
 }
 
 .brand-title {
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
   margin: 0;
@@ -110,7 +110,7 @@
 .interview-part {
   background: #0a66c2;
   color: white;
-  padding: 8px 12px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-weight: 700;
 }
@@ -118,7 +118,7 @@
 .signal-part {
   background: white;
   color: #0a66c2;
-  padding: 8px 12px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-weight: 700;
   border: 2px solid #0a66c2;
@@ -233,7 +233,7 @@
   }
   
   .nav-icon i {
-    font-size: 16px;
+    font-size: 12px;
   }
   
   .nav-text {
@@ -247,12 +247,12 @@
 
 @media (max-width: 480px) {
   .brand-title {
-    font-size: 18px;
+    font-size: 13px;
   }
   
   .interview-part,
   .signal-part {
-    padding: 4px 8px;
+    padding: 3px 6px;
   }
   
   .nav-text {
