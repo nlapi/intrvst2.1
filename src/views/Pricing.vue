@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { products } from '../stripe-config'
+import { products } from '../stripe-config.ts'
 import { supabase } from '../utils/supabase'
 
 export default {

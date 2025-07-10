@@ -15,7 +15,7 @@
 
 <script>
 import { getUserSubscription } from '../utils/supabase'
-import { getProductByPriceId } from '../stripe-config'
+import { getProductByPriceId } from '../stripe-config.ts'
 
 export default {
   name: 'SubscriptionStatus',
