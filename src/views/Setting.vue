@@ -41,20 +41,22 @@
             
             <div class="form-group">
               <label class="form-label">GPT Model</label>
-              <div class="model-selector">
-                <div 
-                  v-for="model in availableModels" 
-                  :key="model.value"
-                  class="model-option"
-                  :class="{ selected: gpt_model === model.value }"
-                  @click="selectModel(model.value)"
-                >
-                  <div class="model-radio">
-                    <div class="radio-dot" :class="{ active: gpt_model === model.value }"></div>
-                  </div>
-                  <div class="model-info">
-                    <div class="model-name">{{ model.name }}</div>
-                    <div class="model-desc">{{ model.description }}</div>
+              <div class="model-selector-grid">
+                <div class="model-row">
+                  <div 
+                    v-for="model in availableModels" 
+                    :key="model.value"
+                    class="model-option"
+                    :class="{ selected: gpt_model === model.value }"
+                    @click="selectModel(model.value)"
+                  >
+                    <div class="model-radio">
+                      <div class="radio-dot" :class="{ active: gpt_model === model.value }"></div>
+                    </div>
+                    <div class="model-info">
+                      <div class="model-name">{{ model.name }}</div>
+                      <div class="model-desc">{{ model.description }}</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -406,9 +408,22 @@ export default {
   background: white;
 }
 
-.model-selector {
+.model-selector-grid {
+  width: 100%;
+}
+
+.model-row {
   display: flex;
-  flex-direction: column;
+  gap: 16px;
+}
+
+.model-row .model-option {
+  flex: 1;
+}
+
+.model-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
@@ -588,6 +603,10 @@ export default {
 @media (max-width: 1024px) {
   .form-row {
     grid-template-columns: 1fr;
+  }
+  
+  .model-row {
+    flex-direction: column;
   }
 }
 

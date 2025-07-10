@@ -18,9 +18,7 @@
             <div class="recording-indicator">
               <div class="recording-dot"></div>
               <span class="recording-text">Recording</span>
-              <div class="session-timer">
-                <MyTimer ref="MyTimer"/>
-              </div>
+              <MyTimer ref="MyTimer" class="session-timer"/>
             </div>
             <el-button 
               type="text" 
@@ -130,18 +128,22 @@
       </div>
     </div>
 
-    <!-- Stop Button (when recording) -->
-    <div class="stop-control-center" v-if="state === 'ing'">
-      <el-button
-        size="large"
-        type="danger"
-        :loading="copilot_stopping"
-        @click="userStopCopilot"
-        class="stop-button"
-      >
-        <i class="el-icon-video-pause"></i>
-        <span>Stop Session</span>
-      </el-button>
+    <!-- Compact Stop Button (when recording) -->
+    <div class="compact-stop-control" v-if="state === 'ing'">
+      <div class="stop-control-content">
+        <div class="stop-info">
+          <span class="stop-text">Recording in progress...</span>
+        </div>
+        <el-button
+          type="danger"
+          :loading="copilot_stopping"
+          @click="userStopCopilot"
+          class="compact-stop-button"
+        >
+          <i class="el-icon-video-pause"></i>
+          <span>Stop</span>
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -323,7 +325,9 @@ export default {
           () => {
             this.copilot_starting = false
             this.state = "ing"
-            this.$refs.MyTimer.start()
+            if (this.$refs.MyTimer) {
+              this.$refs.MyTimer.start()
+            }
             window.console.log("recognition started");
           },
           (err) => {
@@ -338,7 +342,9 @@ export default {
         console.log("stoped")
         this.copilot_stopping = false
         this.state = "end"
-        this.$refs.MyTimer.stop()
+        if (this.$refs.MyTimer) {
+          this.$refs.MyTimer.stop()
+        }
       }, (err) => {
         console.log("err:", err)
       })
@@ -401,13 +407,14 @@ async function sleep(ms) {
 }
 
 .session-timer {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
   color: #0a66c2;
   background: rgba(10, 102, 194, 0.1);
-  padding: 4px 8px;
+  padding: 2px 6px;
   border-radius: 6px;
+  margin-left: 8px;
 }
 
 .content-grid {
@@ -614,35 +621,53 @@ async function sleep(ms) {
   word-wrap: break-word;
 }
 
-.stop-control-center {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
+.compact-stop-control {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
 }
 
-.stop-button {
-  height: 56px;
-  padding: 0 32px;
-  border-radius: 28px;
-  font-size: 16px;
-  font-weight: 600;
+.stop-control-content {
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-content: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+}
+
+.stop-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stop-text {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.compact-stop-button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: all 0.2s ease;
   background: linear-gradient(135deg, #d93025, #b52d20);
   border: none;
-  box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.3);
+  box-shadow: 0 2px 4px -1px rgba(217, 48, 37, 0.3);
 }
 
-.stop-button:hover {
+.compact-stop-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 8px -1px rgba(217, 48, 37, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.4);
 }
 
 @keyframes pulse {
