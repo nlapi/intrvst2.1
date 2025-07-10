@@ -105,20 +105,21 @@
 .logo-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  border-radius: 12px;
+  background: #0a66c2;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logo-text {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.025em;
 }
 
 .brand-text {
@@ -127,11 +128,12 @@
 }
 
 .brand-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 600;
   color: #1e293b;
   line-height: 1.2;
   margin: 0;
+  letter-spacing: -0.025em;
 }
 
 .navigation {
@@ -223,13 +225,14 @@
   }
   
   .logo-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    border-radius: 4px;
   }
   
   .brand-title {
-    font-size: 20px;
+    font-size: 18px;
   }
   
   .navigation {
