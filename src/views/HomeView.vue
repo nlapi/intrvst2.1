@@ -1,46 +1,103 @@
 <template>
-  <div class="homeview_container">
-    <div class="center_container">
-      <div class="box">
-        <div class="func_desc">
+  <div class="modern-homeview">
+    <div class="interview-header">
+      <h1 class="page-title">Live Interview Assistant</h1>
+      <p class="page-subtitle">Real-time speech recognition with AI-powered coaching</p>
+    </div>
+    
+    <div class="interview-panels">
+      <div class="panel speech-panel">
+        <div class="panel-header">
           <i class="el-icon-microphone"></i>
-          Speech Recognition Results
+          <span class="panel-title">Speech Recognition</span>
+          <div class="panel-status" :class="{ active: state === 'ing' }"></div>
         </div>
-        <div v-if="!currentText" style="color: gray">No Content</div>
-        <div class="asr_content">{{ currentText }}</div>
-        <div class="single_part_bottom_bar">
-          <el-button icon="el-icon-delete" :disabled="!currentText" @click="clearASRContent">
+        <div class="panel-content">
+          <div v-if="!currentText" class="empty-state">
+            <i class="el-icon-chat-dot-round"></i>
+            <p>Conversation will appear here...</p>
+          </div>
+          <div v-else class="transcript-content">{{ currentText }}</div>
+        </div>
+        <div class="panel-actions">
+          <el-button 
+            type="text" 
+            icon="el-icon-delete" 
+            :disabled="!currentText" 
+            @click="clearASRContent"
+            class="action-btn"
+          >
             Clear Text
           </el-button>
         </div>
       </div>
-      <div class="box" style="border-left: none;">
-        <div class="func_desc">
+      
+      <div class="panel ai-panel">
+        <div class="panel-header">
           <i class="el-icon-s-custom"></i>
-          GPT Answer
+          <span class="panel-title">AI Coaching</span>
+          <div v-if="show_ai_thinking_effect" class="thinking-indicator">
+            <div class="thinking-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
         </div>
-        <LoadingIcon v-show="show_ai_thinking_effect"/>
-        <div class="ai_result_content">{{ ai_result }}</div>
-        <div class="single_part_bottom_bar">
-          <el-button icon="el-icon-thumb" @click="askCurrentText" :disabled="!isGetGPTAnswerAvailable">
-            Ask GPT
+        <div class="panel-content">
+          <div v-if="!ai_result && !show_ai_thinking_effect" class="empty-state">
+            <i class="el-icon-lightbulb"></i>
+            <p>AI coaching suggestions will appear here...</p>
+          </div>
+          <div v-else class="ai-response">{{ ai_result }}</div>
+        </div>
+        <div class="panel-actions">
+          <el-button 
+            type="primary" 
+            icon="el-icon-magic-stick" 
+            @click="askCurrentText" 
+            :disabled="!isGetGPTAnswerAvailable"
+            :loading="show_ai_thinking_effect"
+            class="action-btn primary"
+          >
+            Get AI Coaching
           </el-button>
         </div>
       </div>
     </div>
-    <div class="title_function_bar">
-      <el-button
-          type="success"
-          @click="startCopilot" v-show="state==='end'" :loading="copilot_starting"
-          :disabled="copilot_starting">Start Copilot
-      </el-button>
-      <el-button
-          :loading="copilot_stopping"
-          @click="userStopCopilot" v-show="state==='ing'">Stop Copilot
-      </el-button>
-      <MyTimer ref="MyTimer"/>
+    
+    <div class="control-center">
+      <div class="control-panel">
+        <div class="timer-section">
+          <MyTimer ref="MyTimer"/>
+        </div>
+        <div class="control-buttons">
+          <el-button
+            size="large"
+            type="success"
+            @click="startCopilot" 
+            v-show="state==='end'" 
+            :loading="copilot_starting"
+            :disabled="copilot_starting"
+            class="control-btn start-btn"
+          >
+            <i class="el-icon-video-play"></i>
+            Start Interview
+          </el-button>
+          <el-button
+            size="large"
+            type="danger"
+            :loading="copilot_stopping"
+            @click="userStopCopilot" 
+            v-show="state==='ing'"
+            class="control-btn stop-btn"
+          >
+            <i class="el-icon-video-pause"></i>
+            Stop Interview
+          </el-button>
+        </div>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -270,41 +327,268 @@ async function sleep(ms) {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.homeview_container {
-  display: flex;
-  flex-direction: column;
+.modern-homeview {
+  background: #f3f2ef;
+  min-height: calc(100vh - 88px);
+  padding: 0;
 }
 
-.title_function_bar {
-  margin-top: 10px;
+.interview-header {
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  color: white;
+  padding: 40px 0;
   text-align: center;
-  margin-bottom: 10px;
+  margin: -24px -24px 32px -24px;
 }
 
-.center_container {
-  flex-grow: 1;
+.page-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 400;
+}
+
+.interview-panels {
   display: flex;
-  height: calc(100vh - 150px);
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-.box {
-  flex: 1; /* 设置flex属性为1，使两个div平分父容器的宽度 */
-  border: 1px lightgray solid; /* 为了演示，添加边框样式 */
-  padding: 10px; /* 为了演示，添加内边距 */
-  white-space: pre-wrap;
+.panel {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 500px;
 }
 
-.asr_content {
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.panel-header i {
+  font-size: 20px;
+  color: #0a66c2;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.panel-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  margin-left: auto;
+}
+
+.panel-status.active {
+  background: #52c41a;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.thinking-indicator {
+  margin-left: auto;
+}
+
+.thinking-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0a66c2;
+  animation: thinking 1.4s infinite ease-in-out both;
+}
+
+.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes thinking {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.panel-content {
+  flex: 1;
+  padding: 24px;
   overflow-y: auto;
-  flex-grow: 1;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-
-.func_desc {
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
   text-align: center;
 }
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.transcript-content, .ai-response {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #2c3e50;
+}
+
+.panel-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.action-btn {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  border: none;
+}
+
+.control-center {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
+  padding: 24px;
+}
+
+.control-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.timer-section {
+  font-size: 24px;
+  font-weight: 600;
+  color: #0a66c2;
+  font-family: 'Courier New', monospace;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.control-btn {
+  height: 48px;
+  padding: 0 32px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #52c41a, #389e0d);
+  border: none;
+}
+
+.stop-btn {
+  background: linear-gradient(135deg, #ff4d4f, #cf1322);
+  border: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .interview-panels {
+    flex-direction: column;
+  }
+  
+  .panel {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .interview-header {
+    padding: 24px 16px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .page-subtitle {
+    font-size: 14px;
+  }
+  
+  .control-panel {
+    flex-direction: column;
+    gap: 16px;
+  text-align: center;
+  }
+  
+  .control-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .control-btn {
+    flex: 1;
+    min-width: auto;
+  }
+  
+  .panel-content {
+    padding: 16px;
+  }
+  
+  .panel-header {
+    padding: 16px;
+  }
+}
+</style>
 
 .single_part_bottom_bar {
   display: flex;

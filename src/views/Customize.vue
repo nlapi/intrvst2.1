@@ -1,137 +1,184 @@
 <template>
   <div class="customize-container">
-    <div class="page-header">
-      <h1>Customize Your Interview Preparation</h1>
-      <p class="desc-text">Upload your resume and provide job details to get personalized interview assistance</p>
-    </div>
-
-    <!-- Resume Section -->
-    <div class="section-card">
-      <h2 class="section-title">
-        <i class="el-icon-document"></i>
-        Resume Information
-      </h2>
-      
-      <div class="resume-input-section">
-        <div class="input-label">
-          <span>Paste Resume</span>
-          <span class="char-count">{{ resumeText.length }} characters</span>
+<template>
+  <div class="customize-container">
+    <div class="modern-page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="el-icon-user"></i>
         </div>
-        <div class="resume-textarea-container">
-          <el-input
-            type="textarea"
-            placeholder="Paste your resume content here..."
-            v-model="resumeText"
-            @change="onResumeTextChange"
-            class="resume-textarea"
-          />
-        </div>
-        <div class="format-tips">
-          <i class="el-icon-info"></i>
-          <span>Paste your complete resume here. The formatting will be preserved and used to provide personalized interview assistance.</span>
+        <div class="header-text">
+          <h1 class="header-title">Build Your Profile</h1>
+          <p class="header-subtitle">Add your resume and job details for personalized interview coaching</p>
         </div>
       </div>
     </div>
 
-    <!-- Job Information Section -->
-    <div class="section-card">
-      <h2 class="section-title">
-        <i class="el-icon-suitcase"></i>
-        Job Information
-      </h2>
+    <div class="profile-sections">
+      <!-- Resume Section -->
+      <div class="modern-card">
+        <div class="card-header">
+          <div class="card-icon resume-icon">
+            <i class="el-icon-document"></i>
+          </div>
+          <div class="card-title-section">
+            <h2 class="card-title">Resume Information</h2>
+            <p class="card-subtitle">Your professional background and experience</p>
+          </div>
+        </div>
       
-      <el-form :model="jobInfo" label-width="140px" class="job-form">
-        <el-form-item label="Job Position">
-          <el-input 
-            v-model="jobInfo.position" 
-            placeholder="e.g., Senior Software Engineer"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
+        <div class="card-content">
+          <div class="resume-input-section">
+            <div class="input-header">
+              <label class="input-label">Paste Resume</label>
+              <span class="char-counter">{{ resumeText.length }} characters</span>
+            </div>
+            <div class="modern-textarea-container">
+              <el-input
+                type="textarea"
+                placeholder="Paste your complete resume here... Include your experience, skills, education, and achievements."
+                v-model="resumeText"
+                @change="onResumeTextChange"
+                class="modern-textarea"
+              />
+            </div>
+            <div class="input-tip">
+              <i class="el-icon-info"></i>
+              <span>Your resume will be used to provide personalized interview coaching and talking points</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Job Information Section -->
+      <div class="modern-card">
+        <div class="card-header">
+          <div class="card-icon job-icon">
+            <i class="el-icon-suitcase"></i>
+          </div>
+          <div class="card-title-section">
+            <h2 class="card-title">Target Position</h2>
+            <p class="card-subtitle">Details about the role you're interviewing for</p>
+          </div>
+        </div>
+      
+        <div class="card-content">
+          <div class="modern-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Job Position</label>
+                <el-input 
+                  v-model="jobInfo.position" 
+                  placeholder="e.g., Senior Software Engineer"
+                  @change="onJobInfoChange"
+                  class="modern-input"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company</label>
+                <el-input 
+                  v-model="jobInfo.company" 
+                  placeholder="e.g., Google, Microsoft, etc."
+                  @change="onJobInfoChange"
+                  class="modern-input"
+                />
+              </div>
+            </div>
         
-        <el-form-item label="Company">
-          <el-input 
-            v-model="jobInfo.company" 
-            placeholder="e.g., Google, Microsoft, etc."
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
+            <div class="form-group">
+              <label class="form-label">Job Description</label>
+              <el-input
+                type="textarea"
+                v-model="jobInfo.description"
+                placeholder="Paste the complete job description here..."
+                :rows="4"
+                @change="onJobInfoChange"
+                class="modern-textarea"
+              />
+            </div>
         
-        <el-form-item label="Job Description">
-          <el-input
-            type="textarea"
-            v-model="jobInfo.description"
-            placeholder="Paste the job description here..."
-            :rows="4"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
+            <div class="form-group">
+              <label class="form-label">Requirements</label>
+              <el-input
+                type="textarea"
+                v-model="jobInfo.requirements"
+                placeholder="List the key requirements and qualifications..."
+                :rows="3"
+                @change="onJobInfoChange"
+                class="modern-textarea"
+              />
+            </div>
         
-        <el-form-item label="Requirements">
-          <el-input
-            type="textarea"
-            v-model="jobInfo.requirements"
-            placeholder="List the key requirements and qualifications..."
-            :rows="4"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Responsibilities</label>
+                <el-input
+                  type="textarea"
+                  v-model="jobInfo.responsibilities"
+                  placeholder="Main responsibilities and duties..."
+                  :rows="3"
+                  @change="onJobInfoChange"
+                  class="modern-textarea"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Qualifications</label>
+                <el-input
+                  type="textarea"
+                  v-model="jobInfo.qualifications"
+                  placeholder="Required qualifications, skills, experience..."
+                  :rows="3"
+                  @change="onJobInfoChange"
+                  class="modern-textarea"
+                />
+              </div>
+            </div>
         
-        <el-form-item label="Responsibilities">
-          <el-input
-            type="textarea"
-            v-model="jobInfo.responsibilities"
-            placeholder="Main responsibilities and duties..."
-            :rows="4"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
-        
-        <el-form-item label="Qualifications">
-          <el-input
-            type="textarea"
-            v-model="jobInfo.qualifications"
-            placeholder="Required qualifications, skills, experience..."
-            :rows="4"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
-        
-        <el-form-item label="Additional Notes">
-          <el-input
-            type="textarea"
-            v-model="jobInfo.notes"
-            placeholder="Any additional notes or information..."
-            :rows="3"
-            @change="onJobInfoChange"
-          />
-        </el-form-item>
-      </el-form>
+            <div class="form-group">
+              <label class="form-label">Additional Notes</label>
+              <el-input
+                type="textarea"
+                v-model="jobInfo.notes"
+                placeholder="Any additional notes or information about the role..."
+                :rows="2"
+                @change="onJobInfoChange"
+                class="modern-textarea"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Action Section -->
-    <div class="action-section">
-      <el-button 
-        type="primary" 
-        size="large"
-        @click="saveCustomization"
-        :disabled="!isDataValid"
-      >
-        Save Customization
-      </el-button>
-      
-      <el-button 
-        type="danger" 
-        size="large"
-        plain
-        @click="clearAllData"
-      >
-        Clear All Data
-      </el-button>
+    <div class="action-center">
+      <div class="action-buttons">
+        <el-button 
+          type="primary" 
+          size="large"
+          @click="saveCustomization"
+          :disabled="!isDataValid"
+          class="save-btn"
+        >
+          <i class="el-icon-check"></i>
+          Save Profile
+        </el-button>
+        
+        <el-button 
+          type="danger" 
+          size="large"
+          plain
+          @click="clearAllData"
+          class="clear-btn"
+        >
+          <i class="el-icon-delete"></i>
+          Clear All Data
+        </el-button>
+      </div>
     </div>
 
     <!-- Status Section -->
-    <div v-if="savedStatus" class="status-section">
+    <div v-if="savedStatus" class="status-notification">
       <el-alert
         :title="savedStatus.title"
         :type="savedStatus.type"
@@ -256,62 +303,352 @@ export default {
 
 <style scoped>
 .customize-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0;
+  background: #f3f2ef;
+  min-height: calc(100vh - 88px);
 }
 
-.page-header {
-  text-align: center;
-  margin-bottom: 30px;
+.modern-page-header {
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  color: white;
+  padding: 48px 0;
+  margin: -24px -24px 32px -24px;
 }
 
-.page-header h1 {
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.desc-text {
-  color: #666;
-  font-size: 14px;
-}
-
-.section-card {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid #ebeef5;
-}
-
-.section-title {
-  color: #2c3e50;
-  margin-bottom: 20px;
-  font-size: 18px;
+.header-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 400;
+}
+
+.profile-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.modern-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, #fafafa, #f5f5f5);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.resume-icon {
+  background: linear-gradient(135deg, #52c41a, #389e0d);
+}
+
+.job-icon {
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+}
+
+.card-title-section {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.card-content {
+  padding: 32px;
 }
 
 .resume-input-section {
-  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.input-label {
+.input-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  font-weight: 500;
+}
+
+.input-label {
+  font-size: 16px;
+  font-weight: 600;
   color: #2c3e50;
 }
 
-.char-count {
-  color: #999;
+.char-counter {
   font-size: 12px;
-  font-weight: normal;
+  color: #999;
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
+
+.modern-textarea-container {
+  position: relative;
+}
+
+.modern-textarea .el-textarea__inner {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+  resize: vertical;
+  min-height: 320px;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: #fafafa;
+}
+
+.modern-textarea .el-textarea__inner:focus {
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  background: white;
+}
+
+.input-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 8px;
+  color: #0050b3;
+  font-size: 13px;
+}
+
+.input-tip .el-icon-info {
+  color: #1890ff;
+}
+
+.modern-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.modern-input .el-input__inner {
+  height: 48px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  padding: 0 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.modern-input .el-input__inner:focus {
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  background: white;
+}
+
+.modern-textarea .el-textarea__inner {
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  resize: vertical;
+}
+
+.modern-textarea .el-textarea__inner:focus {
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  background: white;
+}
+
+.action-center {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+  padding: 32px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.save-btn {
+  height: 48px;
+  padding: 0 32px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.clear-btn {
+  height: 48px;
+  padding: 0 32px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  justify-content: center;
+  border: 2px solid #ff4d4f;
+  color: #ff4d4f;
+}
+
+.clear-btn:hover {
+  background: #ff4d4f;
+  color: white;
+}
+
+.status-notification {
+  margin-top: 24px;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .modern-page-header {
+    padding: 32px 0;
+  }
+  
+  .header-content {
+    padding: 0 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .header-title {
+    font-size: 24px;
+  }
+  
+  .header-subtitle {
+    font-size: 14px;
+  }
+  
+  .card-header {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .save-btn, .clear-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+</style>
 
 .resume-textarea-container {
   position: relative;
