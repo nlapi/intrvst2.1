@@ -93,7 +93,48 @@ export default {
       this.show_ai_thinking_effect = true
       const model = config_util.gpt_model()
       const gpt_system_prompt = config_util.gpt_system_prompt()
-      content = gpt_system_prompt + "\n" + content
+      
+      // Get customization data
+      const customizationData = this.getCustomizationData()
+      
+      // Build comprehensive prompt with context
+      let fullPrompt = gpt_system_prompt
+      
+      if (customizationData.hasData) {
+        fullPrompt += "\n\n=== CANDIDATE CONTEXT ===\n"
+        
+        if (customizationData.resume) {
+          fullPrompt += "MY RESUME:\n" + customizationData.resume + "\n\n"
+        }
+        
+        if (customizationData.jobInfo.position || customizationData.jobInfo.company) {
+          fullPrompt += "TARGET POSITION: " + customizationData.jobInfo.position
+          if (customizationData.jobInfo.company) {
+            fullPrompt += " at " + customizationData.jobInfo.company
+          }
+          fullPrompt += "\n\n"
+        }
+        
+        if (customizationData.jobInfo.description) {
+          fullPrompt += "JOB DESCRIPTION:\n" + customizationData.jobInfo.description + "\n\n"
+        }
+        
+        if (customizationData.jobInfo.requirements) {
+          fullPrompt += "JOB REQUIREMENTS:\n" + customizationData.jobInfo.requirements + "\n\n"
+        }
+        
+        if (customizationData.jobInfo.responsibilities) {
+          fullPrompt += "KEY RESPONSIBILITIES:\n" + customizationData.jobInfo.responsibilities + "\n\n"
+        }
+        
+        if (customizationData.jobInfo.qualifications) {
+          fullPrompt += "REQUIRED QUALIFICATIONS:\n" + customizationData.jobInfo.qualifications + "\n\n"
+        }
+        
+        fullPrompt += "=== END CONTEXT ===\n\n"
+      }
+      
+      fullPrompt += "INTERVIEW TRANSCRIPT:\n" + content
 
       try {
         if (!apiKey) {
@@ -103,7 +144,7 @@ export default {
         const openai = new OpenAI({apiKey: apiKey, dangerouslyAllowBrowser: true})
         const stream = await openai.chat.completions.create({
           model: model,
-          messages: [{role: "user", content: content}],
+          messages: [{role: "user", content: fullPrompt}],
           stream: true,
         });
         this.show_ai_thinking_effect = false
@@ -115,6 +156,24 @@ export default {
       } catch (e) {
         this.show_ai_thinking_effect = false
         this.ai_result = "" + e
+      }
+    },
+    getCustomizationData() {
+      const saved = localStorage.getItem('interview_customization')
+      if (!saved) {
+        return { hasData: false }
+      }
+      
+      try {
+        const data = JSON.parse(saved)
+        return {
+          hasData: true,
+          resume: data.resume || '',
+          jobInfo: data.jobInfo || {}
+        }
+      } catch (error) {
+        console.error('Error loading customization data:', error)
+        return { hasData: false }
       }
     },
     clearASRContent() {
