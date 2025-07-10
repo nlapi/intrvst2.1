@@ -119,6 +119,7 @@
   color: #0a66c2;
   font-weight: 700;
   font-size: inherit;
+  margin-left: 4px;
 }
 
 .navigation {
