@@ -5,11 +5,10 @@
         <div class="brand-section">
           <div class="brand-logo">
             <div class="logo-icon">
-              <i class="el-icon-microphone"></i>
+              <span class="logo-text">IS</span>
             </div>
             <div class="brand-text">
-              <h1 class="brand-title">Interview Copilot</h1>
-              <p class="brand-subtitle">AI-Powered Interview Assistant</p>
+              <h1 class="brand-title">InterviewSignal</h1>
             </div>
           </div>
         </div>
@@ -116,6 +115,12 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
 .brand-text {
   display: flex;
   flex-direction: column;
@@ -127,14 +132,6 @@
   color: #1e293b;
   line-height: 1.2;
   margin: 0;
-}
-
-.brand-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  font-weight: 500;
-  margin: 0;
-  line-height: 1;
 }
 
 .navigation {
@@ -233,10 +230,6 @@
   
   .brand-title {
     font-size: 20px;
-  }
-  
-  .brand-subtitle {
-    font-size: 11px;
   }
   
   .navigation {
