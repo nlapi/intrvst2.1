@@ -1,10 +1,6 @@
 <template>
   <div>
 
-    <div class="desc_text">
-      The following settings are only retained locally in your browser.
-      See <a :href="github_url" target="_blank">Github</a> for setup instructions.
-    </div>
 
     <h1>Open AI</h1>
     <div class="desc_text">To use GPT, you need an API Key from the <a :href="open_ai_api_url" target="_blank">Open
@@ -20,8 +16,8 @@
     <div class="separator">
       GPT Model:
       <el-radio-group v-model="gpt_model" @change="onKeyChange('gpt_model')">
-        <el-radio label="gpt-3.5-turbo"></el-radio>
-        <el-radio label="gpt-4"></el-radio>
+        <el-radio label="gpt-4o"></el-radio>
+        <el-radio label="o3"></el-radio>
       </el-radio-group>
     </div>
 
@@ -72,7 +68,7 @@ export default {
   data() {
     return {
       openai_key: "",
-      gpt_model: "gpt-3.5-turbo",
+      gpt_model: "gpt-4o",
       gpt_system_prompt: "",
       azure_token: "",
       azure_region: "",

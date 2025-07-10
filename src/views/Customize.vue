@@ -12,45 +12,25 @@
         Resume Information
       </h2>
       
-      <el-tabs v-model="resumeInputMethod" @tab-click="handleResumeTabClick">
-        <el-tab-pane label="Upload PDF" name="upload">
-          <div class="upload-section">
-            <el-upload
-              class="upload-dragger"
-              drag
-              :action="''"
-              :auto-upload="false"
-              :on-change="handleFileChange"
-              :file-list="fileList"
-              accept=".pdf"
-              :limit="1"
-            >
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">Drop PDF file here or <em>click to upload</em></div>
-              <div class="el-upload__tip" slot="tip">Only PDF files are supported</div>
-            </el-upload>
-            
-            <div v-if="pdfText" class="pdf-preview">
-              <h4>Extracted Resume Content:</h4>
-              <div class="pdf-content">{{ pdfText }}</div>
-              <el-button @click="clearPdfContent" size="small" type="danger" plain>Clear</el-button>
-            </div>
-          </div>
-        </el-tab-pane>
-        
-        <el-tab-pane label="Paste Text" name="text">
-          <div class="text-input-section">
-            <el-input
-              type="textarea"
-              placeholder="Paste your resume content here..."
-              v-model="resumeText"
-              :rows="12"
-              @change="onResumeTextChange"
-            />
-            <div class="char-count">{{ resumeText.length }} characters</div>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
+      <div class="resume-input-section">
+        <div class="input-label">
+          <span>Paste Resume</span>
+          <span class="char-count">{{ resumeText.length }} characters</span>
+        </div>
+        <div class="resume-textarea-container">
+          <el-input
+            type="textarea"
+            placeholder="Paste your resume content here..."
+            v-model="resumeText"
+            @change="onResumeTextChange"
+            class="resume-textarea"
+          />
+        </div>
+        <div class="format-tips">
+          <i class="el-icon-info"></i>
+          <span>Paste your complete resume here. The formatting will be preserved and used to provide personalized interview assistance.</span>
+        </div>
+      </div>
     </div>
 
     <!-- Job Information Section -->
@@ -169,9 +149,6 @@ export default {
   data() {
     return {
       resumeText: '',
-      resumeInputMethod: 'upload',
-      pdfText: '',
-      fileList: [],
       jobInfo: {
         position: '',
         company: '',
@@ -273,18 +250,6 @@ export default {
       localStorage.setItem('interview_customization', JSON.stringify(customizationData));
     },
     
-    handleResumeTabClick() {
-      // Handle tab click event
-    },
-    
-    handleFileChange() {
-      // Handle file change event
-    },
-    
-    clearPdfContent() {
-      this.pdfText = '';
-      this.fileList = [];
-    }
   }
 }
 </script>

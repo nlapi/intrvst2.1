@@ -2,7 +2,7 @@
 
 
 function gpt_system_prompt() {
-    return localStorage.getItem("gpt_system_prompt")
+    return localStorage.getItem("gpt_system_prompt") || "Generate helpful talking points and answers based on my resume, job requirements, and job description to the best of your abilities. Provide specific examples from my background that align with the role requirements and help me articulate my qualifications effectively during the interview."
 }
 
 function azure_language() {
@@ -14,7 +14,7 @@ function azure_region() {
 }
 
 function gpt_model() {
-    return localStorage.getItem("gpt_model") || "gpt-3.5-turbo"
+    return localStorage.getItem("gpt_model") || "gpt-4o"
 }
 
 export default {
