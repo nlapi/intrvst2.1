@@ -1,61 +1,180 @@
 <template>
-  <div>
-
-
-    <h1>Open AI</h1>
-    <div class="desc_text">To use GPT, you need an API Key from the <a :href="open_ai_api_url" target="_blank">Open
-      AI</a>
+  <div class="settings-workspace">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-info">
+          <h1 class="page-title">Settings & Configuration</h1>
+          <p class="page-description">Configure your API keys and preferences for optimal interview assistance</p>
+        </div>
+        <div class="header-icon">
+          <i class="el-icon-setting"></i>
+        </div>
+      </div>
     </div>
 
-    <div>
-      <el-input placeholder="sk-xxxx" v-model="openai_key" @change="onKeyChange('openai_key')">
-        <template slot="prepend">API Key:</template>
-      </el-input>
+    <!-- Settings Sections -->
+    <div class="settings-grid">
+      <!-- OpenAI Configuration -->
+      <div class="settings-card">
+        <div class="card-header">
+          <div class="card-icon openai-icon">
+            <i class="el-icon-magic-stick"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">OpenAI Configuration</h3>
+            <p class="card-subtitle">Configure GPT for AI-powered interview coaching</p>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="info-banner">
+            <div class="banner-icon">
+              <i class="el-icon-info"></i>
+            </div>
+            <div class="banner-content">
+              <p class="banner-text">
+                Get your API key from <a :href="open_ai_api_url" target="_blank" class="banner-link">OpenAI Platform</a>
+              </p>
+            </div>
+          </div>
+          
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">API Key</label>
+              <el-input 
+                v-model="openai_key" 
+                @change="onKeyChange('openai_key')"
+                placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                type="password"
+                show-password
+                class="modern-input"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">GPT Model</label>
+              <div class="model-selector">
+                <div 
+                  v-for="model in availableModels" 
+                  :key="model.value"
+                  class="model-option"
+                  :class="{ selected: gpt_model === model.value }"
+                  @click="selectModel(model.value)"
+                >
+                  <div class="model-radio">
+                    <div class="radio-dot" :class="{ active: gpt_model === model.value }"></div>
+                  </div>
+                  <div class="model-info">
+                    <div class="model-name">{{ model.name }}</div>
+                    <div class="model-desc">{{ model.description }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">System Prompt</label>
+              <p class="form-description">Customize how the AI coach responds to interview questions</p>
+              <el-input
+                type="textarea"
+                v-model="gpt_system_prompt"
+                @change="onKeyChange('gpt_system_prompt')"
+                placeholder="Enter your custom system prompt..."
+                :rows="6"
+                class="modern-textarea"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Azure Speech Configuration -->
+      <div class="settings-card">
+        <div class="card-header">
+          <div class="card-icon azure-icon">
+            <i class="el-icon-microphone"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Azure Speech Service</h3>
+            <p class="card-subtitle">Configure speech recognition for live transcription</p>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="info-banner">
+            <div class="banner-icon">
+              <i class="el-icon-info"></i>
+            </div>
+            <div class="banner-content">
+              <p class="banner-text">
+                Follow our <a :href="azure_application_url" target="_blank" class="banner-link">setup tutorial</a> to get your free Azure Speech token
+              </p>
+            </div>
+          </div>
+          
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">Speech Resource Key</label>
+              <el-input 
+                v-model="azure_token"
+                @change="onKeyChange('azure_token')"
+                placeholder="Enter your Azure Speech Resource Key (KEY 1)"
+                type="password"
+                show-password
+                class="modern-input"
+              />
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Region</label>
+                <el-input 
+                  v-model="azure_region" 
+                  @change="onKeyChange('azure_region')"
+                  placeholder="e.g., eastasia, westus2"
+                  class="modern-input"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Language</label>
+                <el-input 
+                  v-model="azure_language" 
+                  @change="onKeyChange('azure_language')"
+                  placeholder="e.g., en-US, zh-CN"
+                  class="modern-input"
+                />
+              </div>
+            </div>
+            
+            <div class="language-help">
+              <div class="help-content">
+                <span class="help-text">Common languages: </span>
+                <span class="language-tag">en-US</span>
+                <span class="language-tag">zh-CN</span>
+                <span class="language-tag">es-ES</span>
+                <span class="language-tag">fr-FR</span>
+                <a :href="full_language_codec_url" target="_blank" class="help-link">View all supported languages</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="separator">
-      GPT Model:
-      <el-radio-group v-model="gpt_model" @change="onKeyChange('gpt_model')">
-        <el-radio label="gpt-4o"></el-radio>
-        <el-radio label="o3"></el-radio>
-      </el-radio-group>
+    <!-- Save Status -->
+    <div v-if="saveStatus" class="save-notification">
+      <div class="notification-content" :class="saveStatus.type">
+        <div class="notification-icon">
+          <i :class="saveStatus.type === 'success' ? 'el-icon-check' : 'el-icon-warning'"></i>
+        </div>
+        <div class="notification-text">
+          <div class="notification-title">{{ saveStatus.title }}</div>
+          <div class="notification-message">{{ saveStatus.message }}</div>
+        </div>
+      </div>
     </div>
-
-    <div class="separator">
-      <div class="desc_text">GPT Prompt:</div>
-      <el-input type="textarea" placeholder="You can setup custom prompt here" :rows="5"
-                v-model="gpt_system_prompt" @change="onKeyChange('gpt_system_prompt')"/>
-    </div>
-
-
-    <h1>Azure Speech Recognition</h1>
-    <div class="desc_text">
-      We use Microsoft Azure's speech recognition service. You can apply for a free Azure token by referring to <a
-        :href="azure_application_url" target="_blank">this tutorial</a>:
-    </div>
-    <el-input placeholder="Input Your Azure Speech Resource Token (KEY 1)" v-model="azure_token"
-              @change="onKeyChange('azure_token')">
-      <template slot="prepend">Azure token:</template>
-    </el-input>
-    <div class="separator"></div>
-    <el-input placeholder="e.g. eastasia" v-model="azure_region" @change="onKeyChange('azure_region')">
-      <template slot="prepend">Location/Region</template>
-    </el-input>
-    <div class="separator"></div>
-    <el-input placeholder="e.g. en-US" v-model="azure_language" @change="onKeyChange('azure_language')">
-      <template slot="prepend">Recognition Language</template>
-    </el-input>
-
-    <div class="desc_text">
-      <span style="text-decoration: gray">zh-CN</span> for Chinese, See <a :href="full_language_codec_url"
-                                                                           target="_blank">here</a> for
-      other language codes
-    </div>
-
-<!--    <div>-->
-<!--      <el-button @click="toDef">set all setting to default</el-button>-->
-<!--    </div>-->
-
   </div>
 </template>
 
@@ -63,8 +182,7 @@
 import config_util from "../utils/config_util"
 
 export default {
-  name: 'HelloWorld',
-  props: {},
+  name: 'Setting',
   data() {
     return {
       openai_key: "",
@@ -73,101 +191,121 @@ export default {
       azure_token: "",
       azure_region: "",
       azure_language: "",
+      saveStatus: null,
       open_ai_api_url: "https://platform.openai.com/api-keys",
-      github_url: "https://github.com/interview-copilot/Interview-Copilot",
       azure_application_url: "https://github.com/interview-copilot/Interview-Copilot/blob/main/docs/azure_speech_service_tutorial.md",
-      full_language_codec_url: "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=stt#speech-to-text"
+      full_language_codec_url: "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=stt#speech-to-text",
+      availableModels: [
+        {
+          value: "gpt-4o",
+          name: "GPT-4o",
+          description: "Most capable model with excellent reasoning and multimodal capabilities"
+        },
+        {
+          value: "o3",
+          name: "o3",
+          description: "Latest reasoning model with advanced problem-solving capabilities"
+        }
+      ]
     }
   },
   mounted() {
-    this.openai_key = localStorage.getItem("openai_key")
-    this.gpt_system_prompt = config_util.gpt_system_prompt()
-    this.gpt_model = config_util.gpt_model()
-    this.azure_token = localStorage.getItem("azure_token")
-    this.azure_region = config_util.azure_region()
-    this.azure_language = config_util.azure_language()
+    this.loadSettings()
   },
   methods: {
-    onKeyChange(key_name) {
-      console.log("setItem", key_name, this[key_name])
-      localStorage.setItem(key_name, this[key_name])
+    loadSettings() {
+      this.openai_key = localStorage.getItem("openai_key") || ""
+      this.gpt_system_prompt = config_util.gpt_system_prompt()
+      this.gpt_model = config_util.gpt_model()
+      this.azure_token = localStorage.getItem("azure_token") || ""
+      this.azure_region = config_util.azure_region()
+      this.azure_language = config_util.azure_language()
     },
-    toDef() {
-      localStorage.clear();
+    
+    onKeyChange(key_name) {
+      localStorage.setItem(key_name, this[key_name])
+      this.showSaveStatus('success', 'Settings Saved', 'Your configuration has been saved successfully')
+    },
+    
+    selectModel(modelValue) {
+      this.gpt_model = modelValue
+      this.onKeyChange('gpt_model')
+    },
+    
+    showSaveStatus(type, title, message) {
+      this.saveStatus = { type, title, message }
+      setTimeout(() => {
+        this.saveStatus = null
+      }, 3000)
     }
   }
-
-
 }
-
-
 </script>
-<style scoped>
 
-.settings-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
-  background: #f3f2ef;
-  min-height: calc(100vh - 88px);
+<style scoped>
+.settings-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 100%;
 }
 
-.modern-page-header {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+.page-header {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border-radius: 20px;
+  padding: 32px;
   color: white;
-  padding: 48px 0;
-  margin: -24px -24px 32px -24px;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
 }
 
 .header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+  gap: 24px;
 }
 
-.header-icon {
-  width: 64px;
-  height: 64px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
-
-.header-text {
+.header-info {
   flex: 1;
 }
 
-.header-title {
+.page-title {
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.header-subtitle {
+.page-description {
   font-size: 16px;
   opacity: 0.9;
   margin: 0;
   font-weight: 400;
 }
 
-.settings-sections {
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 32px;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  backdrop-filter: blur(10px);
 }
 
-.modern-card {
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settings-card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
 }
 
@@ -175,9 +313,9 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px 32px;
-  background: linear-gradient(135deg, #fafafa, #f5f5f5);
-  border-bottom: 1px solid #e0e0e0;
+  padding: 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .card-icon {
@@ -192,80 +330,102 @@ export default {
 }
 
 .openai-icon {
-  background: linear-gradient(135deg, #10a37f, #0d8f6b);
+  background: linear-gradient(135deg, #10b981, #059669);
 }
 
 .azure-icon {
-  background: linear-gradient(135deg, #0078d4, #106ebe);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
-.card-title-section {
+.card-info {
   flex: 1;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #1e293b;
   margin: 0 0 4px 0;
 }
 
 .card-subtitle {
   font-size: 14px;
-  color: #666;
+  color: #64748b;
   margin: 0;
 }
 
 .card-content {
-  padding: 32px;
+  padding: 24px;
 }
 
-.setting-group {
-  margin-bottom: 32px;
-}
-
-.setting-group:last-child {
-  margin-bottom: 0;
-}
-
-.setting-label {
-  display: block;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 8px;
-}
-
-.setting-description {
-  font-size: 14px;
-  color: #666;
-  margin: 0 0 12px 0;
-  line-height: 1.5;
-}
-
-.setting-description-box {
+.info-banner {
   display: flex;
+  align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  background: #e6f7ff;
-  border: 1px solid #91d5ff;
-  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
   margin-bottom: 24px;
-  color: #0050b3;
 }
 
-.setting-description-box i {
-  color: #1890ff;
-  font-size: 16px;
+.banner-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  flex-shrink: 0;
   margin-top: 2px;
 }
 
-.setting-description-box p {
-  margin: 0 0 4px 0;
-  font-size: 14px;
+.banner-content {
+  flex: 1;
 }
 
-.setting-row {
+.banner-text {
+  font-size: 14px;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.banner-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.banner-link:hover {
+  text-decoration: underline;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
@@ -273,34 +433,34 @@ export default {
 
 .modern-input .el-input__inner {
   height: 48px;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
   padding: 0 16px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  background: #fafafa;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  background: #f8fafc;
 }
 
 .modern-input .el-input__inner:focus {
-  border-color: #0a66c2;
-  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   background: white;
 }
 
 .modern-textarea .el-textarea__inner {
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
   padding: 16px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
-  transition: all 0.3s ease;
-  background: #fafafa;
+  transition: all 0.2s ease;
+  background: #f8fafc;
   resize: vertical;
 }
 
 .modern-textarea .el-textarea__inner:focus {
-  border-color: #0a66c2;
-  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   background: white;
 }
 
@@ -311,102 +471,225 @@ export default {
 }
 
 .model-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   padding: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  background: #fafafa;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
 }
 
 .model-option:hover {
-  border-color: #0a66c2;
+  border-color: #3b82f6;
   background: white;
 }
 
-.model-option.is-checked {
-  border-color: #0a66c2;
-  background: #e6f7ff;
+.model-option.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.model-radio {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.model-option.selected .model-radio {
+  border-color: #3b82f6;
+}
+
+.radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.radio-dot.active {
+  background: #3b82f6;
 }
 
 .model-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-left: 8px;
+  flex: 1;
 }
 
 .model-name {
+  font-size: 16px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #374151;
+  margin-bottom: 4px;
 }
 
 .model-desc {
-  font-size: 12px;
-  color: #666;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.4;
 }
 
-.language-hint {
-  margin-top: 8px;
+.language-help {
+  padding: 16px;
+  background: #f1f5f9;
+  border-radius: 12px;
 }
 
-.hint-text {
-  font-size: 12px;
-  color: #999;
-  background: #f5f5f5;
-  padding: 4px 8px;
-  border-radius: 4px;
+.help-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.link {
-  color: #0a66c2;
-  text-decoration: none;
+.help-text {
+  font-size: 14px;
+  color: #475569;
   font-weight: 500;
 }
 
-.link:hover {
+.language-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.help-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.help-link:hover {
   text-decoration: underline;
 }
 
-/* Responsive design */
+.save-notification {
+  position: fixed;
+  top: 100px;
+  right: 32px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-left: 4px solid #10b981;
+  min-width: 300px;
+}
+
+.notification-content.error {
+  border-left-color: #ef4444;
+}
+
+.notification-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  font-size: 16px;
+}
+
+.notification-content.error .notification-icon {
+  color: #ef4444;
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .setting-row {
+  .form-row {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .modern-page-header {
-    padding: 32px 0;
+  .settings-workspace {
+    gap: 24px;
+  }
+  
+  .page-header {
+    padding: 24px;
   }
   
   .header-content {
-    padding: 0 16px;
     flex-direction: column;
     text-align: center;
     gap: 16px;
   }
   
-  .header-title {
+  .page-title {
     font-size: 24px;
   }
   
-  .header-subtitle {
+  .page-description {
     font-size: 14px;
   }
   
   .card-header {
     padding: 20px;
     flex-direction: column;
-    text-align: center;
     gap: 12px;
+    text-align: center;
   }
   
   .card-content {
     padding: 20px;
   }
   
-  .model-option {
-    padding: 12px;
+  .save-notification {
+    right: 16px;
+    left: 16px;
+  }
+  
+  .notification-content {
+    min-width: auto;
   }
 }
 </style>

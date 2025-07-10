@@ -1,163 +1,283 @@
 <template>
   <div id="app">
-    <div class="modern-header">
+    <div class="app-header">
       <div class="header-container">
-        <div class="logo-section">
-          <div class="logo-icon">
-            <i class="el-icon-microphone"></i>
+        <div class="brand-section">
+          <div class="brand-logo">
+            <div class="logo-icon">
+              <i class="el-icon-microphone"></i>
+            </div>
+            <div class="brand-text">
+              <h1 class="brand-title">Interview Copilot</h1>
+              <p class="brand-subtitle">AI-Powered Interview Assistant</p>
+            </div>
           </div>
-          <h1 class="app-title">Interview Copilot</h1>
         </div>
-        <nav class="nav-section">
+        
+        <nav class="navigation">
           <router-link 
             to="/" 
-            class="nav-item"
+            class="nav-link"
             :class="{ active: $router.currentRoute.path === '/' }"
           >
-            <i class="el-icon-chat-dot-round"></i>
-            <span>Interview</span>
+            <div class="nav-icon">
+              <i class="el-icon-chat-dot-round"></i>
+            </div>
+            <span class="nav-text">Interview</span>
           </router-link>
+          
           <router-link 
             to="/customize" 
-            class="nav-item"
+            class="nav-link"
             :class="{ active: $router.currentRoute.path === '/customize' }"
           >
-            <i class="el-icon-user"></i>
-            <span>Profile</span>
+            <div class="nav-icon">
+              <i class="el-icon-user"></i>
+            </div>
+            <span class="nav-text">Profile</span>
           </router-link>
+          
           <router-link 
             to="/setting" 
-            class="nav-item"
+            class="nav-link"
             :class="{ active: $router.currentRoute.path === '/setting' }"
           >
-            <i class="el-icon-setting"></i>
-            <span>Settings</span>
+            <div class="nav-icon">
+              <i class="el-icon-setting"></i>
+            </div>
+            <span class="nav-text">Settings</span>
           </router-link>
         </nav>
       </div>
     </div>
-    <router-view class="router_view"/>
+    
+    <main class="app-main">
+      <router-view/>
+    </main>
   </div>
 </template>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #000000e6;
-  background-color: #f3f2ef;
-  min-height: 100vh;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.modern-header {
+#app {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
+}
+
+.app-header {
   background: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
 .header-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  height: 64px;
+  padding: 0 32px;
+  height: 80px;
 }
 
-.logo-section {
+.brand-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 18px;
+  font-size: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.app-title {
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
   font-size: 24px;
-  font-weight: 600;
-  color: #0a66c2;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
   margin: 0;
-  letter-spacing: -0.5px;
 }
 
-.nav-section {
+.brand-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1;
+}
+
+.navigation {
   display: flex;
   gap: 8px;
 }
 
-.nav-item {
+.nav-link {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 16px;
+  padding: 12px 20px;
   text-decoration: none;
-  color: #666666;
-  border-radius: 8px;
+  color: #64748b;
+  border-radius: 12px;
   transition: all 0.2s ease;
-  font-size: 12px;
   font-weight: 500;
-  min-width: 60px;
+  min-width: 80px;
+  position: relative;
 }
 
-.nav-item i {
-  font-size: 20px;
-  margin-bottom: 2px;
+.nav-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
 }
 
-.nav-item:hover {
-  background-color: #f3f2ef;
-  color: #0a66c2;
+.nav-icon i {
+  font-size: 18px;
 }
 
-.nav-item.active {
-  color: #0a66c2;
-  background-color: #e7f3ff;
+.nav-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
 }
 
-.router_view {
-  max-width: 1200px;
-  margin: 24px auto;
-  padding: 0 24px;
+.nav-link:hover {
+  color: #3b82f6;
+  background: #f1f5f9;
 }
 
-/* Responsive design */
+.nav-link:hover .nav-icon {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.nav-link.active {
+  color: #3b82f6;
+  background: #eff6ff;
+}
+
+.nav-link.active .nav-icon {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.app-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px;
+  min-height: calc(100vh - 80px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 0 24px;
+  }
+  
+  .app-main {
+    padding: 24px;
+  }
+}
+
 @media (max-width: 768px) {
   .header-container {
     padding: 0 16px;
+    height: 70px;
   }
   
-  .app-title {
-    font-size: 20px;
+  .brand-logo {
+    gap: 12px;
   }
   
-  .nav-item {
-    padding: 6px 12px;
-    font-size: 11px;
-    min-width: 50px;
-  }
-  
-  .nav-item i {
+  .logo-icon {
+    width: 40px;
+    height: 40px;
     font-size: 18px;
   }
   
-  .router_view {
-    margin: 16px auto;
-    padding: 0 16px;
+  .brand-title {
+    font-size: 20px;
+  }
+  
+  .brand-subtitle {
+    font-size: 11px;
+  }
+  
+  .navigation {
+    gap: 4px;
+  }
+  
+  .nav-link {
+    padding: 8px 12px;
+    min-width: 60px;
+  }
+  
+  .nav-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .nav-icon i {
+    font-size: 16px;
+  }
+  
+  .nav-text {
+    font-size: 11px;
+  }
+  
+  .app-main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text {
+    display: none;
+  }
+  
+  .nav-text {
+    display: none;
+  }
+  
+  .nav-link {
+    padding: 8px;
+    min-width: 44px;
   }
 }
 </style>

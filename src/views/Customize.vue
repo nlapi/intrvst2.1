@@ -1,74 +1,90 @@
 <template>
-  <div class="customize-container">
-    <div class="modern-page-header">
+  <div class="profile-workspace">
+    <!-- Page Header -->
+    <div class="page-header">
       <div class="header-content">
+        <div class="header-info">
+          <h1 class="page-title">Build Your Interview Profile</h1>
+          <p class="page-description">Add your resume and target job details for personalized AI coaching</p>
+        </div>
         <div class="header-icon">
           <i class="el-icon-user"></i>
-        </div>
-        <div class="header-text">
-          <h1 class="header-title">Build Your Profile</h1>
-          <p class="header-subtitle">Add your resume and job details for personalized interview coaching</p>
         </div>
       </div>
     </div>
 
-    <div class="profile-sections">
+    <!-- Profile Sections -->
+    <div class="profile-grid">
       <!-- Resume Section -->
-      <div class="modern-card">
+      <div class="profile-card resume-card">
         <div class="card-header">
           <div class="card-icon resume-icon">
             <i class="el-icon-document"></i>
           </div>
-          <div class="card-title-section">
-            <h2 class="card-title">Resume Information</h2>
-            <p class="card-subtitle">Your professional background and experience</p>
+          <div class="card-info">
+            <h3 class="card-title">Resume & Experience</h3>
+            <p class="card-subtitle">Your professional background and achievements</p>
+          </div>
+          <div class="card-stats">
+            <span class="char-count">{{ resumeText.length }} chars</span>
           </div>
         </div>
-      
+        
         <div class="card-content">
-          <div class="resume-input-section">
-            <div class="input-header">
-              <label class="input-label">Paste Resume</label>
-              <span class="char-counter">{{ resumeText.length }} characters</span>
-            </div>
-            <div class="modern-textarea-container">
+          <div class="input-section">
+            <div class="input-wrapper">
               <el-input
                 type="textarea"
-                placeholder="Paste your complete resume here... Include your experience, skills, education, and achievements."
                 v-model="resumeText"
-                @change="onResumeTextChange"
-                class="modern-textarea"
+                @input="onResumeTextChange"
+                placeholder="Paste your complete resume here...
+
+Include:
+• Work experience and achievements
+• Technical skills and certifications  
+• Education background
+• Notable projects and contributions
+• Any relevant accomplishments
+
+The more detailed your resume, the better the AI can provide personalized coaching advice."
+                class="resume-textarea"
+                :autosize="{ minRows: 12, maxRows: 20 }"
               />
             </div>
+            
             <div class="input-tip">
-              <i class="el-icon-info"></i>
-              <span>Your resume will be used to provide personalized interview coaching and talking points</span>
+              <div class="tip-icon">
+                <i class="el-icon-info"></i>
+              </div>
+              <p class="tip-text">
+                Your resume will be used to provide personalized interview coaching and suggest relevant talking points based on your experience.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Job Information Section -->
-      <div class="modern-card">
+      <div class="profile-card job-card">
         <div class="card-header">
           <div class="card-icon job-icon">
             <i class="el-icon-suitcase"></i>
           </div>
-          <div class="card-title-section">
-            <h2 class="card-title">Target Position</h2>
+          <div class="card-info">
+            <h3 class="card-title">Target Position</h3>
             <p class="card-subtitle">Details about the role you're interviewing for</p>
           </div>
         </div>
-      
+        
         <div class="card-content">
-          <div class="modern-form">
+          <div class="job-form">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Job Position</label>
+                <label class="form-label">Job Title</label>
                 <el-input 
                   v-model="jobInfo.position" 
+                  @input="onJobInfoChange"
                   placeholder="e.g., Senior Software Engineer"
-                  @change="onJobInfoChange"
                   class="modern-input"
                 />
               </div>
@@ -76,46 +92,46 @@
                 <label class="form-label">Company</label>
                 <el-input 
                   v-model="jobInfo.company" 
+                  @input="onJobInfoChange"
                   placeholder="e.g., Google, Microsoft, etc."
-                  @change="onJobInfoChange"
                   class="modern-input"
                 />
               </div>
             </div>
-        
+            
             <div class="form-group">
               <label class="form-label">Job Description</label>
               <el-input
                 type="textarea"
                 v-model="jobInfo.description"
+                @input="onJobInfoChange"
                 placeholder="Paste the complete job description here..."
-                :rows="4"
-                @change="onJobInfoChange"
+                :autosize="{ minRows: 4, maxRows: 8 }"
                 class="modern-textarea"
               />
             </div>
-        
+            
             <div class="form-group">
-              <label class="form-label">Requirements</label>
+              <label class="form-label">Key Requirements</label>
               <el-input
                 type="textarea"
                 v-model="jobInfo.requirements"
+                @input="onJobInfoChange"
                 placeholder="List the key requirements and qualifications..."
-                :rows="3"
-                @change="onJobInfoChange"
+                :autosize="{ minRows: 3, maxRows: 6 }"
                 class="modern-textarea"
               />
             </div>
-        
+            
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Responsibilities</label>
                 <el-input
                   type="textarea"
                   v-model="jobInfo.responsibilities"
+                  @input="onJobInfoChange"
                   placeholder="Main responsibilities and duties..."
-                  :rows="3"
-                  @change="onJobInfoChange"
+                  :autosize="{ minRows: 3, maxRows: 6 }"
                   class="modern-textarea"
                 />
               </div>
@@ -124,22 +140,22 @@
                 <el-input
                   type="textarea"
                   v-model="jobInfo.qualifications"
+                  @input="onJobInfoChange"
                   placeholder="Required qualifications, skills, experience..."
-                  :rows="3"
-                  @change="onJobInfoChange"
+                  :autosize="{ minRows: 3, maxRows: 6 }"
                   class="modern-textarea"
                 />
               </div>
             </div>
-        
+            
             <div class="form-group">
               <label class="form-label">Additional Notes</label>
               <el-input
                 type="textarea"
                 v-model="jobInfo.notes"
+                @input="onJobInfoChange"
                 placeholder="Any additional notes or information about the role..."
-                :rows="2"
-                @change="onJobInfoChange"
+                :autosize="{ minRows: 2, maxRows: 4 }"
                 class="modern-textarea"
               />
             </div>
@@ -148,42 +164,53 @@
       </div>
     </div>
 
-    <!-- Action Section -->
+    <!-- Action Center -->
     <div class="action-center">
-      <div class="action-buttons">
-        <el-button 
-          type="primary" 
-          size="large"
-          @click="saveCustomization"
-          :disabled="!isDataValid"
-          class="save-btn"
-        >
-          <i class="el-icon-check"></i>
-          Save Profile
-        </el-button>
+      <div class="action-content">
+        <div class="action-info">
+          <h4 class="action-title">Profile Status</h4>
+          <p class="action-description">
+            {{ isDataValid ? 'Your profile is complete and ready for personalized coaching!' : 'Add your resume and job details to enable personalized coaching.' }}
+          </p>
+        </div>
         
-        <el-button 
-          type="danger" 
-          size="large"
-          plain
-          @click="clearAllData"
-          class="clear-btn"
-        >
-          <i class="el-icon-delete"></i>
-          Clear All Data
-        </el-button>
+        <div class="action-buttons">
+          <el-button 
+            type="primary" 
+            size="large"
+            @click="saveCustomization"
+            :disabled="!isDataValid"
+            class="save-button"
+          >
+            <i class="el-icon-check"></i>
+            <span>Save Profile</span>
+          </el-button>
+          
+          <el-button 
+            type="danger" 
+            size="large"
+            plain
+            @click="clearAllData"
+            class="clear-button"
+          >
+            <i class="el-icon-delete"></i>
+            <span>Clear All</span>
+          </el-button>
+        </div>
       </div>
     </div>
 
-    <!-- Status Section -->
+    <!-- Status Notification -->
     <div v-if="savedStatus" class="status-notification">
-      <el-alert
-        :title="savedStatus.title"
-        :type="savedStatus.type"
-        :description="savedStatus.description"
-        show-icon
-        :closable="false"
-      />
+      <div class="notification-content" :class="savedStatus.type">
+        <div class="notification-icon">
+          <i :class="savedStatus.type === 'success' ? 'el-icon-check' : 'el-icon-warning'"></i>
+        </div>
+        <div class="notification-text">
+          <div class="notification-title">{{ savedStatus.title }}</div>
+          <div class="notification-message">{{ savedStatus.description }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -208,7 +235,7 @@ export default {
   },
   computed: {
     isDataValid() {
-      const hasResume = this.resumeText.trim();
+      const hasResume = this.resumeText.trim().length > 50;
       const hasJobInfo = this.jobInfo.position.trim() || this.jobInfo.description.trim();
       return hasResume && hasJobInfo;
     }
@@ -235,9 +262,9 @@ export default {
       localStorage.setItem('interview_customization', JSON.stringify(customizationData));
       
       this.savedStatus = {
-        title: 'Customization Saved Successfully!',
+        title: 'Profile Saved Successfully!',
         type: 'success',
-        description: 'Your resume and job information have been saved. The interview assistant will now provide personalized responses based on this information.'
+        description: 'Your resume and job information have been saved. The AI coach will now provide personalized responses based on this information.'
       };
       
       setTimeout(() => {
@@ -246,10 +273,11 @@ export default {
     },
     
     clearAllData() {
-      this.$confirm('This will clear all your customization data. Continue?', 'Warning', {
+      this.$confirm('This will permanently delete all your profile data. Continue?', 'Clear Profile Data', {
         confirmButtonText: 'Yes, Clear All',
         cancelButtonText: 'Cancel',
-        type: 'warning'
+        type: 'warning',
+        dangerouslyUseHTMLString: false
       }).then(() => {
         this.resumeText = '';
         this.jobInfo = {
@@ -262,7 +290,7 @@ export default {
           notes: ''
         };
         localStorage.removeItem('interview_customization');
-        this.$message.success('All data cleared successfully');
+        this.$message.success('All profile data cleared successfully');
       }).catch(() => {
         // User cancelled
       });
@@ -299,81 +327,81 @@ export default {
 </script>
 
 <style scoped>
-.customize-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
-  background: #f3f2ef;
-  min-height: calc(100vh - 88px);
+.profile-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 100%;
 }
 
-.modern-page-header {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+.page-header {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 20px;
+  padding: 32px;
   color: white;
-  padding: 48px 0;
-  margin: -24px -24px 32px -24px;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
 }
 
 .header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+  gap: 24px;
 }
 
-.header-icon {
-  width: 64px;
-  height: 64px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
-
-.header-text {
+.header-info {
   flex: 1;
 }
 
-.header-title {
+.page-title {
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.header-subtitle {
+.page-description {
   font-size: 16px;
   opacity: 0.9;
   margin: 0;
   font-weight: 400;
 }
 
-.profile-sections {
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin-bottom: 32px;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  backdrop-filter: blur(10px);
 }
 
-.modern-card {
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.profile-card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px 32px;
-  background: linear-gradient(135deg, #fafafa, #f5f5f5);
-  border-bottom: 1px solid #e0e0e0;
+  padding: 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .card-icon {
@@ -388,113 +416,118 @@ export default {
 }
 
 .resume-icon {
-  background: linear-gradient(135deg, #52c41a, #389e0d);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
 .job-icon {
-  background: linear-gradient(135deg, #1890ff, #096dd9);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
 
-.card-title-section {
+.card-info {
   flex: 1;
 }
 
 .card-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #1e293b;
   margin: 0 0 4px 0;
 }
 
 .card-subtitle {
   font-size: 14px;
-  color: #666;
+  color: #64748b;
   margin: 0;
 }
 
-.card-content {
-  padding: 32px;
-}
-
-.resume-input-section {
+.card-stats {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.input-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.input-label {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.char-counter {
+.char-count {
   font-size: 12px;
-  color: #999;
-  background: #f5f5f5;
+  color: #64748b;
+  background: #e2e8f0;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
-.modern-textarea-container {
-  position: relative;
+.card-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
-.modern-textarea .el-textarea__inner {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.input-wrapper {
+  flex: 1;
+}
+
+.resume-textarea .el-textarea__inner {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   padding: 20px;
   border-radius: 12px;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+  background: #f8fafc;
   resize: vertical;
-  min-height: 320px;
-  max-height: 500px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background: #fafafa;
 }
 
-.modern-textarea .el-textarea__inner:focus {
-  border-color: #0a66c2;
-  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+.resume-textarea .el-textarea__inner:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   background: white;
 }
 
 .input-tip {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+}
+
+.tip-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #e6f7ff;
-  border: 1px solid #91d5ff;
-  border-radius: 8px;
-  color: #0050b3;
+  justify-content: center;
+  color: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tip-text {
   font-size: 13px;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.input-tip .el-icon-info {
-  color: #1890ff;
-}
-
-.modern-form {
+.job-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 20px;
 }
 
 .form-group {
@@ -506,143 +539,243 @@ export default {
 .form-label {
   font-size: 14px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #374151;
 }
 
 .modern-input .el-input__inner {
-  height: 48px;
+  height: 44px;
   border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  padding: 0 16px;
+  border: 2px solid #e2e8f0;
+  padding: 0 14px;
   font-size: 14px;
-  transition: all 0.3s ease;
-  background: #fafafa;
+  transition: all 0.2s ease;
+  background: #f8fafc;
 }
 
 .modern-input .el-input__inner:focus {
-  border-color: #0a66c2;
-  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   background: white;
 }
 
 .modern-textarea .el-textarea__inner {
   border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  padding: 16px;
+  border: 2px solid #e2e8f0;
+  padding: 12px 14px;
   font-size: 14px;
-  line-height: 1.6;
-  transition: all 0.3s ease;
-  background: #fafafa;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  background: #f8fafc;
   resize: vertical;
 }
 
 .modern-textarea .el-textarea__inner:focus {
-  border-color: #0a66c2;
-  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   background: white;
 }
 
 .action-center {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   padding: 32px;
-  text-align: center;
-  margin-bottom: 32px;
+}
+
+.action-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.action-info {
+  flex: 1;
+}
+
+.action-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.action-description {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .action-buttons {
   display: flex;
-  gap: 16px;
-  justify-content: center;
+  gap: 12px;
 }
 
-.save-btn {
+.save-button {
   height: 48px;
-  padding: 0 32px;
+  padding: 0 24px;
   border-radius: 24px;
-  font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #0a66c2, #004182);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   border: none;
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 160px;
-  justify-content: center;
 }
 
-.clear-btn {
+.clear-button {
   height: 48px;
-  padding: 0 32px;
+  padding: 0 24px;
   border-radius: 24px;
-  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 160px;
-  justify-content: center;
-  border: 2px solid #ff4d4f;
-  color: #ff4d4f;
+  border: 2px solid #ef4444;
+  color: #ef4444;
 }
 
-.clear-btn:hover {
-  background: #ff4d4f;
+.clear-button:hover {
+  background: #ef4444;
   color: white;
 }
 
 .status-notification {
-  margin-top: 24px;
+  position: fixed;
+  top: 100px;
+  right: 32px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
 }
 
-/* Responsive design */
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-left: 4px solid #10b981;
+  min-width: 320px;
+}
+
+.notification-content.error {
+  border-left-color: #ef4444;
+}
+
+.notification-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  font-size: 16px;
+}
+
+.notification-content.error .notification-icon {
+  color: #ef4444;
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .form-row {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .modern-page-header {
-    padding: 32px 0;
+  .profile-workspace {
+    gap: 24px;
+  }
+  
+  .page-header {
+    padding: 24px;
   }
   
   .header-content {
-    padding: 0 16px;
     flex-direction: column;
     text-align: center;
     gap: 16px;
   }
   
-  .header-title {
+  .page-title {
     font-size: 24px;
   }
   
-  .header-subtitle {
+  .page-description {
     font-size: 14px;
   }
   
   .card-header {
     padding: 20px;
     flex-direction: column;
-    text-align: center;
     gap: 12px;
+    text-align: center;
   }
   
   .card-content {
     padding: 20px;
   }
   
-  .action-buttons {
+  .action-content {
     flex-direction: column;
-    align-items: center;
+    text-align: center;
+    gap: 20px;
   }
   
-  .save-btn, .clear-btn {
+  .action-buttons {
+    flex-direction: column;
     width: 100%;
-    max-width: 280px;
+  }
+  
+  .save-button, .clear-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .status-notification {
+    right: 16px;
+    left: 16px;
+  }
+  
+  .notification-content {
+    min-width: auto;
   }
 }
 </style>

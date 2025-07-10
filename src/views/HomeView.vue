@@ -1,77 +1,124 @@
 <template>
-  <div class="modern-homeview">
-    <div class="interview-header">
-      <h1 class="page-title">Live Interview Assistant</h1>
-      <p class="page-subtitle">Real-time speech recognition with AI-powered coaching</p>
+  <div class="interview-workspace">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-info">
+          <h1 class="page-title">Live Interview Session</h1>
+          <p class="page-description">Real-time speech recognition with AI-powered coaching assistance</p>
+        </div>
+        <div class="session-status">
+          <div class="status-indicator" :class="{ active: state === 'ing' }">
+            <div class="status-dot"></div>
+            <span class="status-text">{{ state === 'ing' ? 'Recording' : 'Ready' }}</span>
+          </div>
+          <div class="session-timer">
+            <MyTimer ref="MyTimer"/>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <div class="interview-panels">
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Speech Recognition Panel -->
       <div class="panel speech-panel">
         <div class="panel-header">
-          <i class="el-icon-microphone"></i>
-          <span class="panel-title">Speech Recognition</span>
-          <div class="panel-status" :class="{ active: state === 'ing' }"></div>
-        </div>
-        <div class="panel-content">
-          <div v-if="!currentText" class="empty-state">
-            <i class="el-icon-chat-dot-round"></i>
-            <p>Conversation will appear here...</p>
-          </div>
-          <div v-else class="transcript-content">{{ currentText }}</div>
-        </div>
-        <div class="panel-actions">
-          <el-button 
-            type="text" 
-            icon="el-icon-delete" 
-            :disabled="!currentText" 
-            @click="clearASRContent"
-            class="action-btn"
-          >
-            Clear Text
-          </el-button>
-        </div>
-      </div>
-      
-      <div class="panel ai-panel">
-        <div class="panel-header">
-          <i class="el-icon-s-custom"></i>
-          <span class="panel-title">AI Coaching</span>
-          <div v-if="show_ai_thinking_effect" class="thinking-indicator">
-            <div class="thinking-dots">
-              <span></span>
-              <span></span>
-              <span></span>
+          <div class="panel-title-section">
+            <div class="panel-icon speech-icon">
+              <i class="el-icon-microphone"></i>
+            </div>
+            <div class="panel-info">
+              <h3 class="panel-title">Speech Recognition</h3>
+              <p class="panel-subtitle">Live conversation transcript</p>
             </div>
           </div>
+          <div class="panel-controls">
+            <el-button 
+              type="text" 
+              icon="el-icon-delete" 
+              :disabled="!currentText" 
+              @click="clearASRContent"
+              class="control-button"
+              size="small"
+            >
+              Clear
+            </el-button>
+          </div>
         </div>
+        
+        <div class="panel-content">
+          <div v-if="!currentText" class="empty-state">
+            <div class="empty-icon">
+              <i class="el-icon-chat-dot-round"></i>
+            </div>
+            <h4 class="empty-title">Ready to Listen</h4>
+            <p class="empty-description">Start the interview session to see the conversation transcript here</p>
+          </div>
+          <div v-else class="transcript-content">
+            <div class="transcript-text">{{ currentText }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Coaching Panel -->
+      <div class="panel ai-panel">
+        <div class="panel-header">
+          <div class="panel-title-section">
+            <div class="panel-icon ai-icon">
+              <i class="el-icon-magic-stick"></i>
+            </div>
+            <div class="panel-info">
+              <h3 class="panel-title">AI Coaching</h3>
+              <p class="panel-subtitle">Personalized interview guidance</p>
+            </div>
+          </div>
+          <div class="panel-controls">
+            <el-button 
+              type="primary" 
+              icon="el-icon-magic-stick" 
+              @click="askCurrentText" 
+              :disabled="!isGetGPTAnswerAvailable"
+              :loading="show_ai_thinking_effect"
+              class="coaching-button"
+              size="small"
+            >
+              Get Coaching
+            </el-button>
+          </div>
+        </div>
+        
         <div class="panel-content">
           <div v-if="!ai_result && !show_ai_thinking_effect" class="empty-state">
-            <i class="el-icon-lightbulb"></i>
-            <p>AI coaching suggestions will appear here...</p>
+            <div class="empty-icon">
+              <i class="el-icon-lightbulb"></i>
+            </div>
+            <h4 class="empty-title">AI Coach Ready</h4>
+            <p class="empty-description">Click "Get Coaching" to receive personalized interview guidance based on your profile</p>
           </div>
-          <div v-else class="ai-response">{{ ai_result }}</div>
-        </div>
-        <div class="panel-actions">
-          <el-button 
-            type="primary" 
-            icon="el-icon-magic-stick" 
-            @click="askCurrentText" 
-            :disabled="!isGetGPTAnswerAvailable"
-            :loading="show_ai_thinking_effect"
-            class="action-btn primary"
-          >
-            Get AI Coaching
-          </el-button>
+          
+          <div v-else-if="show_ai_thinking_effect" class="thinking-state">
+            <div class="thinking-animation">
+              <div class="thinking-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <p class="thinking-text">Analyzing conversation and generating personalized coaching...</p>
+          </div>
+          
+          <div v-else class="ai-response">
+            <div class="response-content">{{ ai_result }}</div>
+          </div>
         </div>
       </div>
     </div>
-    
+
+    <!-- Control Center -->
     <div class="control-center">
       <div class="control-panel">
-        <div class="timer-section">
-          <MyTimer ref="MyTimer"/>
-        </div>
-        <div class="control-buttons">
+        <div class="control-section">
           <el-button
             size="large"
             type="success"
@@ -79,21 +126,22 @@
             v-show="state==='end'" 
             :loading="copilot_starting"
             :disabled="copilot_starting"
-            class="control-btn start-btn"
+            class="primary-control start-control"
           >
             <i class="el-icon-video-play"></i>
-            Start Interview
+            <span>Start Interview Session</span>
           </el-button>
+          
           <el-button
             size="large"
             type="danger"
             :loading="copilot_stopping"
             @click="userStopCopilot" 
             v-show="state==='ing'"
-            class="control-btn stop-btn"
+            class="primary-control stop-control"
           >
             <i class="el-icon-video-pause"></i>
-            Stop Interview
+            <span>Stop Session</span>
           </el-button>
         </div>
       </div>
@@ -117,9 +165,7 @@ export default {
       return (process.env.NODE_ENV === 'development')
     },
     isGetGPTAnswerAvailable() {
-      // return this.state === "ing" && !!this.currentText
       return !!this.currentText
-
     }
   },
   components: {LoadingIcon, MyTimer},
@@ -128,7 +174,7 @@ export default {
       currentText: "",
       state: "end", //end\ing
       ai_result: null,
-      copilot_starting: false, //显示loading
+      copilot_starting: false,
       copilot_stopping: false,
       show_ai_thinking_effect: false,
       popStyle: {},
@@ -267,7 +313,6 @@ export default {
       const recognizer = this.recognizer
       const sdk = SpeechSDK
 
-
       recognizer.recognized = (sender, event) => {
         if (sdk.ResultReason.RecognizedSpeech === event.result.reason && event.result.text.length > 0) {
           const text = event.result.text
@@ -304,7 +349,6 @@ export default {
   }
 }
 
-
 const demo_text = `
 Hello, thank you for coming for the interview. Please introduce yourself.
 
@@ -320,129 +364,186 @@ Can you explain the Hidden Markov Model?
 async function sleep(ms) {
   return new Promise((resolve => setTimeout(resolve, ms)))
 }
-
-
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-.modern-homeview {
-  background: #f3f2ef;
-  min-height: calc(100vh - 88px);
-  padding: 0;
+.interview-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 100%;
 }
 
-.interview-header {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+.page-header {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 20px;
+  padding: 32px;
   color: white;
-  padding: 40px 0;
-  text-align: center;
-  margin: -24px -24px 32px -24px;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-info {
+  flex: 1;
 }
 
 .page-title {
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.page-subtitle {
+.page-description {
   font-size: 16px;
   opacity: 0.9;
   margin: 0;
   font-weight: 400;
 }
 
-.interview-panels {
+.session-status {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.status-indicator.active .status-dot {
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.session-timer {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 32px;
 }
 
 .panel {
-  flex: 1;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 500px;
+  height: 600px;
 }
 
 .panel-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #fafafa;
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
-.panel-header i {
+.panel-title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.panel-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
-  color: #0a66c2;
+  color: white;
+}
+
+.speech-icon {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.ai-icon {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.panel-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #1e293b;
+  margin: 0 0 4px 0;
 }
 
-.panel-status {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ccc;
-  margin-left: auto;
+.panel-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
 }
 
-.panel-status.active {
-  background: #52c41a;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-.thinking-indicator {
-  margin-left: auto;
-}
-
-.thinking-dots {
+.panel-controls {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
-.thinking-dots span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #0a66c2;
-  animation: thinking 1.4s infinite ease-in-out both;
+.control-button {
+  color: #64748b;
+  font-weight: 500;
 }
 
-.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
-.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+.control-button:hover {
+  color: #3b82f6;
+}
 
-@keyframes thinking {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+.coaching-button {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border: none;
+  font-weight: 600;
 }
 
 .panel-content {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  font-size: 14px;
-  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
 }
 
 .empty-state {
@@ -451,175 +552,212 @@ async function sleep(ms) {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.empty-icon i {
+  font-size: 28px;
+  color: #94a3b8;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 8px 0;
+}
+
+.empty-description {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.thinking-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   text-align: center;
 }
 
-.empty-state i {
-  font-size: 48px;
+.thinking-animation {
   margin-bottom: 16px;
-  opacity: 0.5;
 }
 
-.empty-state p {
-  margin: 0;
+.thinking-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.thinking-dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: thinking 1.4s infinite ease-in-out both;
+}
+
+.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+.thinking-text {
   font-size: 14px;
+  color: #64748b;
+  margin: 0;
 }
 
 .transcript-content, .ai-response {
+  flex: 1;
+}
+
+.transcript-text, .response-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #374151;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: #2c3e50;
-}
-
-.panel-actions {
-  padding: 16px 24px;
-  border-top: 1px solid #e0e0e0;
-  background: #fafafa;
-}
-
-.action-btn {
-  width: 100%;
-  height: 40px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.action-btn.primary {
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
 }
 
 .control-center {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border: 1px solid #e0e0e0;
-  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  padding: 32px;
 }
 
 .control-panel {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: center;
 }
 
-.timer-section {
-  font-size: 24px;
-  font-weight: 600;
-  color: #0a66c2;
-  font-family: 'Courier New', monospace;
-}
-
-.control-buttons {
+.control-section {
   display: flex;
   gap: 16px;
 }
 
-.control-btn {
-  height: 48px;
+.primary-control {
+  height: 56px;
   padding: 0 32px;
-  border-radius: 24px;
+  border-radius: 28px;
   font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 160px;
+  gap: 12px;
+  min-width: 200px;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.start-btn {
-  background: linear-gradient(135deg, #52c41a, #389e0d);
+.start-control {
+  background: linear-gradient(135deg, #10b981, #059669);
   border: none;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
 }
 
-.stop-btn {
-  background: linear-gradient(135deg, #ff4d4f, #cf1322);
+.start-control:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+}
+
+.stop-control {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   border: none;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
 }
 
-/* Responsive design */
+.stop-control:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes thinking {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .interview-panels {
-    flex-direction: column;
+  .content-grid {
+    grid-template-columns: 1fr;
   }
   
   .panel {
-    height: 400px;
+    height: 500px;
   }
 }
 
 @media (max-width: 768px) {
-  .interview-header {
-    padding: 24px 16px;
+  .interview-workspace {
+    gap: 24px;
+  }
+  
+  .page-header {
+    padding: 24px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
   }
   
   .page-title {
     font-size: 24px;
   }
   
-  .page-subtitle {
+  .page-description {
     font-size: 14px;
   }
   
-  .control-panel {
-    flex-direction: column;
-    gap: 16px;
-  text-align: center;
-  }
-  
-  .control-buttons {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .control-btn {
-    flex: 1;
-    min-width: auto;
-  }
-  
-  .panel-content {
-    padding: 16px;
+  .session-status {
+    align-items: center;
   }
   
   .panel-header {
-    padding: 16px;
+    padding: 20px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .panel-content {
+    padding: 20px;
+  }
+  
+  .control-center {
+    padding: 24px;
+  }
+  
+  .control-section {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .primary-control {
+    width: 100%;
   }
 }
-</style>
-
-.single_part_bottom_bar {
-  display: flex;
-}
-
-.single_part_bottom_bar > .el-button {
-  flex-grow: 1;
-}
-
-
-.ai_result_content {
-  overflow-y: auto;
-  flex-grow: 1;
-}
-
-.popup-tag {
-  position: absolute;
-  display: none;
-  background-color: #785448d4;
-  color: white;
-  padding: 5px;
-  font-size: 15px;
-  font-weight: bold;
-  text-decoration: underline;
-  cursor: pointer;
-  -webkit-filter: drop-shadow(0 1px 10px rgba(113, 158, 206, 0.8));
-}
-
-.error_msg {
-  color: red;
-  text-align: center;
-}
-
 </style>
