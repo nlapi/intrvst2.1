@@ -257,7 +257,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px;
+  padding: 20px 24px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -288,16 +288,17 @@ export default {
 }
 
 .card-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: #1e293b;
   margin: 0 0 4px 0;
 }
 
 .card-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748b;
   margin: 0;
+  line-height: 1.4;
 }
 
 .card-content {
