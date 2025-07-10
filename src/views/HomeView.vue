@@ -461,11 +461,11 @@ async function sleep(ms) {
 }
 
 .speech-icon {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
 .ai-icon {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
 
 .panel-info {

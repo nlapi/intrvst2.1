@@ -358,11 +358,11 @@ export default {
 }
 
 .resume-icon {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
 .job-icon {
-  background: linear-gradient(135deg, #0a66c2, #004182);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
 
 .card-info {
