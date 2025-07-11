@@ -36,9 +36,6 @@
         <div class="welcome-layout">
           <div class="welcome-content-left">
             <div class="welcome-info">
-              <div class="welcome-icon">
-                <i class="el-icon-chat-dot-round"></i>
-              </div>
               <h2 class="welcome-title">Welcome to InterviewSignal</h2>
               <p class="welcome-description">
                 Your AI-powered interview preparation companion. Sign up to get started with personalized coaching and practice sessions.
@@ -57,23 +54,23 @@
                   <span>Personalized Guidance</span>
                 </div>
               </div>
-              <div class="welcome-actions">
-                <el-button
-                  type="primary"
-                  size="large"
-                  @click="showAuthModal = true"
-                  class="welcome-button"
-                >
-                  <i class="el-icon-user"></i>
-                  <span>Get Started</span>
-                </el-button>
+              
+              <div class="legal-notice">
+                <p class="legal-text">
+                  By clicking Continue to join or sign in, you agree to InterviewSignal's User Agreement, Privacy Policy, and Cookie Policy.
+                </p>
+              </div>
+              
+              <div class="join-section">
+                <span class="join-text">New to InterviewSignal? </span>
+                <a href="#" @click.prevent="showAuthModal = true" class="join-link">Join now</a>
               </div>
             </div>
           </div>
           
           <div class="welcome-content-right">
             <div class="welcome-image">
-              <img src="./assets/file-1705059742242-468908287.png" alt="InterviewSignal" class="hero-image" />
+              <img src="./assets/ChatGPT Image Jul 10, 2025, 08_47_36 PM.png" alt="InterviewSignal" class="hero-image" />
             </div>
           </div>
         </div>
@@ -684,19 +681,6 @@ export default {
   filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
 }
 
-.welcome-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px;
-  color: white;
-  font-size: 32px;
-}
-
 .welcome-title {
   font-size: 28px;
   font-weight: 700;
@@ -741,22 +725,38 @@ export default {
   font-size: 14px;
 }
 
-.welcome-actions {
-  display: flex;
-  justify-content: flex-start;
+.legal-notice {
+  margin-bottom: 24px;
 }
 
-.welcome-button {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
+.legal-text {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.join-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.join-text {
+  color: #64748b;
+}
+
+.join-link {
+  color: #0a66c2;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.join-link:hover {
+  color: #004182;
+  text-decoration: underline;
 }
 
 .status-screen {
@@ -881,7 +881,7 @@ export default {
     text-align: center;
   }
   
-  .welcome-actions {
+  .join-section {
     justify-content: center;
   }
   
