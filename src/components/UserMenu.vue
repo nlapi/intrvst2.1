@@ -204,7 +204,7 @@
           </el-button>
         </div>
       </div>
-  </el-dialog>
+    </el-dialog>
   </el-dialog>
 </template>
 
@@ -276,7 +276,6 @@ export default {
   methods: {
     getUserInitials(name) {
       if (!name) return 'U'
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
       return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     },
     
@@ -384,9 +383,6 @@ export default {
           this.$message.error('Failed to delete referral code')
         } finally {
           this.processingCodes = this.processingCodes.filter(id => id !== code.id)
-        }
-      })
-    },
         }
       })
     },
