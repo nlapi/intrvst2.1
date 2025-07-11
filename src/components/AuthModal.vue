@@ -275,7 +275,8 @@ export default {
         current_role: role,
         company: company || '',
         referral_code: referralCode,
-        status: 'approved' // Directly approved with valid referral code
+        status: 'approved', // Directly approved with valid referral code
+        email_confirmed_at: new Date().toISOString()
       })
       
       if (error) {

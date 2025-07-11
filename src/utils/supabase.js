@@ -74,7 +74,7 @@ export const authHelpers = {
         password,
         user_metadata: {
           ...userData,
-          status: 'pending'
+          status: userData.status || 'approved'
         },
         email_confirmed_at: new Date().toISOString()
       }

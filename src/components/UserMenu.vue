@@ -76,6 +76,13 @@ export default {
     
     isAdmin() {
       return this.user?.email === 'nisjet.lapi@gmail.com'
+    },
+    
+    getUserRole() {
+      if (this.user?.email === 'nisjet.lapi@gmail.com') {
+        return 'Super Admin'
+      }
+      return this.user?.user_metadata?.current_role || 'Member'
     }
   },
   methods: {
