@@ -556,7 +556,7 @@ export default {
 }
 
 .brand-title {
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
   line-height: 1;
   margin: 0;
@@ -648,14 +648,13 @@ export default {
   height: 36px;
   padding: 0 20px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   background: white;
   color: #0a66c2;
   border: 2px solid #0a66c2;
   display: flex;
   align-items: center;
-  gap: 8px;
   transition: all 0.2s ease;
 }
 
