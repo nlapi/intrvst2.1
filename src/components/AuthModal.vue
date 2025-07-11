@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :visible.sync="visible"
+    :visible.sync="dialogVisible"
     :title="isLogin ? 'Sign In to InterviewSignal' : 'Create Your Account'"
     width="400px"
     :close-on-click-modal="false"
@@ -159,6 +159,14 @@ export default {
     }
   },
   computed: {
+    dialogVisible: {
+      get() {
+        return this.visible
+      },
+      set(value) {
+        this.$emit('update:visible', value)
+      }
+    },
     isSupabaseConfigured() {
       // Always return true since we have mock authentication fallback
       return true
