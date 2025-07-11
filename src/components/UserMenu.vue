@@ -50,14 +50,52 @@ export default {
   },
   computed: {
     userInitials() {
-      const name = this.user.user_metadata?.full_name || this.user.email || 'U'
+      // Try to get name from customization data first, then fallback to user metadata
+      const customizationData = this.getCustomizationData()
+      let name = ''
+      
+      if (customizationData.personalInfo && customizationData.personalInfo.firstName) {
+        name = `${customizationData.personalInfo.firstName} ${customizationData.personalInfo.lastName || ''}`.trim()
+      } else {
+        name = this.user.user_metadata?.full_name || this.user.email || 'U'
+      }
+      
       return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     },
+    
+    displayName() {
+      // Try to get name from customization data first, then fallback to user metadata
+      const customizationData = this.getCustomizationData()
+      
+      if (customizationData.personalInfo && customizationData.personalInfo.firstName) {
+        return `${customizationData.personalInfo.firstName} ${customizationData.personalInfo.lastName || ''}`.trim()
+      }
+      
+      return this.user.user_metadata?.full_name || 'User'
+    },
+    
     isAdmin() {
       return this.user?.email === 'nisjet.lapi@gmail.com'
     }
   },
   methods: {
+    getCustomizationData() {
+      const saved = localStorage.getItem('interview_customization')
+      if (!saved) {
+        return { personalInfo: null }
+      }
+      
+      try {
+        const data = JSON.parse(saved)
+        return {
+          personalInfo: data.personalInfo || null
+        }
+      } catch (error) {
+        console.error('Error loading customization data:', error)
+        return { personalInfo: null }
+      }
+    },
+    
     async handleCommand(command) {
       switch (command) {
         case 'profile':

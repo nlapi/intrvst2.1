@@ -2,6 +2,66 @@
   <div class="profile-workspace">
     <!-- Profile Sections -->
     <div class="profile-grid">
+      <!-- Personal Information Section -->
+      <div class="profile-card personal-card">
+        <div class="card-header">
+          <div class="card-icon personal-icon">
+            <i class="el-icon-user"></i>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Personal Information</h3>
+            <p class="card-subtitle">Your contact details and basic information</p>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="personal-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First Name *</label>
+                <el-input 
+                  v-model="personalInfo.firstName" 
+                  @input="onPersonalInfoChange"
+                  placeholder="Enter your first name"
+                  class="modern-input"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name *</label>
+                <el-input 
+                  v-model="personalInfo.lastName" 
+                  @input="onPersonalInfoChange"
+                  placeholder="Enter your last name"
+                  class="modern-input"
+                />
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Email Address *</label>
+                <el-input 
+                  v-model="personalInfo.email" 
+                  @input="onPersonalInfoChange"
+                  type="email"
+                  placeholder="Enter your email address"
+                  class="modern-input"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <el-input 
+                  v-model="personalInfo.phone" 
+                  @input="onPersonalInfoChange"
+                  placeholder="Enter your phone number"
+                  class="modern-input"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Resume Section -->
       <div class="profile-card resume-card">
         <div class="card-header">
@@ -207,6 +267,12 @@ export default {
   name: 'Customize',
   data() {
     return {
+      personalInfo: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: ''
+      },
       resumeText: '',
       jobInfo: {
         position: '',
@@ -222,15 +288,20 @@ export default {
   },
   computed: {
     isDataValid() {
+      const hasPersonalInfo = this.personalInfo.firstName.trim() && this.personalInfo.lastName.trim() && this.personalInfo.email.trim();
       const hasResume = this.resumeText.trim().length > 50;
       const hasJobInfo = this.jobInfo.position.trim() || this.jobInfo.description.trim();
-      return hasResume && hasJobInfo;
+      return hasPersonalInfo && hasResume && hasJobInfo;
     }
   },
   mounted() {
     this.loadSavedData();
   },
   methods: {
+    onPersonalInfoChange() {
+      this.saveToLocalStorage();
+    },
+    
     onResumeTextChange() {
       this.saveToLocalStorage();
     },
@@ -241,6 +312,7 @@ export default {
     
     saveCustomization() {
       const customizationData = {
+        personalInfo: this.personalInfo,
         resume: this.resumeText,
         jobInfo: this.jobInfo,
         timestamp: new Date().toISOString()
@@ -251,7 +323,7 @@ export default {
       this.savedStatus = {
         title: 'Profile Saved Successfully!',
         type: 'success',
-        description: 'Your resume and job information have been saved. The AI coach will now provide personalized responses based on this information.'
+        description: 'Your personal information, resume and job details have been saved. The AI coach will now provide personalized responses based on this information.'
       };
       
       setTimeout(() => {
@@ -266,6 +338,12 @@ export default {
         type: 'warning',
         dangerouslyUseHTMLString: false
       }).then(() => {
+        this.personalInfo = {
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: ''
+        };
         this.resumeText = '';
         this.jobInfo = {
           position: '',
@@ -288,6 +366,9 @@ export default {
       if (saved) {
         try {
           const data = JSON.parse(saved);
+          if (data.personalInfo) {
+            this.personalInfo = { ...this.personalInfo, ...data.personalInfo };
+          }
           if (data.resume) {
             this.resumeText = data.resume;
           }
@@ -303,6 +384,7 @@ export default {
     saveToLocalStorage() {
       // Auto-save functionality
       const customizationData = {
+        personalInfo: this.personalInfo,
         resume: this.resumeText,
         jobInfo: this.jobInfo,
         timestamp: new Date().toISOString()
@@ -323,7 +405,7 @@ export default {
 
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 24px;
 }
 
@@ -358,6 +440,11 @@ export default {
 }
 
 .resume-icon {
+  background: rgba(10, 102, 194, 0.1);
+  color: #0a66c2;
+}
+
+.personal-icon {
   background: rgba(10, 102, 194, 0.1);
   color: #0a66c2;
 }
@@ -467,6 +554,12 @@ export default {
 }
 
 .job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.personal-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -660,10 +753,6 @@ export default {
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-  
   .form-row {
     grid-template-columns: 1fr;
   }
