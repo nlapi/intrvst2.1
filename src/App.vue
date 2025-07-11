@@ -1,18 +1,5 @@
 <template>
   <div id="app">
-    <!-- Supabase Configuration Notice -->
-    <div v-if="!isSupabaseConfigured" class="config-notice">
-      <div class="notice-content">
-        <div class="notice-icon">
-          <i class="el-icon-warning"></i>
-        </div>
-        <div class="notice-text">
-          <strong>Supabase Configuration Required</strong>
-          <p>To enable real email verification and authentication, please click "Connect to Supabase" in the top right corner.</p>
-        </div>
-      </div>
-    </div>
-
     <div v-if="loading" class="loading-screen">
       <div class="loading-content">
         <div class="loading-spinner"></div>
