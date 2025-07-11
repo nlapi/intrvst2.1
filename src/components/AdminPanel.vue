@@ -142,11 +142,11 @@
           >
             <div class="user-info">
               <div class="user-avatar" :class="{ admin: user.isAdmin }">
-                {{ getUserInitials(user.fullName) }}
+                {{ getUserInitials(user) }}
               </div>
               <div class="user-details">
                 <div class="user-name">
-                  {{ user.fullName }}
+                  {{ getUserDisplayName(user) }}
                   <span v-if="user.isAdmin" class="admin-badge">ADMIN</span>
                 </div>
                 <div class="user-email">{{ user.email }}</div>
