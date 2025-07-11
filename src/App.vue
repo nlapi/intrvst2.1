@@ -25,8 +25,7 @@
               @click="showAuthModal = true"
               class="sign-in-button"
             >
-              <i class="el-icon-user"></i>
-              <span>Sign In</span>
+              Sign In
             </el-button>
           </div>
         </div>
