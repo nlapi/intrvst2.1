@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :visible.sync="dialogVisible"
+    :visible.sync="visible"
     :title="isLogin ? 'Sign In to InterviewSignal' : 'Create Your Account'"
     width="400px"
     :close-on-click-modal="false"
@@ -67,14 +67,6 @@
             type="password" 
             placeholder="Confirm your password"
             show-password
-            class="auth-input"
-          />
-        </div>
-        <div class="form-group">
-          <label>Referral Code *</label>
-          <el-input 
-            v-model="signupForm.referralCode" 
-            placeholder="Enter your referral code"
             class="auth-input"
           />
         </div>
@@ -152,23 +144,15 @@ export default {
         email: '',
         password: '',
         confirmPassword: '',
-        referralCode: '',
         role: '',
         company: ''
       }
     }
   },
   computed: {
-    dialogVisible: {
-      get() {
-        return this.visible
-      },
-      set(value) {
-        this.$emit('update:visible', value)
-      }
-    },
     isSupabaseConfigured() {
-      return authHelpers.isConfigured()
+      // Always return true since we have mock authentication fallback
+      return true
     }
   },
   methods: {
@@ -188,13 +172,21 @@ export default {
         email: '',
         password: '',
         confirmPassword: '',
-        referralCode: '',
         role: '',
         company: ''
       }
     },
     
     async handleSubmit() {
+      if (!this.isSupabaseConfigured) {
+        this.statusMessage = {
+          type: 'error',
+          title: 'Configuration Required',
+          text: 'Please set up Supabase configuration to enable authentication. Click "Connect to Supabase" in the top right.'
+        }
+        return
+      }
+      
       this.loading = true
       this.statusMessage = null
       
@@ -222,29 +214,29 @@ export default {
         throw new Error('Please enter both email and password')
       }
       
-      const result = await authHelpers.signIn(email, password)
+      const { data, error } = await authHelpers.signIn(email, password)
       
-      if (result.error) {
-        if (result.error.message.includes('Email not confirmed')) {
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
           throw new Error('Please verify your email address before signing in. Check your inbox for the verification link.')
         }
-        throw new Error(result.error.message)
+        throw new Error(error.message)
       }
       
-      if (!result.data.user) {
+      if (!data.user) {
         throw new Error('Invalid email or password')
       }
       
       // Check if user is approved (you'll need to implement this in your database)
-      this.$emit('auth-success', result.data.user)
+      this.$emit('auth-success', data.user)
       this.clearForms()
     },
     
     async handleSignUp() {
-      const { fullName, email, password, confirmPassword, referralCode, role, company } = this.signupForm
+      const { fullName, email, password, confirmPassword, role, company } = this.signupForm
       
       // Validation
-      if (!fullName || !email || !password || !referralCode || !role) {
+      if (!fullName || !email || !password || !role) {
         throw new Error('Please fill in all required fields')
       }
       
@@ -260,49 +252,39 @@ export default {
         throw new Error('Password must be at least 6 characters long')
       }
       
-      // Validate referral code
-      if (!this.validateReferralCode(referralCode)) {
-        throw new Error('Invalid referral code. Please check your code and try again.')
-      }
-      
-      // Mark referral code as used
-      this.markReferralCodeAsUsed(referralCode)
-      
-      const result = await authHelpers.signUp(email, password, {
+      const { data, error } = await authHelpers.signUp(email, password, {
         full_name: fullName,
         current_role: role,
         company: company || '',
-        referral_code: referralCode,
-        status: 'approved', // Auto-approve users with valid referral codes
-        email_confirmed_at: new Date().toISOString()
+        status: 'pending' // Will need admin approval
       })
       
-      if (result.error) {
-        if (result.error.message.includes('already registered')) {
+      if (error) {
+        if (error.message.includes('already registered')) {
           throw new Error('An account with this email already exists')
         }
-        throw new Error(result.error.message)
+        throw new Error(error.message)
       }
       
-      // Success - user is approved and ready to use the site
-      this.$emit('auth-success', result.data.user)
-      this.clearForms()
-    },
-    
-    validateReferralCode(code) {
-      // Get valid referral codes from localStorage
-      const validCodes = JSON.parse(localStorage.getItem('referralCodes') || '[]')
-      return validCodes.some(codeObj => codeObj.code === code && codeObj.active && !codeObj.used)
-    },
-    
-    markReferralCodeAsUsed(code) {
-      const validCodes = JSON.parse(localStorage.getItem('referralCodes') || '[]')
-      const codeIndex = validCodes.findIndex(codeObj => codeObj.code === code)
-      if (codeIndex !== -1) {
-        validCodes[codeIndex].used = true
-        validCodes[codeIndex].usedAt = new Date().toISOString()
-        localStorage.setItem('referralCodes', JSON.stringify(validCodes))
+      if (data.user && !data.user.email_confirmed_at) {
+        this.statusMessage = {
+          type: 'success',
+          title: 'Verification Email Sent!',
+          text: `We've sent a verification email to ${email}. Please check your inbox and click the verification link to complete your registration. After verifying your email, your account will be pending admin approval. Check your spam folder if you don't see the email.`
+        }
+      } else {
+        this.statusMessage = {
+          type: 'success',
+          title: 'Account Created!',
+          text: 'Your account has been created successfully! Please check your email for verification, then your account will be pending admin approval.'
+        }
       }
+      
+      // Clear form after success
+      setTimeout(() => {
+        this.clearForms()
+        this.statusMessage = null
+      }, 5000)
     }
   }
 }

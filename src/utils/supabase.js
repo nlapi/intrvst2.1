@@ -1,31 +1,55 @@
-// Supabase client configuration and authentication helpers
 import { createClient } from '@supabase/supabase-js'
 
+// Check if Supabase environment variables are properly configured
 const supabaseUrl = process.env.VUE_APP_SUPABASE_URL || 'https://your-project.supabase.co'
-const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY || 'your-anon-key'
+const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY || 'your-supabase-anon-key'
 
-// Check if Supabase is properly configured
-const isSupabaseConfigured = supabaseUrl !== 'https://your-project.supabase.co' && 
-                            supabaseKey !== 'your-anon-key' &&
-                            supabaseUrl.includes('supabase.co')
-
-export const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseKey) : null
-
-// Authentication helper functions
-export const authHelpers = {
-  // Check if Supabase is configured
-  isConfigured() {
-    return isSupabaseConfigured
+// Always create a mock client for development/demo purposes
+const mockUsers = [
+  {
+    id: 'admin-001',
+    email: 'nisjet.lapi@gmail.com',
+    password: 'Winter202!Winter202!',
+    user_metadata: {
+      full_name: 'Admin User',
+      current_role: 'Administrator',
+      company: 'InterviewSignal',
+      status: 'approved'
+    },
+    email_confirmed_at: new Date().toISOString()
   },
+  {
+    id: 'user-001',
+    email: 'john.smith@example.com',
+    password: 'password123',
+    user_metadata: {
+      full_name: 'John Smith',
+      current_role: 'Software Engineer',
+      company: 'Tech Corp',
+      status: 'pending'
+    },
+    email_confirmed_at: new Date().toISOString()
+  }
+]
 
-  // Sign up with email and password
+// Create Supabase client - will be null if env vars not set
+export const supabase = (supabaseUrl && supabaseKey && 
+  supabaseUrl !== 'your_supabase_project_url' && 
+  supabaseUrl !== 'https://your-project.supabase.co' &&
+  supabaseKey !== 'your_supabase_anon_key') 
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
+  : null
+
+// Auth helpers
+export const authHelpers = {
   async signUp(email, password, userData = {}) {
-    if (!isSupabaseConfigured) {
-      // Fallback to mock authentication
-      return this.mockSignUp(email, password, userData)
-    }
-
-    try {
+    if (supabase) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -33,170 +57,135 @@ export const authHelpers = {
           data: userData
         }
       })
+      return { data, error }
+    } else {
+      // Mock signup for demo
+      const existingUser = mockUsers.find(u => u.email === email)
+      if (existingUser) {
+        return { data: null, error: { message: 'User already registered' } }
+      }
       
-      if (error) throw error
-      return { data: { user: data.user, session: data.session }, error: null }
-    } catch (error) {
-      console.error('Sign up error:', error)
-      throw error
+      const newUser = {
+        id: 'user-' + Date.now(),
+        email,
+        password,
+        user_metadata: {
+          ...userData,
+          status: 'pending'
+        },
+        email_confirmed_at: new Date().toISOString()
+      }
+      
+      mockUsers.push(newUser)
+      localStorage.setItem('mockUsers', JSON.stringify(mockUsers))
+      
+      return { 
+        data: { 
+          user: newUser,
+          session: { access_token: 'mock-token' }
+        }, 
+        error: null 
+      }
     }
   },
 
-  // Sign in with email and password
   async signIn(email, password) {
-    if (!isSupabaseConfigured) {
-      // Fallback to mock authentication
-      return this.mockSignIn(email, password)
-    }
-
-    try {
+    if (supabase) {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
+      return { data, error }
+    } else {
+      // Mock signin for demo
+      const savedUsers = localStorage.getItem('mockUsers')
+      const allUsers = savedUsers ? JSON.parse(savedUsers) : mockUsers
       
-      if (error) throw error
-      return { data: { user: data.user, session: data.session }, error: null }
-    } catch (error) {
-      console.error('Sign in error:', error)
-      throw error
+      const user = allUsers.find(u => u.email === email && u.password === password)
+      if (!user) {
+        return { data: null, error: { message: 'Invalid email or password' } }
+      }
+      
+      return { 
+        data: { 
+          user,
+          session: { access_token: 'mock-token' }
+        }, 
+        error: null 
+      }
     }
   },
 
-  // Sign out
   async signOut() {
-    if (!isSupabaseConfigured) {
-      // Fallback to mock sign out
-      localStorage.removeItem('currentUser')
-      return
-    }
-
-    try {
+    if (supabase) {
       const { error } = await supabase.auth.signOut()
-      if (error) throw error
-    } catch (error) {
-      console.error('Sign out error:', error)
-      throw error
+      return { error }
+    } else {
+      // Mock signout
+      localStorage.removeItem('currentUser')
+      return { error: null }
     }
   },
 
-  // Get current user
   async getCurrentUser() {
-    if (!isSupabaseConfigured) {
-      // Fallback to mock user
+    if (supabase) {
+      const { data: { user } } = await supabase.auth.getUser()
+      return user
+    } else {
+      // Mock current user
       const savedUser = localStorage.getItem('currentUser')
       if (savedUser) {
         try {
           const userData = JSON.parse(savedUser)
-          if (userData.expiresAt && Date.now() < userData.expiresAt) {
-            // Load users from localStorage to get latest data
-            const savedUsers = localStorage.getItem('mockUsers')
-            const allUsers = savedUsers ? JSON.parse(savedUsers) : []
-            const user = allUsers.find(u => u.id === userData.id)
-            return user || null
-          }
+          const savedUsers = localStorage.getItem('mockUsers')
+          const allUsers = savedUsers ? JSON.parse(savedUsers) : mockUsers
+          return allUsers.find(u => u.id === userData.id)
         } catch (error) {
-          console.error('Error loading saved user:', error)
-          localStorage.removeItem('currentUser')
+          return null
         }
       }
       return null
     }
+  },
 
-    try {
-      const { data } = await supabase.auth.getUser()
-      return data.user
-    } catch (error) {
-      console.error('Get user error:', error)
-      return null
+  async updateProfile(updates) {
+    if (supabase) {
+      const { data, error } = await supabase.auth.updateUser({
+        data: updates
+      })
+      return { data, error }
+    } else {
+      // Mock update profile
+      const currentUser = await this.getCurrentUser()
+      if (currentUser) {
+        const updatedUser = {
+          ...currentUser,
+          user_metadata: {
+            ...currentUser.user_metadata,
+            ...updates
+          }
+        }
+        
+        const savedUsers = localStorage.getItem('mockUsers')
+        const allUsers = savedUsers ? JSON.parse(savedUsers) : mockUsers
+        const userIndex = allUsers.findIndex(u => u.id === currentUser.id)
+        if (userIndex !== -1) {
+          allUsers[userIndex] = updatedUser
+          localStorage.setItem('mockUsers', JSON.stringify(allUsers))
+        }
+        
+        return { data: { user: updatedUser }, error: null }
+      }
+      return { data: null, error: { message: 'No user found' } }
     }
   },
 
-  // Get current session
-  async getCurrentSession() {
-    if (!isSupabaseConfigured) {
-      return null
-    }
-
-    try {
-      const { data } = await supabase.auth.getSession()
-      return data.session
-    } catch (error) {
-      console.error('Get session error:', error)
-      return null
-    }
-  },
-
-  // Listen to auth changes
-  onAuthStateChange(callback) {
-    if (!isSupabaseConfigured) {
-      return { data: { subscription: { unsubscribe: () => {} } } }
-    }
-
-    return supabase.auth.onAuthStateChange(callback)
-  },
-
-  // Check if user is admin
   isAdmin(user) {
-    if (!user) return false
-    return user.isAdmin || 
-           (user.user_metadata && user.user_metadata.isAdmin) ||
-           user.email === 'nisjet.lapi@gmail.com'
+    return user?.email === 'nisjet.lapi@gmail.com'
   },
 
-  // Mock authentication methods for fallback
-  async mockSignUp(email, password, userData) {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // Get existing users
-    const savedUsers = localStorage.getItem('mockUsers')
-    const allUsers = savedUsers ? JSON.parse(savedUsers) : []
-    
-    // Check if user already exists
-    if (allUsers.some(u => u.email === email)) {
-      throw new Error('User already registered')
-    }
-    
-    // Create new user
-    const newUser = {
-      id: 'user-' + Date.now(),
-      email,
-      password, // In real app, this would be hashed
-      fullName: userData.full_name || '',
-      role: userData.current_role || '',
-      company: userData.company || '',
-      referralCode: userData.referral_code || '',
-      status: 'approved', // Auto-approve all users with valid referral codes
-      isAdmin: false,
-      emailVerified: true,
-      createdAt: new Date().toISOString(),
-      user_metadata: userData
-    }
-    
-    allUsers.push(newUser)
-    localStorage.setItem('mockUsers', JSON.stringify(allUsers))
-    
-    return { data: { user: newUser, session: null }, error: null }
-  },
-
-  async mockSignIn(email, password) {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // Get existing users
-    const savedUsers = localStorage.getItem('mockUsers')
-    const allUsers = savedUsers ? JSON.parse(savedUsers) : []
-    
-    // Find user
-    const user = allUsers.find(u => u.email === email && u.password === password)
-    
-    if (!user) {
-      throw new Error('Invalid login credentials')
-    }
-    
-    return { data: { user, session: null }, error: null }
+  // Check if Supabase is configured
+  isConfigured() {
+    return !!supabase
   }
 }
-
-export default supabase

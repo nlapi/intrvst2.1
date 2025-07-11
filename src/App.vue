@@ -25,7 +25,8 @@
               @click="showAuthModal = true"
               class="sign-in-button"
             >
-              Sign In
+              <i class="el-icon-user"></i>
+              <span>Sign In</span>
             </el-button>
           </div>
         </div>
@@ -56,11 +57,7 @@
               
               <div class="legal-notice">
                 <p class="legal-text">
-                  By clicking Continue to join or sign in, you agree to InterviewSignal's 
-                  <a href="/legal/user-agreement.html" target="_blank" class="legal-link">User Agreement</a>, 
-                  <a href="/legal/terms-of-service.html" target="_blank" class="legal-link">Terms of Service</a>, 
-                  <a href="/legal/privacy-policy.html" target="_blank" class="legal-link">Privacy Policy</a>, and 
-                  <a href="/legal/cookie-policy.html" target="_blank" class="legal-link">Cookie Policy</a>.
+                  By clicking Continue to join or sign in, you agree to InterviewSignal's User Agreement, Privacy Policy, and Cookie Policy.
                 </p>
               </div>
               
@@ -123,28 +120,24 @@
               <span class="nav-text">Profile</span>
             </router-link>
             
-            <router-link
-              v-if="isAdmin"
-              to="/admin" 
+            <router-link 
+              to="/setting" 
               class="nav-link"
-              :class="{ active: $router.currentRoute.path === '/admin' }"
+              :class="{ active: $router.currentRoute.path === '/setting' }"
             >
               <div class="nav-icon">
-                <i class="el-icon-key"></i>
+                <i class="el-icon-setting"></i>
               </div>
-              <span class="nav-text">Admin</span>
+              <span class="nav-text">Settings</span>
             </router-link>
           </nav>
           
           <div class="auth-section">
-            <el-button
-              @click="handleSignOut"
-              type="text"
-              class="sign-out-button"
-            >
-              <i class="el-icon-switch-button"></i>
-              <span>Sign Out</span>
-            </el-button>
+            <UserMenu 
+              :user="currentUser" 
+              @signed-out="handleSignOut"
+              @show-admin="showAdminPanel = true"
+            />
           </div>
         </div>
       </div>
@@ -198,6 +191,11 @@
       </main>
 
       <!-- Admin Panel -->
+      <AdminPanel 
+        :visible="showAdminPanel"
+        @close="showAdminPanel = false"
+        @user-deleted="refreshUserStatus"
+      />
     </div>
   </div>
 </template>
@@ -205,11 +203,15 @@
 <script>
 import { authHelpers } from '@/utils/supabase'
 import AuthModal from '@/components/AuthModal.vue'
+import UserMenu from '@/components/UserMenu.vue'
+import AdminPanel from '@/components/AdminPanel.vue'
 
 export default {
   name: 'App',
   components: {
-    AuthModal
+    AuthModal,
+    UserMenu,
+    AdminPanel
   },
   data() {
     return {
@@ -217,6 +219,7 @@ export default {
       currentUser: null,
       userStatus: 'approved', // approved, pending, rejected
       showAuthModal: false,
+      showAdminPanel: false,
       showEmailVerificationHelper: false,
       // Mock user database
       users: [
@@ -224,12 +227,11 @@ export default {
           id: 'admin-001',
           email: 'nisjet.lapi@gmail.com',
           password: 'Winter202!Winter202!',
-          fullName: 'Super Admin',
-          role: 'Super Administrator',
+          fullName: 'Admin User',
+          role: 'Administrator',
           company: 'InterviewSignal',
           status: 'approved',
           isAdmin: true,
-          isSuperAdmin: true,
           emailVerified: true,
           createdAt: new Date('2024-01-01').toISOString()
         },
@@ -261,52 +263,11 @@ export default {
   },
   computed: {
     isSupabaseConfigured() {
-      return authHelpers.isConfigured()
-    },
-    isAdmin() {
-      return this.currentUser && authHelpers.isAdmin(this.currentUser)
+      // Always return true since we have fallback authentication
+      return true
     }
   },
   async mounted() {
-    // Add body classes for scroll prevention
-    this.updateBodyClasses()
-    
-    // Initialize referral codes if not exists
-    if (!localStorage.getItem('referralCodes')) {
-      const initialCodes = [
-        {
-          id: 'ref-001',
-          code: 'BETA2024',
-          description: 'Beta testing program',
-          active: true,
-          used: true,
-          createdAt: new Date('2024-01-01').toISOString(),
-          usedAt: new Date().toISOString()
-        },
-        {
-          id: 'ref-002',
-          code: 'WELCOME2025',
-          description: 'New year launch',
-          active: true,
-          used: false,
-          createdAt: new Date().toISOString(),
-          usedAt: null
-        }
-      ]
-      localStorage.setItem('referralCodes', JSON.stringify(initialCodes))
-    }
-    
-    // Initialize users if not exists
-    if (!localStorage.getItem('mockUsers')) {
-      localStorage.setItem('mockUsers', JSON.stringify(this.users))
-    } else {
-      // Load users from localStorage
-      const savedUsers = localStorage.getItem('mockUsers')
-      if (savedUsers) {
-        this.users = JSON.parse(savedUsers)
-      }
-    }
-    
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000))
     
@@ -314,38 +275,23 @@ export default {
     if (this.isSupabaseConfigured) {
       try {
         const user = await authHelpers.getCurrentUser()
-        if (user) {
+        if (user && user.email_confirmed_at) {
           this.currentUser = user
           this.userStatus = this.getUserStatus(user)
         }
       } catch (error) {
         console.error('Error checking auth session:', error)
       }
-    }
-    
-    // Always check localStorage fallback
-    if (!this.currentUser) {
+    } else {
       // Fallback to localStorage for demo purposes
       const savedUser = localStorage.getItem('currentUser')
       if (savedUser) {
         try {
           const userData = JSON.parse(savedUser)
-          
-          // Check if session is still valid (14 days)
-          if (userData.expiresAt && Date.now() < userData.expiresAt) {
-            // Load users from localStorage to get latest data
-            const savedUsers = localStorage.getItem('mockUsers')
-            const allUsers = savedUsers ? JSON.parse(savedUsers) : this.users
-            const user = allUsers.find(u => u.id === userData.id)
-            if (user) {
-              this.currentUser = user
-              this.userStatus = user.status
-              // Update the users array with latest data
-              this.users = allUsers
-            }
-          } else {
-            // Session expired, remove it
-            localStorage.removeItem('currentUser')
+          const user = this.users.find(u => u.id === userData.id)
+          if (user) {
+            this.currentUser = user
+            this.userStatus = user.status
           }
         } catch (error) {
           console.error('Error loading saved user:', error)
@@ -356,42 +302,16 @@ export default {
     
     this.loading = false
   },
-  watch: {
-    currentUser() {
-      this.updateBodyClasses()
-    },
-    '$route'() {
-      this.updateBodyClasses()
-    }
-  },
   methods: {
-    updateBodyClasses() {
-      // Remove all scroll classes first
-      document.body.classList.remove('no-scroll-welcome', 'no-scroll-interview')
-      document.documentElement.classList.remove('no-scroll-welcome', 'no-scroll-interview')
-      
-      // Add appropriate class based on current state
-      if (!this.currentUser) {
-        // Welcome/sign-in page
-        document.body.classList.add('no-scroll-welcome')
-        document.documentElement.classList.add('no-scroll-welcome')
-      } else if (this.userStatus === 'approved' && this.$route.path === '/') {
-        // Interview page
-        document.body.classList.add('no-scroll-interview')
-        document.documentElement.classList.add('no-scroll-interview')
-      }
-    },
-    
     getUserStatus(user) {
-      // Always return the user's actual status from their data
-      if (user.status) {
-        return user.status
+      // Check if user is admin
+      if (authHelpers.isAdmin(user)) {
+        return 'approved'
       }
-      if (user.user_metadata?.status) {
-        return user.user_metadata.status
-      }
-      // Default to approved for backward compatibility
-      return 'approved'
+      
+      // For now, return pending - you'll need to implement user status in your database
+      // This would typically check a user_profiles table or similar
+      return user.user_metadata?.status || 'pending'
     },
     
     handleAuthSuccess(user) {
@@ -399,20 +319,12 @@ export default {
       this.userStatus = this.getUserStatus(user)
       this.showAuthModal = false
       
-      // Update body classes after auth
-      this.$nextTick(() => {
-        this.updateBodyClasses()
-      })
-      
       // Save session (fallback for non-Supabase)
       if (!this.isSupabaseConfigured) {
-        const sessionData = {
+        localStorage.setItem('currentUser', JSON.stringify({
           id: user.id,
-          email: user.email,
-          loginTime: Date.now(),
-          expiresAt: Date.now() + (14 * 24 * 60 * 60 * 1000) // 14 days
-        }
-        localStorage.setItem('currentUser', JSON.stringify(sessionData))
+          email: user.email
+        }))
       }
       
       if (this.userStatus === 'approved') {
@@ -440,13 +352,8 @@ export default {
       
       this.currentUser = null
       this.userStatus = 'approved'
+      this.showAdminPanel = false
       localStorage.removeItem('currentUser')
-      
-      // Update body classes after sign out
-      this.$nextTick(() => {
-        this.updateBodyClasses()
-      })
-      
       this.$message.success('Successfully signed out')
     },
     
@@ -478,8 +385,6 @@ export default {
       const userIndex = this.users.findIndex(u => u.id === userId)
       if (userIndex !== -1) {
         this.users[userIndex] = { ...this.users[userIndex], ...updates }
-        // Save to localStorage
-        localStorage.setItem('mockUsers', JSON.stringify(this.users))
         return this.users[userIndex]
       }
       return null
@@ -489,8 +394,6 @@ export default {
       const userIndex = this.users.findIndex(u => u.id === userId)
       if (userIndex !== -1) {
         this.users.splice(userIndex, 1)
-        // Save to localStorage
-        localStorage.setItem('mockUsers', JSON.stringify(this.users))
         return true
       }
       return false
@@ -503,12 +406,9 @@ export default {
         createdAt: new Date().toISOString(),
         isAdmin: false,
         emailVerified: true, // Only called after email verification
-        referralCode: 'BETA2024',
         status: 'pending'
       }
       this.users.push(newUser)
-      // Save to localStorage
-      localStorage.setItem('mockUsers', JSON.stringify(this.users))
       return newUser
     },
     
@@ -656,7 +556,7 @@ export default {
 }
 
 .brand-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
   margin: 0;
@@ -745,41 +645,16 @@ export default {
 }
 
 .sign-in-button {
-  height: 36px;
+  height: 40px;
   padding: 0 20px;
-  border-radius: 8px;
-  font-size: 17px;
-  font-weight: 600;
-  background: white;
-  color: #0a66c2;
-  border: 2px solid #0a66c2;
-  display: flex;
-  align-items: center;
-  transition: all 0.2s ease;
-}
-
-.sign-in-button:hover {
-  background: #f8fafc;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(10, 102, 194, 0.2);
-}
-
-.sign-out-button {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  border: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.sign-out-button:hover {
-  color: #ef4444;
-  background: #fef2f2;
+  gap: 8px;
 }
 
 .app-main {
@@ -788,37 +663,6 @@ export default {
   margin: 0 auto;
   padding: 32px;
   width: 100%;
-}
-
-/* Force remove scrollbars */
-html.no-scroll-welcome,
-html.no-scroll-interview,
-body.no-scroll-welcome,
-body.no-scroll-interview {
-  overflow: hidden;
-  height: 100vh;
-  max-height: 100vh;
-}
-
-.no-scroll-welcome .app-container,
-.no-scroll-interview .app-container {
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
-}
-
-.no-scroll-welcome .app-main,
-.no-scroll-interview .app-main {
-  height: calc(100vh - 80px);
-  max-height: calc(100vh - 80px);
-  overflow: hidden;
-}
-
-.no-scroll-welcome .welcome-layout,
-.no-scroll-interview .interview-workspace {
-  height: 100%;
-  max-height: 100%;
-  overflow: hidden;
 }
 
 .welcome-layout {
@@ -953,18 +797,6 @@ body.no-scroll-interview {
 }
 
 .join-link:hover {
-  color: #004182;
-  text-decoration: underline;
-}
-
-.legal-link {
-  color: #0a66c2;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.legal-link:hover {
   color: #004182;
   text-decoration: underline;
 }

@@ -12,12 +12,12 @@
       <div class="admin-header">
         <div class="admin-stats">
           <div class="stat-card">
-            <div class="stat-number">{{ referralCodes.length }}</div>
-            <div class="stat-label">Referral Codes</div>
+            <div class="stat-number">{{ pendingUsers.length }}</div>
+            <div class="stat-label">Pending Approval</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number">{{ activeReferralCodes.length }}</div>
-            <div class="stat-label">Active Codes</div>
+            <div class="stat-number">{{ approvedUsers.length }}</div>
+            <div class="stat-label">Approved Users</div>
           </div>
           <div class="stat-card">
             <div class="stat-number">{{ allUsers.length }}</div>
@@ -30,19 +30,11 @@
       <div class="admin-controls">
         <el-input
           v-model="searchQuery"
-          placeholder="Search users or referral codes..."
+          placeholder="Search users by name or email..."
           prefix-icon="el-icon-search"
           class="search-input"
           clearable
         />
-        <el-button
-          type="success"
-          icon="el-icon-plus"
-          @click="showCreateReferralModal = true"
-          class="create-button"
-        >
-          Create Referral Code
-        </el-button>
         <el-button
           type="primary"
           icon="el-icon-refresh"
@@ -53,106 +45,97 @@
         </el-button>
       </div>
 
-      <!-- Referral Codes Section -->
+      <!-- Pending Approvals Section -->
       <div class="section">
         <div class="section-header">
           <h3 class="section-title">
-            <i class="el-icon-key"></i>
-            Referral Codes ({{ filteredReferralCodes.length }})
+            <i class="el-icon-time"></i>
+            Pending Approvals ({{ filteredPendingUsers.length }})
           </h3>
-          <p class="section-subtitle">Manage registration referral codes</p>
+          <p class="section-subtitle">Users waiting for admin approval</p>
         </div>
         
-        <div v-if="filteredReferralCodes.length === 0" class="empty-state">
+        <div v-if="filteredPendingUsers.length === 0" class="empty-state">
           <div class="empty-icon">
-            <i class="el-icon-key"></i>
+            <i class="el-icon-check"></i>
           </div>
-          <p class="empty-text">No referral codes created</p>
+          <p class="empty-text">No users pending approval</p>
         </div>
         
-        <div v-else class="referral-grid">
+        <div v-else class="user-grid">
           <div 
-            v-for="code in filteredReferralCodes" 
-            :key="code.id" 
-            class="referral-card"
-            :class="{ used: code.used, inactive: !code.active }"
+            v-for="user in filteredPendingUsers" 
+            :key="user.id" 
+            class="user-card pending"
           >
-            <div class="referral-info">
-              <div class="referral-code">{{ code.code }}</div>
-              <div class="referral-details">
-                <div class="referral-status">
-                  <span v-if="code.used" class="status-badge used">Used</span>
-                  <span v-else-if="code.active" class="status-badge active">Active</span>
-                  <span v-else class="status-badge inactive">Inactive</span>
-                </div>
-                <div class="referral-meta">
-                  <div class="meta-item">Created: {{ formatDate(code.createdAt) }}</div>
-                  <div class="meta-item" v-if="code.used">Used: {{ formatDate(code.usedAt) }}</div>
-                  <div class="meta-item" v-if="code.description">{{ code.description }}</div>
-                </div>
+            <div class="user-info">
+              <div class="user-avatar">{{ getUserInitials(user.fullName) }}</div>
+              <div class="user-details">
+                <div class="user-name">{{ user.fullName }}</div>
+                <div class="user-email">{{ user.email }}</div>
+                <div class="user-role">{{ user.role }}</div>
+                <div class="user-company" v-if="user.company">{{ user.company }}</div>
+                <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
               </div>
             </div>
-            <div class="referral-actions">
+            <div class="user-actions">
               <el-button 
-                v-if="!code.used"
-                :type="code.active ? 'warning' : 'success'"
+                type="success" 
                 size="small" 
-                @click="toggleReferralCode(code)"
-                :loading="processingCodes.includes(code.id)"
+                @click="approveUser(user)"
+                :loading="processingUsers.includes(user.id)"
               >
-                <i :class="code.active ? 'el-icon-close' : 'el-icon-check'"></i> 
-                {{ code.active ? 'Deactivate' : 'Activate' }}
+                <i class="el-icon-check"></i> Approve
               </el-button>
               <el-button 
                 type="danger" 
                 size="small" 
-                @click="deleteReferralCode(code)"
-                :loading="processingCodes.includes(code.id)"
+                @click="rejectUser(user)"
+                :loading="processingUsers.includes(user.id)"
               >
-                <i class="el-icon-delete"></i> Delete
+                <i class="el-icon-close"></i> Reject
               </el-button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Users Section -->
+      <!-- Approved Users Section -->
       <div class="section">
         <div class="section-header">
           <h3 class="section-title">
             <i class="el-icon-user"></i>
-            Registered Users ({{ filteredUsers.length }})
+            Approved Users ({{ filteredApprovedUsers.length }})
           </h3>
-          <p class="section-subtitle">All registered users</p>
+          <p class="section-subtitle">Active users with platform access</p>
         </div>
         
-        <div v-if="filteredUsers.length === 0" class="empty-state">
+        <div v-if="filteredApprovedUsers.length === 0" class="empty-state">
           <div class="empty-icon">
             <i class="el-icon-user"></i>
           </div>
-          <p class="empty-text">No users found</p>
+          <p class="empty-text">No approved users found</p>
         </div>
         
         <div v-else class="user-grid">
           <div 
-            v-for="user in filteredUsers" 
+            v-for="user in filteredApprovedUsers" 
             :key="user.id" 
-            class="user-card"
+            class="user-card approved"
             :class="{ admin: user.isAdmin }"
           >
             <div class="user-info">
               <div class="user-avatar" :class="{ admin: user.isAdmin }">
-                {{ getUserInitials(user) }}
+                {{ getUserInitials(user.fullName) }}
               </div>
               <div class="user-details">
                 <div class="user-name">
-                  {{ getUserDisplayName(user) }}
+                  {{ user.fullName }}
                   <span v-if="user.isAdmin" class="admin-badge">ADMIN</span>
                 </div>
                 <div class="user-email">{{ user.email }}</div>
                 <div class="user-role">{{ user.role }}</div>
                 <div class="user-company" v-if="user.company">{{ user.company }}</div>
-                <div class="user-referral" v-if="user.referralCode">Referral: {{ user.referralCode }}</div>
                 <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
               </div>
             </div>
@@ -172,39 +155,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Create Referral Code Modal -->
-    <el-dialog
-      :visible.sync="showCreateReferralModal"
-      title="Create Referral Code"
-      width="400px"
-      :close-on-click-modal="false"
-      :append-to-body="true"
-      custom-class="create-referral-dialog"
-    >
-      <div class="create-referral-form">
-        <div class="form-group">
-          <label>Referral Code</label>
-          <el-input
-            v-model="newReferralCode.code"
-            placeholder="Enter custom code or leave blank for auto-generation"
-          />
-        </div>
-        <div class="form-group">
-          <label>Description (Optional)</label>
-          <el-input
-            v-model="newReferralCode.description"
-            placeholder="e.g., For beta testers, Marketing campaign"
-          />
-        </div>
-        <div class="form-actions">
-          <el-button @click="showCreateReferralModal = false">Cancel</el-button>
-          <el-button type="primary" @click="createReferralCode" :loading="creatingCode">
-            Create Code
-          </el-button>
-        </div>
-      </div>
-    </el-dialog>
   </el-dialog>
 </template>
 
@@ -215,24 +165,13 @@ export default {
     visible: {
       type: Boolean,
       default: false
-    },
-    embedded: {
-      type: Boolean,
-      default: false
     }
   },
   inject: ['getUsers', 'updateUser', 'deleteUser'],
   data() {
     return {
       searchQuery: '',
-      processingUsers: [],
-      processingCodes: [],
-      showCreateReferralModal: false,
-      creatingCode: false,
-      newReferralCode: {
-        code: '',
-        description: ''
-      }
+      processingUsers: []
     }
   },
   computed: {
@@ -240,29 +179,29 @@ export default {
       return this.getUsers()
     },
     
-    referralCodes() {
-      return JSON.parse(localStorage.getItem('referralCodes') || '[]')
+    pendingUsers() {
+      return this.allUsers.filter(user => user.status === 'pending')
     },
     
-    activeReferralCodes() {
-      return this.referralCodes.filter(code => code.active && !code.used)
+    approvedUsers() {
+      return this.allUsers.filter(user => user.status === 'approved')
     },
     
-    filteredReferralCodes() {
-      if (!this.searchQuery) return this.referralCodes
+    filteredPendingUsers() {
+      if (!this.searchQuery) return this.pendingUsers
       
       const query = this.searchQuery.toLowerCase()
-      return this.referralCodes.filter(code => 
-        code.code.toLowerCase().includes(query) ||
-        (code.description && code.description.toLowerCase().includes(query))
+      return this.pendingUsers.filter(user => 
+        user.fullName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
       )
     },
     
-    filteredUsers() {
-      if (!this.searchQuery) return this.allUsers
+    filteredApprovedUsers() {
+      if (!this.searchQuery) return this.approvedUsers
       
       const query = this.searchQuery.toLowerCase()
-      return this.allUsers.filter(user => 
+      return this.approvedUsers.filter(user => 
         user.fullName.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query)
       )
@@ -270,30 +209,16 @@ export default {
     
     dialogVisible: {
       get() {
-        return this.embedded ? true : this.visible
+        return this.visible
       },
       set(value) {
-        if (!this.embedded) {
-          this.$emit('update:visible', value)
-        }
+        this.$emit('update:visible', value)
       }
     }
   },
   methods: {
-    getUserInitials(user) {
-      const displayName = user.fullName || 
-                          (user.user_metadata && user.user_metadata.full_name) || 
-                          user.email || 
-                          'Unknown User'
-      
-      return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    },
-    
-    getUserDisplayName(user) {
-      return user.fullName || 
-             (user.user_metadata && user.user_metadata.full_name) || 
-             user.email || 
-             'Unknown User'
+    getUserInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     },
     
     formatDate(dateString) {
@@ -304,100 +229,43 @@ export default {
       })
     },
     
-    async createReferralCode() {
-      this.creatingCode = true
+    async approveUser(user) {
+      this.processingUsers.push(user.id)
       
       try {
-        let code = this.newReferralCode.code.trim()
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        if (!code) {
-          code = this.generateReferralCode()
-        }
-        
-        const existingCodes = this.referralCodes
-        if (existingCodes.some(c => c.code === code)) {
-          throw new Error('Referral code already exists')
-        }
-        
-        const newCode = {
-          id: 'ref-' + Date.now(),
-          code: code,
-          description: this.newReferralCode.description.trim() || '',
-          active: true,
-          used: false,
-          createdAt: new Date().toISOString(),
-          usedAt: null
-        }
-        
-        existingCodes.push(newCode)
-        localStorage.setItem('referralCodes', JSON.stringify(existingCodes))
-        
-        this.$message.success(`Referral code "${code}" created successfully!`)
-        this.showCreateReferralModal = false
-        this.newReferralCode = { code: '', description: '' }
+        this.updateUser(user.id, { status: 'approved' })
+        this.$message.success(`${user.fullName} has been approved!`)
       } catch (error) {
-        this.$message.error(error.message || 'Failed to create referral code')
+        this.$message.error('Failed to approve user')
       } finally {
-        this.creatingCode = false
+        this.processingUsers = this.processingUsers.filter(id => id !== user.id)
       }
     },
     
-    generateReferralCode() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-      let result = ''
-      for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length))
-      }
-      return result
-    },
-    
-    async toggleReferralCode(code) {
-      this.processingCodes.push(code.id)
-      
-      try {
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        const codes = this.referralCodes
-        const codeIndex = codes.findIndex(c => c.id === code.id)
-        if (codeIndex !== -1) {
-          codes[codeIndex].active = !codes[codeIndex].active
-          localStorage.setItem('referralCodes', JSON.stringify(codes))
-          
-          const action = codes[codeIndex].active ? 'activated' : 'deactivated'
-          this.$message.success(`Referral code ${action} successfully`)
-        }
-      } catch (error) {
-        this.$message.error('Failed to update referral code')
-      } finally {
-        this.processingCodes = this.processingCodes.filter(id => id !== code.id)
-      }
-    },
-    
-    async deleteReferralCode(code) {
+    async rejectUser(user) {
       this.$confirm(
-        `Delete referral code "${code.code}"? This action cannot be undone.`,
-        'Delete Referral Code',
+        `Reject ${user.fullName}'s application? They will not be able to access the platform.`,
+        'Reject User Application',
         {
-          confirmButtonText: 'Delete',
+          confirmButtonText: 'Reject',
           cancelButtonText: 'Cancel',
-          type: 'error',
+          type: 'warning',
           confirmButtonClass: 'el-button--danger'
         }
       ).then(async () => {
-        this.processingCodes.push(code.id)
+        this.processingUsers.push(user.id)
         
         try {
-          await new Promise(resolve => setTimeout(resolve, 500))
+          await new Promise(resolve => setTimeout(resolve, 1000))
           
-          const codes = this.referralCodes
-          const filteredCodes = codes.filter(c => c.id !== code.id)
-          localStorage.setItem('referralCodes', JSON.stringify(filteredCodes))
-          
-          this.$message.success(`Referral code "${code.code}" deleted successfully`)
+          this.updateUser(user.id, { status: 'rejected' })
+          this.$message.success(`${user.fullName}'s application has been rejected`)
         } catch (error) {
-          this.$message.error('Failed to delete referral code')
+          this.$message.error('Failed to reject user')
         } finally {
-          this.processingCodes = this.processingCodes.filter(id => id !== code.id)
+          this.processingUsers = this.processingUsers.filter(id => id !== user.id)
         }
       })
     },
@@ -601,142 +469,14 @@ export default {
   background: #fefbf3;
 }
 
+.user-card.approved {
+  border-left: 4px solid #22c55e;
+  background: #f0fdf4;
+}
+
 .user-card.admin {
   border-left: 4px solid #8b5cf6;
   background: #faf5ff;
-}
-
-.referral-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.referral-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
-  border-left: 4px solid #22c55e;
-}
-
-.referral-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.referral-card.used {
-  border-left-color: #6b7280;
-  background: #f9fafb;
-}
-
-.referral-card.inactive {
-  border-left-color: #f59e0b;
-  background: #fefbf3;
-}
-
-.referral-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.referral-code {
-  font-size: 18px;
-  font-weight: 700;
-  font-family: 'Courier New', monospace;
-  color: #1e293b;
-  background: #f1f5f9;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.referral-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.referral-status {
-  display: flex;
-  justify-content: center;
-}
-
-.status-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.active {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.status-badge.used {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.status-badge.inactive {
-  background: #fef3c7;
-  color: #f59e0b;
-}
-
-.referral-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.meta-item {
-  font-size: 12px;
-  color: #6b7280;
-  text-align: center;
-}
-
-.referral-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-.create-button {
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-}
-
-.create-referral-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.create-referral-form .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.create-referral-form label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
 }
 
 .user-info {
@@ -805,14 +545,6 @@ export default {
   margin-bottom: 4px;
 }
 
-.user-referral {
-  font-size: 11px;
-  color: #16a34a;
-  font-weight: 500;
-  font-family: 'Courier New', monospace;
-  margin-bottom: 4px;
-}
-
 .user-date {
   font-size: 11px;
   color: #94a3b8;
@@ -852,26 +584,5 @@ export default {
 
 .admin-dialog .el-dialog__body {
   padding: 24px;
-}
-
-.create-referral-dialog .el-dialog {
-  border-radius: 12px;
-  z-index: 3000;
-}
-
-.create-referral-dialog .el-dialog__header {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 16px 20px;
-}
-
-.create-referral-dialog .el-dialog__title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.create-referral-dialog .el-dialog__body {
-  padding: 20px;
 }
 </style>

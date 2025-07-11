@@ -375,8 +375,6 @@ async function sleep(ms) {
   flex-direction: column;
   gap: 24px;
   max-width: 100%;
-  height: 100%;
-  overflow: hidden;
 }
 
 .recording-indicator {
