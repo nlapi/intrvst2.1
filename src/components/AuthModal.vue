@@ -283,7 +283,7 @@ export default {
         current_role: role,
         company: company || '',
         referral_code: referralCode,
-        status: 'approved', // Directly approved with valid referral code
+        status: 'approved',
         email_confirmed_at: new Date().toISOString()
       })
       
@@ -294,7 +294,7 @@ export default {
         throw new Error(error.message)
       }
       
-      // Directly emit success since no email verification needed
+      // Success - user is approved and ready to use the site
       this.$emit('auth-success', data.user)
       this.clearForms()
     },

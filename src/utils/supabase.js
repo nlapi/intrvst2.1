@@ -74,8 +74,9 @@ export const authHelpers = {
         password,
         user_metadata: {
           ...userData,
-          status: userData.status || 'approved'
+          status: 'approved' // Always approved with valid referral code
         },
+        status: 'approved', // Set at top level too
         email_confirmed_at: new Date().toISOString()
       }
       

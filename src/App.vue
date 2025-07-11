@@ -384,14 +384,15 @@ export default {
     },
     
     getUserStatus(user) {
-      // Check if user is admin
-      if (authHelpers.isAdmin(user)) {
-        return 'approved'
+      // Always return the user's actual status from their data
+      if (user.status) {
+        return user.status
       }
-      
-      // For now, return pending - you'll need to implement user status in your database
-      // This would typically check a user_profiles table or similar
-      return user.user_metadata?.status || 'pending'
+      if (user.user_metadata?.status) {
+        return user.user_metadata.status
+      }
+      // Default to approved for backward compatibility
+      return 'approved'
     },
     
     handleAuthSuccess(user) {
