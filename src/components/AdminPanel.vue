@@ -398,6 +398,9 @@ export default {
         }
       })
     },
+        }
+      })
+    },
     
     async handleDeleteUser(user) {
       if (user.isAdmin) {
