@@ -33,25 +33,47 @@
       </div>
       
       <main class="app-main">
-        <div class="welcome-content">
-          <div class="welcome-card">
-            <div class="welcome-icon">
-              <i class="el-icon-chat-dot-round"></i>
+        <div class="welcome-layout">
+          <div class="welcome-content-left">
+            <div class="welcome-info">
+              <div class="welcome-icon">
+                <i class="el-icon-chat-dot-round"></i>
+              </div>
+              <h2 class="welcome-title">Welcome to InterviewSignal</h2>
+              <p class="welcome-description">
+                Your AI-powered interview preparation companion. Sign up to get started with personalized coaching and practice sessions.
+              </p>
+              <div class="welcome-features">
+                <div class="feature-item">
+                  <i class="el-icon-microphone"></i>
+                  <span>Live Speech Recognition</span>
+                </div>
+                <div class="feature-item">
+                  <i class="el-icon-magic-stick"></i>
+                  <span>AI-Powered Coaching</span>
+                </div>
+                <div class="feature-item">
+                  <i class="el-icon-user"></i>
+                  <span>Personalized Guidance</span>
+                </div>
+              </div>
+              <div class="welcome-actions">
+                <el-button
+                  type="primary"
+                  size="large"
+                  @click="showAuthModal = true"
+                  class="welcome-button"
+                >
+                  <i class="el-icon-user"></i>
+                  <span>Get Started</span>
+                </el-button>
+              </div>
             </div>
-            <h2 class="welcome-title">Welcome to InterviewSignal</h2>
-            <p class="welcome-description">
-              Your AI-powered interview preparation companion. Sign up to get started with personalized coaching and practice sessions.
-            </p>
-            <div class="welcome-actions">
-              <el-button
-                type="primary"
-                size="large"
-                @click="showAuthModal = true"
-                class="welcome-button"
-              >
-                <i class="el-icon-user"></i>
-                <span>Get Started</span>
-              </el-button>
+          </div>
+          
+          <div class="welcome-content-right">
+            <div class="welcome-image">
+              <img src="./assets/file-1705059742242-468908287.png" alt="InterviewSignal" class="hero-image" />
             </div>
           </div>
         </div>
@@ -619,21 +641,47 @@ export default {
   width: 100%;
 }
 
-.welcome-content {
+.welcome-layout {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  gap: 48px;
   min-height: 60vh;
 }
 
-.welcome-card {
-  text-align: center;
+.welcome-content-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-content-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-info {
   max-width: 500px;
-  padding: 48px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
+  padding: 48px 32px;
+}
+
+.welcome-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-image {
+  max-width: 100%;
+  max-height: 500px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
 }
 
 .welcome-icon {
@@ -654,6 +702,7 @@ export default {
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 16px 0;
+  text-align: left;
 }
 
 .welcome-description {
@@ -661,11 +710,40 @@ export default {
   color: #64748b;
   margin: 0 0 32px 0;
   line-height: 1.6;
+  text-align: left;
+}
+
+.welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.feature-item i {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 102, 194, 0.1);
+  color: #0a66c2;
+  border-radius: 6px;
+  font-size: 14px;
 }
 
 .welcome-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .welcome-button {
@@ -785,6 +863,32 @@ export default {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .welcome-layout {
+    flex-direction: column;
+    gap: 32px;
+    text-align: center;
+  }
+  
+  .welcome-info {
+    padding: 32px 16px;
+  }
+  
+  .welcome-title {
+    text-align: center;
+  }
+  
+  .welcome-description {
+    text-align: center;
+  }
+  
+  .welcome-actions {
+    justify-content: center;
+  }
+  
+  .hero-image {
+    max-height: 300px;
+  }
+  
   .header-container {
     padding: 0 16px;
     height: 70px;
@@ -811,7 +915,7 @@ export default {
     padding: 16px;
   }
   
-  .welcome-card, .status-card {
+  .status-card {
     padding: 32px 24px;
     margin: 0 16px;
   }
