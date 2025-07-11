@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Check if Supabase environment variables are properly configured
-const supabaseUrl = process.env.VUE_APP_SUPABASE_URL
-const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.VUE_APP_SUPABASE_URL || 'https://your-project.supabase.co'
+const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY || 'your-supabase-anon-key'
 
 // Create Supabase client - will be null if env vars not set
-export const supabase = (supabaseUrl && supabaseKey && supabaseUrl !== 'your_supabase_project_url') 
+export const supabase = (supabaseUrl && supabaseKey && 
+  supabaseUrl !== 'your_supabase_project_url' && 
+  supabaseUrl !== 'https://your-project.supabase.co' &&
+  supabaseKey !== 'your_supabase_anon_key') 
   ? createClient(supabaseUrl, supabaseKey, {
       auth: {
         autoRefreshToken: true,
@@ -79,6 +82,6 @@ export const authHelpers = {
 
   // Check if Supabase is configured
   isConfigured() {
-    return !!supabase
+    return !!supabase && supabaseUrl !== 'https://your-project.supabase.co' && supabaseKey !== 'your_supabase_anon_key'
   }
 }

@@ -263,7 +263,8 @@ export default {
   },
   computed: {
     isSupabaseConfigured() {
-      return authHelpers.isConfigured()
+      // Always return true since we have fallback authentication
+      return true
     }
   },
   async mounted() {

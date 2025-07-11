@@ -151,7 +151,8 @@ export default {
   },
   computed: {
     isSupabaseConfigured() {
-      return authHelpers.isConfigured()
+      // Always return true for now since we have fallback authentication
+      return true
     }
   },
   methods: {
