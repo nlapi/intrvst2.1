@@ -61,6 +61,16 @@
           />
         </div>
         <div class="form-group">
+          <label>Confirm Password *</label>
+          <el-input 
+            v-model="signupForm.confirmPassword" 
+            type="password" 
+            placeholder="Confirm your password"
+            show-password
+            class="auth-input"
+          />
+        </div>
+        <div class="form-group">
           <label>Current Role *</label>
           <el-input 
             v-model="signupForm.role" 
@@ -133,6 +143,7 @@ export default {
         fullName: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: '',
         company: ''
       }
@@ -159,6 +170,7 @@ export default {
         fullName: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: '',
         company: ''
       }
@@ -220,11 +232,19 @@ export default {
     },
     
     async handleSignUp() {
-      const { fullName, email, password, role, company } = this.signupForm
+      const { fullName, email, password, confirmPassword, role, company } = this.signupForm
       
       // Validation
       if (!fullName || !email || !password || !role) {
         throw new Error('Please fill in all required fields')
+      }
+      
+      if (!confirmPassword) {
+        throw new Error('Please confirm your password')
+      }
+      
+      if (password !== confirmPassword) {
+        throw new Error('Passwords do not match')
       }
       
       if (password.length < 6) {
@@ -249,13 +269,13 @@ export default {
         this.statusMessage = {
           type: 'success',
           title: 'Verification Email Sent!',
-          text: `We've sent a verification email to ${email}. Please check your inbox and click the verification link to complete your registration. Check your spam folder if you don't see it.`
+          text: `We've sent a verification email to ${email}. Please check your inbox and click the verification link to complete your registration. After verifying your email, your account will be pending admin approval. Check your spam folder if you don't see the email.`
         }
       } else {
         this.statusMessage = {
           type: 'success',
           title: 'Account Created!',
-          text: 'Your account has been created and is pending admin approval.'
+          text: 'Your account has been created successfully! Please check your email for verification, then your account will be pending admin approval.'
         }
       }
       
