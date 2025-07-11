@@ -1,15 +1,12 @@
 <template>
-  <el-dialog
-    :visible.sync="dialogVisible"
-    title="Admin Panel - User Management"
-    width="900px"
-    :close-on-click-modal="false"
-    custom-class="admin-dialog"
-    @close="$emit('close')"
-  >
-    <div class="admin-content">
-      <!-- Admin Header -->
-      <div class="admin-header">
+  <div class="admin-workspace">
+    <!-- Admin Header -->
+    <div class="admin-header-section">
+      <div class="header-content">
+        <div class="header-info">
+          <h2 class="page-title">Admin Panel</h2>
+          <p class="page-subtitle">Manage users and system administration</p>
+        </div>
         <div class="admin-stats">
           <div class="stat-card">
             <div class="stat-number">{{ pendingUsers.length }}</div>
@@ -25,9 +22,11 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Search and Controls -->
-      <div class="admin-controls">
+    <!-- Search and Controls -->
+    <div class="admin-controls-section">
+      <div class="controls-content">
         <el-input
           v-model="searchQuery"
           placeholder="Search users by name or email..."
@@ -44,129 +43,136 @@
           Refresh
         </el-button>
       </div>
+    </div>
 
+    <!-- Admin Sections -->
+    <div class="admin-sections">
       <!-- Pending Approvals Section -->
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">
+      <div class="admin-card">
+        <div class="card-header">
+          <div class="card-icon pending-icon">
             <i class="el-icon-time"></i>
-            Pending Approvals ({{ filteredPendingUsers.length }})
-          </h3>
-          <p class="section-subtitle">Users waiting for admin approval</p>
-        </div>
-        
-        <div v-if="filteredPendingUsers.length === 0" class="empty-state">
-          <div class="empty-icon">
-            <i class="el-icon-check"></i>
           </div>
-          <p class="empty-text">No users pending approval</p>
+          <div class="card-info">
+            <h3 class="card-title">Pending Approvals</h3>
+            <p class="card-subtitle">Users waiting for admin approval ({{ filteredPendingUsers.length }})</p>
+          </div>
         </div>
         
-        <div v-else class="user-grid">
-          <div 
-            v-for="user in filteredPendingUsers" 
-            :key="user.id" 
-            class="user-card pending"
-          >
-            <div class="user-info">
-              <div class="user-avatar">{{ getUserInitials(user.fullName) }}</div>
-              <div class="user-details">
-                <div class="user-name">{{ user.fullName }}</div>
-                <div class="user-email">{{ user.email }}</div>
-                <div class="user-role">{{ user.role }}</div>
-                <div class="user-company" v-if="user.company">{{ user.company }}</div>
-                <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
-              </div>
+        <div class="card-content">
+          <div v-if="filteredPendingUsers.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="el-icon-check"></i>
             </div>
-            <div class="user-actions">
-              <el-button 
-                type="success" 
-                size="small" 
-                @click="approveUser(user)"
-                :loading="processingUsers.includes(user.id)"
-              >
-                <i class="el-icon-check"></i> Approve
-              </el-button>
-              <el-button 
-                type="danger" 
-                size="small" 
-                @click="rejectUser(user)"
-                :loading="processingUsers.includes(user.id)"
-              >
-                <i class="el-icon-close"></i> Reject
-              </el-button>
+            <h4 class="empty-title">No Pending Approvals</h4>
+            <p class="empty-description">All users have been processed</p>
+          </div>
+          
+          <div v-else class="user-grid">
+            <div 
+              v-for="user in filteredPendingUsers" 
+              :key="user.id" 
+              class="user-card pending"
+            >
+              <div class="user-info">
+                <div class="user-avatar">{{ getUserInitials(user.fullName) }}</div>
+                <div class="user-details">
+                  <div class="user-name">{{ user.fullName }}</div>
+                  <div class="user-email">{{ user.email }}</div>
+                  <div class="user-role">{{ user.role }}</div>
+                  <div class="user-company" v-if="user.company">{{ user.company }}</div>
+                  <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
+                </div>
+              </div>
+              <div class="user-actions">
+                <el-button 
+                  type="success" 
+                  size="small" 
+                  @click="approveUser(user)"
+                  :loading="processingUsers.includes(user.id)"
+                >
+                  <i class="el-icon-check"></i> Approve
+                </el-button>
+                <el-button 
+                  type="danger" 
+                  size="small" 
+                  @click="rejectUser(user)"
+                  :loading="processingUsers.includes(user.id)"
+                >
+                  <i class="el-icon-close"></i> Reject
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Approved Users Section -->
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">
-            <i class="el-icon-user"></i>
-            Approved Users ({{ filteredApprovedUsers.length }})
-          </h3>
-          <p class="section-subtitle">Active users with platform access</p>
-        </div>
-        
-        <div v-if="filteredApprovedUsers.length === 0" class="empty-state">
-          <div class="empty-icon">
+      <div class="admin-card">
+        <div class="card-header">
+          <div class="card-icon approved-icon">
             <i class="el-icon-user"></i>
           </div>
-          <p class="empty-text">No approved users found</p>
+          <div class="card-info">
+            <h3 class="card-title">Approved Users</h3>
+            <p class="card-subtitle">Active users with platform access ({{ filteredApprovedUsers.length }})</p>
+          </div>
         </div>
         
-        <div v-else class="user-grid">
-          <div 
-            v-for="user in filteredApprovedUsers" 
-            :key="user.id" 
-            class="user-card approved"
-            :class="{ admin: user.isAdmin }"
-          >
-            <div class="user-info">
-              <div class="user-avatar" :class="{ admin: user.isAdmin }">
-                {{ getUserInitials(user.fullName) }}
-              </div>
-              <div class="user-details">
-                <div class="user-name">
-                  {{ user.fullName }}
-                  <span v-if="user.isAdmin" class="admin-badge">ADMIN</span>
-                </div>
-                <div class="user-email">{{ user.email }}</div>
-                <div class="user-role">{{ user.role }}</div>
-                <div class="user-company" v-if="user.company">{{ user.company }}</div>
-                <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
-              </div>
+        <div class="card-content">
+          <div v-if="filteredApprovedUsers.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="el-icon-user"></i>
             </div>
-            <div class="user-actions">
-              <el-button 
-                v-if="!user.isAdmin"
-                type="danger" 
-                size="small" 
-                @click="handleDeleteUser(user)"
-                :loading="processingUsers.includes(user.id)"
-              >
-                <i class="el-icon-delete"></i> Delete
-              </el-button>
-              <span v-else class="protected-text">Protected</span>
+            <h4 class="empty-title">No Approved Users</h4>
+            <p class="empty-description">No approved users found</p>
+          </div>
+          
+          <div v-else class="user-grid">
+            <div 
+              v-for="user in filteredApprovedUsers" 
+              :key="user.id" 
+              class="user-card approved"
+              :class="{ admin: user.isAdmin }"
+            >
+              <div class="user-info">
+                <div class="user-avatar" :class="{ admin: user.isAdmin }">
+                  {{ getUserInitials(user.fullName) }}
+                </div>
+                <div class="user-details">
+                  <div class="user-name">
+                    {{ user.fullName }}
+                    <span v-if="user.isAdmin" class="admin-badge">ADMIN</span>
+                  </div>
+                  <div class="user-email">{{ user.email }}</div>
+                  <div class="user-role">{{ user.role }}</div>
+                  <div class="user-company" v-if="user.company">{{ user.company }}</div>
+                  <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
+                </div>
+              </div>
+              <div class="user-actions">
+                <el-button 
+                  v-if="!user.isAdmin"
+                  type="danger" 
+                  size="small" 
+                  @click="handleDeleteUser(user)"
+                  :loading="processingUsers.includes(user.id)"
+                >
+                  <i class="el-icon-delete"></i> Delete
+                </el-button>
+                <span v-else class="protected-text">Protected</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </el-dialog>
+  </div>
 </template>
 
 <script>
 export default {
   name: 'AdminPanel',
-  props: {
-    visible: {
-      type: Boolean,
-      default: false
-    }
-  },
   inject: ['getUsers', 'updateUser', 'deleteUser'],
   data() {
     return {
@@ -205,15 +211,6 @@ export default {
         user.fullName.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query)
       )
-    },
-    
-    dialogVisible: {
-      get() {
-        return this.visible
-      },
-      set(value) {
-        this.$emit('update:visible', value)
-      }
     }
   },
   methods: {
@@ -293,7 +290,6 @@ export default {
           
           this.deleteUser(user.id)
           this.$message.success(`${user.fullName} has been deleted`)
-          this.$emit('user-deleted')
         } catch (error) {
           this.$message.error('Failed to delete user')
         } finally {
@@ -310,49 +306,81 @@ export default {
 </script>
 
 <style scoped>
-.admin-content {
+.admin-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 100%;
+}
+
+.admin-header-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.header-content {
+  padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-height: 70vh;
-  overflow-y: auto;
 }
 
-.admin-header {
+.header-info {
+  text-align: center;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stat-card {
+  text-align: center;
   padding: 20px;
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
 
-.admin-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.stat-card {
-  text-align: center;
-  padding: 16px;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
 .stat-number {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
   color: #0a66c2;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 14px;
   color: #64748b;
   font-weight: 500;
 }
 
-.admin-controls {
+.admin-controls-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+}
+
+.controls-content {
   display: flex;
   gap: 16px;
   align-items: center;
@@ -363,10 +391,11 @@ export default {
 }
 
 .search-input .el-input__inner {
-  height: 40px;
-  border-radius: 10px;
+  height: 44px;
+  border-radius: 12px;
   border: 2px solid #e2e8f0;
   background: #f8fafc;
+  font-size: 15px;
 }
 
 .search-input .el-input__inner:focus {
@@ -375,38 +404,76 @@ export default {
 }
 
 .refresh-button {
-  height: 40px;
-  border-radius: 10px;
+  height: 44px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #0a66c2, #004182);
   border: none;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.section-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.section-title {
-  font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+}
+
+.admin-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+  padding: 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.pending-icon {
+  background: rgba(10, 102, 194, 0.1);
+  color: #0a66c2;
+}
+
+.approved-icon {
+  background: rgba(10, 102, 194, 0.1);
+  color: #0a66c2;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: #64748b;
   margin: 0;
 }
 
-.section-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
+.card-content {
+  padding: 24px;
 }
 
 .empty-state {
@@ -417,29 +484,34 @@ export default {
   padding: 40px;
   text-align: center;
   color: #64748b;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
 }
 
 .empty-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
   background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .empty-icon i {
-  font-size: 20px;
+  font-size: 28px;
   color: #94a3b8;
 }
 
-.empty-text {
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 8px 0;
+}
+
+.empty-description {
   font-size: 14px;
+  color: #64748b;
   margin: 0;
 }
 
@@ -454,7 +526,7 @@ export default {
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  background: white;
+  background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   transition: all 0.2s ease;
@@ -562,27 +634,46 @@ export default {
   font-style: italic;
   align-self: center;
 }
-</style>
 
-<style>
-.admin-dialog .el-dialog {
-  border-radius: 16px;
-  overflow: hidden;
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .user-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.admin-dialog .el-dialog__header {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 20px 24px;
-}
-
-.admin-dialog .el-dialog__title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.admin-dialog .el-dialog__body {
-  padding: 24px;
+@media (max-width: 768px) {
+  .admin-workspace {
+    gap: 24px;
+  }
+  
+  .header-content {
+    padding: 24px;
+  }
+  
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .controls-content {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .refresh-button {
+    width: 100%;
+  }
+  
+  .card-header {
+    padding: 20px;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
 }
 </style>

@@ -18,6 +18,10 @@ const routes = [
         path: '/customize',
         component: () => import(/* webpackChunkName: "customize" */ '../views/Customize.vue')
     },
+    {
+        path: '/admin',
+        component: () => import(/* webpackChunkName: "admin" */ '../views/AdminPanel.vue')
+    },
 ]
 
 const router = new VueRouter({

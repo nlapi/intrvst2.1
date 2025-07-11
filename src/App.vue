@@ -130,14 +130,38 @@
               </div>
               <span class="nav-text">Settings</span>
             </router-link>
+            
+            <router-link 
+              v-if="isAdmin"
+              to="/admin" 
+              class="nav-link"
+              :class="{ active: $router.currentRoute.path === '/admin' }"
+            >
+              <div class="nav-icon">
+                <i class="el-icon-key"></i>
+              </div>
+              <span class="nav-text">Admin</span>
+            </router-link>
           </nav>
           
           <div class="auth-section">
-            <UserMenu 
-              :user="currentUser" 
-              @signed-out="handleSignOut"
-              @show-admin="showAdminPanel = true"
-            />
+            <div class="user-info-display">
+              <div class="user-avatar">
+                <span class="avatar-text">{{ userInitials }}</span>
+              </div>
+              <div class="user-details">
+                <div class="user-name">{{ displayName }}</div>
+                <div class="user-role">{{ currentUser.user_metadata?.current_role || 'Member' }}</div>
+              </div>
+              <el-button 
+                type="text" 
+                @click="handleSignOut"
+                class="sign-out-button"
+              >
+                <i class="el-icon-switch-button"></i>
+                Sign Out
+              </el-button>
+            </div>
           </div>
         </div>
       </div>
@@ -189,13 +213,6 @@
           <router-view/>
         </div>
       </main>
-
-      <!-- Admin Panel -->
-      <AdminPanel 
-        :visible="showAdminPanel"
-        @close="showAdminPanel = false"
-        @user-deleted="refreshUserStatus"
-      />
     </div>
   </div>
 </template>
@@ -203,15 +220,11 @@
 <script>
 import { authHelpers } from '@/utils/supabase'
 import AuthModal from '@/components/AuthModal.vue'
-import UserMenu from '@/components/UserMenu.vue'
-import AdminPanel from '@/components/AdminPanel.vue'
 
 export default {
   name: 'App',
   components: {
-    AuthModal,
-    UserMenu,
-    AdminPanel
+    AuthModal
   },
   data() {
     return {
@@ -219,7 +232,6 @@ export default {
       currentUser: null,
       userStatus: 'approved', // approved, pending, rejected
       showAuthModal: false,
-      showAdminPanel: false,
       showEmailVerificationHelper: false,
       // Mock user database
       users: [
@@ -265,6 +277,35 @@ export default {
     isSupabaseConfigured() {
       // Always return true since we have fallback authentication
       return true
+    },
+    
+    isAdmin() {
+      return this.currentUser?.email === 'nisjet.lapi@gmail.com'
+    },
+    
+    userInitials() {
+      // Try to get name from customization data first, then fallback to user metadata
+      const customizationData = this.getCustomizationFromStorage()
+      let name = ''
+      
+      if (customizationData.personalInfo && customizationData.personalInfo.firstName) {
+        name = `${customizationData.personalInfo.firstName} ${customizationData.personalInfo.lastName || ''}`.trim()
+      } else {
+        name = this.currentUser.user_metadata?.full_name || this.currentUser.email || 'U'
+      }
+      
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    },
+    
+    displayName() {
+      // Try to get name from customization data first, then fallback to user metadata
+      const customizationData = this.getCustomizationFromStorage()
+      
+      if (customizationData.personalInfo && customizationData.personalInfo.firstName) {
+        return `${customizationData.personalInfo.firstName} ${customizationData.personalInfo.lastName || ''}`.trim()
+      }
+      
+      return this.currentUser.user_metadata?.full_name || 'User'
     }
   },
   async mounted() {
@@ -352,7 +393,6 @@ export default {
       
       this.currentUser = null
       this.userStatus = 'approved'
-      this.showAdminPanel = false
       localStorage.removeItem('currentUser')
       this.$message.success('Successfully signed out')
     },
@@ -896,6 +936,65 @@ export default {
 
 .sign-out-link:hover {
   color: #3b82f6;
+}
+
+.user-info-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.user-info-display .user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-info-display .user-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-info-display .user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.user-info-display .user-role {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.sign-out-button {
+  color: #64748b;
+  font-weight: 500;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.sign-out-button:hover {
+  color: #ef4444;
 }
 
 @keyframes spin {
