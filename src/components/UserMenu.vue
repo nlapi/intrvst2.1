@@ -126,11 +126,14 @@ export default {
   transition: all 0.2s ease;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
+  min-height: 52px;
 }
 
 .user-avatar-button:hover {
   background: #f1f5f9;
   border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-avatar {
@@ -145,6 +148,7 @@ export default {
   font-weight: 600;
   font-size: 14px;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(10, 102, 194, 0.2);
 }
 
 .user-info {
@@ -152,6 +156,7 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
+  flex: 1;
 }
 
 .user-name {
@@ -161,7 +166,8 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 140px;
+  line-height: 1.2;
 }
 
 .user-role {
@@ -170,7 +176,9 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 140px;
+  line-height: 1.2;
+  margin-top: 2px;
 }
 
 .user-arrow {
@@ -178,6 +186,7 @@ export default {
   color: #64748b;
   transition: transform 0.2s ease;
   flex-shrink: 0;
+  margin-left: 4px;
 }
 
 .user-dropdown.el-dropdown--active .user-arrow {
@@ -241,15 +250,17 @@ export default {
 <style>
 .user-dropdown-menu {
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
   padding: 8px 0;
   min-width: 200px;
+  margin-top: 8px;
 }
 
 .user-dropdown-menu .el-dropdown-menu__item {
   padding: 0;
   line-height: normal;
+  border-radius: 0;
 }
 
 .user-dropdown-menu .el-dropdown-menu__item:hover {

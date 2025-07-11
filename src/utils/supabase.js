@@ -167,7 +167,7 @@ export const authHelpers = {
       role: userData.current_role || '',
       company: userData.company || '',
       referralCode: userData.referral_code || '',
-      status: userData.status || 'approved',
+      status: 'approved', // Auto-approve all users with valid referral codes
       isAdmin: false,
       emailVerified: true,
       createdAt: new Date().toISOString(),

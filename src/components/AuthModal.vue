@@ -273,7 +273,7 @@ export default {
         current_role: role,
         company: company || '',
         referral_code: referralCode,
-        status: 'approved',
+        status: 'approved', // Auto-approve users with valid referral codes
         email_confirmed_at: new Date().toISOString()
       })
       
