@@ -299,6 +299,17 @@ export default {
       localStorage.setItem('referralCodes', JSON.stringify(initialCodes))
     }
     
+    // Initialize users if not exists
+    if (!localStorage.getItem('mockUsers')) {
+      localStorage.setItem('mockUsers', JSON.stringify(this.users))
+    } else {
+      // Load users from localStorage
+      const savedUsers = localStorage.getItem('mockUsers')
+      if (savedUsers) {
+        this.users = JSON.parse(savedUsers)
+      }
+    }
+    
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000))
     
@@ -322,10 +333,15 @@ export default {
           
           // Check if session is still valid (14 days)
           if (userData.expiresAt && Date.now() < userData.expiresAt) {
-            const user = this.users.find(u => u.id === userData.id)
+            // Load users from localStorage to get latest data
+            const savedUsers = localStorage.getItem('mockUsers')
+            const allUsers = savedUsers ? JSON.parse(savedUsers) : this.users
+            const user = allUsers.find(u => u.id === userData.id)
             if (user) {
               this.currentUser = user
               this.userStatus = user.status
+              // Update the users array with latest data
+              this.users = allUsers
             }
           } else {
             // Session expired, remove it
@@ -462,6 +478,8 @@ export default {
       const userIndex = this.users.findIndex(u => u.id === userId)
       if (userIndex !== -1) {
         this.users[userIndex] = { ...this.users[userIndex], ...updates }
+        // Save to localStorage
+        localStorage.setItem('mockUsers', JSON.stringify(this.users))
         return this.users[userIndex]
       }
       return null
@@ -471,6 +489,8 @@ export default {
       const userIndex = this.users.findIndex(u => u.id === userId)
       if (userIndex !== -1) {
         this.users.splice(userIndex, 1)
+        // Save to localStorage
+        localStorage.setItem('mockUsers', JSON.stringify(this.users))
         return true
       }
       return false
@@ -487,6 +507,8 @@ export default {
         status: 'pending'
       }
       this.users.push(newUser)
+      // Save to localStorage
+      localStorage.setItem('mockUsers', JSON.stringify(this.users))
       return newUser
     },
     

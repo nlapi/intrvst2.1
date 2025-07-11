@@ -179,6 +179,8 @@
       title="Create Referral Code"
       width="400px"
       :close-on-click-modal="false"
+      :append-to-body="true"
+      custom-class="create-referral-dialog"
     >
       <div class="create-referral-form">
         <div class="form-group">
@@ -202,7 +204,6 @@
           </el-button>
         </div>
       </div>
-    </el-dialog>
   </el-dialog>
 </template>
 
@@ -834,5 +835,26 @@ export default {
 
 .admin-dialog .el-dialog__body {
   padding: 24px;
+}
+
+.create-referral-dialog .el-dialog {
+  border-radius: 12px;
+  z-index: 3000;
+}
+
+.create-referral-dialog .el-dialog__header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 20px;
+}
+
+.create-referral-dialog .el-dialog__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.create-referral-dialog .el-dialog__body {
+  padding: 20px;
 }
 </style>
