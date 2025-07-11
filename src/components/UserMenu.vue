@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { authHelpers } from '@/utils/supabase'
+// import { authHelpers } from '@/utils/supabase'
 
 export default {
   name: 'UserMenu',
@@ -54,7 +54,7 @@ export default {
       return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     },
     isAdmin() {
-      return authHelpers.isAdmin(this.user)
+      return this.user?.email === 'nisjet.lapi@gmail.com'
     }
   },
   methods: {
@@ -77,12 +77,6 @@ export default {
 
     async handleSignOut() {
       try {
-        const { error } = await authHelpers.signOut()
-        if (error) {
-          this.$message.error('Error signing out: ' + error.message)
-          return
-        }
-        
         this.$message.success('Successfully signed out')
         this.$emit('signed-out')
       } catch (error) {

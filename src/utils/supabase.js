@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.VUE_APP_SUPABASE_URL || 'YOUR_SUPABASE_URL'
-const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'
+// Check if Supabase environment variables are properly configured
+const supabaseUrl = process.env.VUE_APP_SUPABASE_URL
+const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+// Only create Supabase client if environment variables are properly set
+export const supabase = (supabaseUrl && supabaseKey && supabaseUrl !== 'YOUR_SUPABASE_URL') 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null
 
 // Auth helpers
 export const authHelpers = {
