@@ -21,7 +21,7 @@
             </div>
             <div class="banner-content">
               <p class="banner-text">
-                Get your API key from <a :href="open_ai_api_url" target="_blank" class="banner-link">OpenAI Platform</a>
+                Get your API key from <a :href="open_ai_api_url" target="_blank" class="banner-link">OpenAI API Keys</a>
               </p>
             </div>
           </div>
@@ -91,17 +91,6 @@
         </div>
         
         <div class="card-content">
-          <div class="info-banner">
-            <div class="banner-icon">
-              <i class="el-icon-info"></i>
-            </div>
-            <div class="banner-content">
-              <p class="banner-text">
-                Follow our <a :href="azure_application_url" target="_blank" class="banner-link">setup tutorial</a> to get your free Azure Speech token
-              </p>
-            </div>
-          </div>
-          
           <div class="form-section">
             <div class="form-group">
               <label class="form-label">Speech Resource Key</label>
