@@ -56,7 +56,11 @@
               
               <div class="legal-notice">
                 <p class="legal-text">
-                  By clicking Continue to join or sign in, you agree to InterviewSignal's User Agreement, Privacy Policy, and Cookie Policy.
+                  By clicking Continue to join or sign in, you agree to InterviewSignal's 
+                  <a href="/legal/user-agreement.html" target="_blank" class="legal-link">User Agreement</a>, 
+                  <a href="/legal/terms-of-service.html" target="_blank" class="legal-link">Terms of Service</a>, 
+                  <a href="/legal/privacy-policy.html" target="_blank" class="legal-link">Privacy Policy</a>, and 
+                  <a href="/legal/cookie-policy.html" target="_blank" class="legal-link">Cookie Policy</a>.
                 </p>
               </div>
               
@@ -883,6 +887,18 @@ body.no-scroll-interview {
 }
 
 .join-link:hover {
+  color: #004182;
+  text-decoration: underline;
+}
+
+.legal-link {
+  color: #0a66c2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.legal-link:hover {
   color: #004182;
   text-decoration: underline;
 }
