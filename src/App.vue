@@ -1,430 +1,358 @@
 <template>
   <div id="app">
-    <div class="app-header">
-      <div class="header-container">
-        <div class="brand-section">
-          <div class="brand-logo">
-            <h1 class="brand-title">
-              <span class="interview-part">Interview</span><span class="signal-part">Signal</span>
-            </h1>
-          </div>
-        </div>
-        
-        <nav class="navigation">
-          <router-link 
-            to="/" 
-            class="nav-link"
-            :class="{ active: $router.currentRoute.path === '/' }"
-          >
-            <div class="nav-icon">
-              <i class="el-icon-chat-dot-round"></i>
-            </div>
-            <span class="nav-text">Interview</span>
-          </router-link>
-          
-          <router-link 
-            to="/customize" 
-            class="nav-link"
-            :class="{ active: $router.currentRoute.path === '/customize' }"
-          >
-            <div class="nav-icon">
-              <i class="el-icon-user"></i>
-            </div>
-            <span class="nav-text">Profile</span>
-          </router-link>
-          
-          <router-link 
-            to="/setting" 
-            class="nav-link"
-            :class="{ active: $router.currentRoute.path === '/setting' }"
-          >
-            <div class="nav-icon">
-              <i class="el-icon-setting"></i>
-            </div>
-            <span class="nav-text">Settings</span>
-          </router-link>
-        </nav>
-        
-        <div class="auth-section">
-          <el-button
-            type="primary"
-            @click="showAuthModal = true"
-            class="sign-in-button"
-          >
-            <i class="el-icon-user"></i>
-            <span>Sign In</span>
-          </el-button>
-        </div>
+    <div v-if="loading" class="loading-screen">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading InterviewSignal...</p>
       </div>
     </div>
-    
-    <main class="app-main">
-      <div class="welcome-content">
-        <div class="welcome-card">
-          <div class="welcome-icon">
-            <i class="el-icon-chat-dot-round"></i>
-          </div>
-          <h2 class="welcome-title">Welcome to InterviewSignal</h2>
-          <p class="welcome-description">
-            Your AI-powered interview preparation companion. Sign in to get started with personalized coaching and practice sessions.
-          </p>
-          <el-button
-            type="primary"
-            size="large"
-            @click="showAuthModal = true"
-            class="welcome-button"
-          >
-            <i class="el-icon-user"></i>
-            <span>Get Started</span>
-          </el-button>
-        </div>
-      </div>
-    </main>
 
-    <!-- Simple Auth Modal -->
-    <el-dialog
-      :visible.sync="showAuthModal"
-      :title="isSignUp ? 'Create Account' : 'Sign In to InterviewSignal'"
-      width="400px"
-      custom-class="auth-dialog"
-    >
-      <div class="auth-form">
-        <div v-if="!isSignUp" class="form-group">
-          <label>Email</label>
-          <el-input v-model="email" placeholder="Enter your email" />
-        </div>
-        <div v-if="!isSignUp" class="form-group">
-          <label>Password</label>
-          <el-input v-model="password" type="password" placeholder="Enter your password" />
-        </div>
-        
-        <!-- Sign Up Form -->
-        <div v-if="isSignUp">
-          <div class="form-group">
-            <label>Full Name</label>
-            <el-input v-model="signUpData.fullName" placeholder="Enter your full name" />
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <el-input v-model="signUpData.email" type="email" placeholder="Enter your email address" />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <el-input v-model="signUpData.password" type="password" placeholder="Create a password" />
-          </div>
-          <div class="form-group">
-            <label>Current Role</label>
-            <el-input v-model="signUpData.role" placeholder="e.g., Software Engineer, Product Manager" />
-          </div>
-          <div class="form-group">
-            <label>Company (Optional)</label>
-            <el-input v-model="signUpData.company" placeholder="Current or target company" />
-          </div>
-        </div>
-        
-        <!-- Status Messages -->
-        <div v-if="authMessage" class="auth-message" :class="authMessage.type">
-          <i :class="authMessage.type === 'success' ? 'el-icon-check' : 'el-icon-warning'"></i>
-          <div class="message-content">
-            <div class="message-title">{{ authMessage.title }}</div>
-            <div class="message-text">{{ authMessage.text }}</div>
-          </div>
-        </div>
-        
-        <el-button 
-          type="primary" 
-          @click="handleAuth" 
-          :loading="authLoading"
-          class="auth-button"
-        >
-          {{ isSignUp ? 'Create Account' : 'Sign In' }}
-        </el-button>
-        
-        <!-- Toggle between Sign In / Sign Up -->
-        <div class="auth-toggle">
-          <span>{{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}</span>
-          <el-button type="text" @click="toggleAuthMode" class="toggle-button">
-            {{ isSignUp ? 'Sign In' : 'Sign Up' }}
-          </el-button>
-        </div>
-      </div>
-    </el-dialog>
-    
-    <!-- Admin Panel Modal -->
-    <el-dialog
-      :visible.sync="showAdminPanel"
-      title="Admin Panel - User Management"
-      width="800px"
-      custom-class="admin-dialog"
-    >
-      <div class="admin-content">
-        <div class="admin-header">
-          <h3>Pending Approvals</h3>
-          <p>Users waiting for admin approval</p>
-        </div>
-        
-        <div class="pending-users">
-          <div v-if="pendingUsers.length === 0" class="no-pending">
-            <i class="el-icon-check"></i>
-            <p>No users pending approval</p>
+    <div v-else-if="!currentUser" class="app-container">
+      <!-- Header for non-authenticated users -->
+      <div class="app-header">
+        <div class="header-container">
+          <div class="brand-section">
+            <div class="brand-logo">
+              <h1 class="brand-title">
+                <span class="interview-part">Interview</span><span class="signal-part">Signal</span>
+              </h1>
+            </div>
           </div>
           
-          <div v-for="user in pendingUsers" :key="user.id" class="user-card">
-            <div class="user-info">
-              <div class="user-avatar">{{ getUserInitials(user.fullName) }}</div>
-              <div class="user-details">
-                <div class="user-name">{{ user.fullName }}</div>
-                <div class="user-email">{{ user.email }}</div>
-                <div class="user-role">{{ user.role }}</div>
-                <div class="user-company" v-if="user.company">{{ user.company }}</div>
-              </div>
-            </div>
-            <div class="user-actions">
-              <el-button type="success" size="small" @click="approveUser(user)">
-                <i class="el-icon-check"></i> Approve
-              </el-button>
-              <el-button type="danger" size="small" @click="rejectUser(user)">
-                <i class="el-icon-close"></i> Reject
-              </el-button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="admin-header" style="margin-top: 32px;">
-          <h3>Approved Users</h3>
-          <p>Active users with access to the platform</p>
-        </div>
-        
-        <div class="approved-users">
-          <div v-if="approvedUsers.length === 0" class="no-users">
-            <i class="el-icon-user"></i>
-            <p>No approved users yet</p>
-          </div>
-          
-          <div v-for="user in approvedUsers" :key="user.id" class="user-card approved">
-            <div class="user-info">
-              <div class="user-avatar approved">{{ getUserInitials(user.fullName) }}</div>
-              <div class="user-details">
-                <div class="user-name">{{ user.fullName }}</div>
-                <div class="user-email">{{ user.email }}</div>
-                <div class="user-role">{{ user.role }}</div>
-                <div class="user-company" v-if="user.company">{{ user.company }}</div>
-              </div>
-            </div>
-            <div class="user-actions">
-              <el-button type="danger" size="small" @click="deleteUser(user)">
-                <i class="el-icon-delete"></i> Delete
-              </el-button>
-            </div>
+          <div class="auth-section">
+            <el-button
+              type="primary"
+              @click="showAuthModal = true"
+              class="sign-in-button"
+            >
+              <i class="el-icon-user"></i>
+              <span>Sign In</span>
+            </el-button>
           </div>
         </div>
       </div>
-    </el-dialog>
+      
+      <main class="app-main">
+        <div class="welcome-content">
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <i class="el-icon-chat-dot-round"></i>
+            </div>
+            <h2 class="welcome-title">Welcome to InterviewSignal</h2>
+            <p class="welcome-description">
+              Your AI-powered interview preparation companion. Sign up to get started with personalized coaching and practice sessions.
+            </p>
+            <div class="welcome-actions">
+              <el-button
+                type="primary"
+                size="large"
+                @click="showAuthModal = true"
+                class="welcome-button"
+              >
+                <i class="el-icon-user"></i>
+                <span>Get Started</span>
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Authentication Modal -->
+      <AuthModal 
+        :visible="showAuthModal" 
+        @auth-success="handleAuthSuccess"
+        @close="showAuthModal = false"
+      />
+    </div>
+
+    <!-- Authenticated User Interface -->
+    <div v-else class="app-container">
+      <!-- Header for authenticated users -->
+      <div class="app-header">
+        <div class="header-container">
+          <div class="brand-section">
+            <div class="brand-logo">
+              <h1 class="brand-title">
+                <span class="interview-part">Interview</span><span class="signal-part">Signal</span>
+              </h1>
+            </div>
+          </div>
+          
+          <nav class="navigation">
+            <router-link 
+              to="/" 
+              class="nav-link"
+              :class="{ active: $router.currentRoute.path === '/' }"
+            >
+              <div class="nav-icon">
+                <i class="el-icon-chat-dot-round"></i>
+              </div>
+              <span class="nav-text">Interview</span>
+            </router-link>
+            
+            <router-link 
+              to="/customize" 
+              class="nav-link"
+              :class="{ active: $router.currentRoute.path === '/customize' }"
+            >
+              <div class="nav-icon">
+                <i class="el-icon-user"></i>
+              </div>
+              <span class="nav-text">Profile</span>
+            </router-link>
+            
+            <router-link 
+              to="/setting" 
+              class="nav-link"
+              :class="{ active: $router.currentRoute.path === '/setting' }"
+            >
+              <div class="nav-icon">
+                <i class="el-icon-setting"></i>
+              </div>
+              <span class="nav-text">Settings</span>
+            </router-link>
+          </nav>
+          
+          <div class="auth-section">
+            <UserMenu 
+              :user="currentUser" 
+              @signed-out="handleSignOut"
+              @show-admin="showAdminPanel = true"
+            />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <main class="app-main">
+        <div v-if="userStatus === 'pending'" class="status-screen">
+          <div class="status-card pending">
+            <div class="status-icon">
+              <i class="el-icon-time"></i>
+            </div>
+            <h3 class="status-title">Account Pending Approval</h3>
+            <p class="status-description">
+              Your account has been created and email verified successfully! 
+              An administrator will review and approve your access shortly.
+            </p>
+            <div class="status-details">
+              <div class="detail-item">
+                <i class="el-icon-check"></i>
+                <span>Email Verified</span>
+              </div>
+              <div class="detail-item pending">
+                <i class="el-icon-time"></i>
+                <span>Admin Approval Pending</span>
+              </div>
+            </div>
+            <el-button @click="handleSignOut" type="text" class="sign-out-link">
+              Sign Out
+            </el-button>
+          </div>
+        </div>
+
+        <div v-else-if="userStatus === 'rejected'" class="status-screen">
+          <div class="status-card rejected">
+            <div class="status-icon">
+              <i class="el-icon-close"></i>
+            </div>
+            <h3 class="status-title">Access Denied</h3>
+            <p class="status-description">
+              Your account application has been reviewed and unfortunately was not approved at this time.
+            </p>
+            <el-button @click="handleSignOut" type="text" class="sign-out-link">
+              Sign Out
+            </el-button>
+          </div>
+        </div>
+
+        <div v-else>
+          <router-view/>
+        </div>
+      </main>
+
+      <!-- Admin Panel -->
+      <AdminPanel 
+        :visible="showAdminPanel"
+        @close="showAdminPanel = false"
+        @user-deleted="refreshUserStatus"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import AuthModal from '@/components/AuthModal.vue'
+import UserMenu from '@/components/UserMenu.vue'
+import AdminPanel from '@/components/AdminPanel.vue'
+
 export default {
   name: 'App',
+  components: {
+    AuthModal,
+    UserMenu,
+    AdminPanel
+  },
   data() {
     return {
+      loading: true,
+      currentUser: null,
+      userStatus: 'approved', // approved, pending, rejected
       showAuthModal: false,
       showAdminPanel: false,
-      isSignUp: false,
-      authLoading: false,
-      authMessage: null,
-      email: '',
-      password: '',
-      signUpData: {
-        fullName: '',
-        email: '',
-        password: '',
-        role: '',
-        company: ''
-      },
-      // Mock data - in real app this would come from database
-      pendingUsers: [
+      // Mock user database
+      users: [
         {
-          id: 1,
-          fullName: 'John Smith',
+          id: 'admin-001',
+          email: 'nisjet.lapi@gmail.com',
+          password: 'Winter202!Winter202!',
+          fullName: 'Admin User',
+          role: 'Administrator',
+          company: 'InterviewSignal',
+          status: 'approved',
+          isAdmin: true,
+          emailVerified: true,
+          createdAt: new Date('2024-01-01').toISOString()
+        },
+        {
+          id: 'user-001',
           email: 'john.smith@example.com',
+          password: 'password123',
+          fullName: 'John Smith',
           role: 'Software Engineer',
           company: 'Tech Corp',
           status: 'pending',
-          emailVerified: true
+          isAdmin: false,
+          emailVerified: true,
+          createdAt: new Date().toISOString()
         },
         {
-          id: 2,
+          id: 'user-002',
+          email: 'sarah.johnson@example.com',
+          password: 'password123',
           fullName: 'Sarah Johnson',
-          email: 'sarah.j@example.com',
           role: 'Product Manager',
           company: 'StartupXYZ',
-          status: 'pending',
-          emailVerified: true
-        }
-      ],
-      approvedUsers: [
-        {
-          id: 3,
-          fullName: 'Admin User',
-          email: 'nisjet.lapi@gmail.com',
-          role: 'Administrator',
-          company: 'InterviewSignal',
-          status: 'approved'
+          status: 'approved',
+          isAdmin: false,
+          emailVerified: true,
+          createdAt: new Date().toISOString()
         }
       ]
     }
   },
-  methods: {
-    toggleAuthMode() {
-      this.isSignUp = !this.isSignUp
-      this.authMessage = null
-      this.clearForms()
-    },
+  async mounted() {
+    // Simulate loading
+    await new Promise(resolve => setTimeout(resolve, 1000))
     
-    clearForms() {
-      this.email = ''
-      this.password = ''
-      this.signUpData = {
-        fullName: '',
-        email: '',
-        password: '',
-        role: '',
-        company: ''
-      }
-    },
-    
-    async handleAuth() {
-      this.authLoading = true
-      this.authMessage = null
-      
+    // Check for existing session
+    const savedUser = localStorage.getItem('currentUser')
+    if (savedUser) {
       try {
-        if (this.isSignUp) {
-          await this.handleSignUp()
-        } else {
-          await this.handleSignIn()
+        const userData = JSON.parse(savedUser)
+        const user = this.users.find(u => u.id === userData.id)
+        if (user) {
+          this.currentUser = user
+          this.userStatus = user.status
         }
       } catch (error) {
-        this.authMessage = {
-          type: 'error',
-          title: 'Error',
-          text: error.message
-        }
-      } finally {
-        this.authLoading = false
+        console.error('Error loading saved user:', error)
+        localStorage.removeItem('currentUser')
       }
-    },
+    }
     
-    async handleSignUp() {
-      // Validate form
-      if (!this.signUpData.fullName || !this.signUpData.email || !this.signUpData.password || !this.signUpData.role) {
-        throw new Error('Please fill in all required fields')
-      }
-      
-      // Simulate email verification and admin approval process
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      this.authMessage = {
-        type: 'success',
-        title: 'Account Created Successfully!',
-        text: 'Please check your email to verify your account. After email verification, an admin will review and approve your access.'
-      }
-      
-      // Add to pending users (in real app, this would be saved to database)
-      this.pendingUsers.push({
-        id: Date.now(),
-        fullName: this.signUpData.fullName,
-        email: this.signUpData.email,
-        role: this.signUpData.role,
-        company: this.signUpData.company,
-        status: 'pending',
-        emailVerified: false
-      })
-      
-      // Clear form
-      setTimeout(() => {
-        this.clearForms()
-        this.isSignUp = false
-        this.authMessage = null
-      }, 3000)
-    },
-    
-    async handleSignIn() {
-      if (!this.email || !this.password) {
-        throw new Error('Please enter both email and password')
-      }
-      
-      // Check if admin
-      if (this.email === 'nisjet.lapi@gmail.com') {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        this.showAuthModal = false
-        this.showAdminPanel = true
-        this.$message.success('Welcome back, Admin!')
-        return
-      }
-      
-      // Check if user is approved
-      const user = this.approvedUsers.find(u => u.email === this.email)
-      if (!user) {
-        throw new Error('Account not found or not yet approved. Please contact admin.')
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 1000))
+    this.loading = false
+  },
+  methods: {
+    handleAuthSuccess(user) {
+      this.currentUser = user
+      this.userStatus = user.status
       this.showAuthModal = false
-      this.$message.success(`Welcome back, ${user.fullName}!`)
-    },
-    
-    getUserInitials(name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    },
-    
-    async approveUser(user) {
-      this.$confirm(`Approve access for ${user.fullName}?`, 'Approve User', {
-        confirmButtonText: 'Approve',
-        cancelButtonText: 'Cancel',
-        type: 'success'
-      }).then(() => {
-        // Move from pending to approved
-        this.pendingUsers = this.pendingUsers.filter(u => u.id !== user.id)
-        this.approvedUsers.push({
-          ...user,
-          status: 'approved'
-        })
-        this.$message.success(`${user.fullName} has been approved!`)
-      })
-    },
-    
-    async rejectUser(user) {
-      this.$confirm(`Reject ${user.fullName}'s application?`, 'Reject User', {
-        confirmButtonText: 'Reject',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }).then(() => {
-        this.pendingUsers = this.pendingUsers.filter(u => u.id !== user.id)
-        this.$message.success(`${user.fullName}'s application has been rejected`)
-      })
-    },
-    
-    async deleteUser(user) {
-      if (user.email === 'nisjet.lapi@gmail.com') {
-        this.$message.error('Cannot delete admin account')
-        return
-      }
       
-      this.$confirm(`Permanently delete ${user.fullName}?`, 'Delete User', {
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
-        type: 'error'
-      }).then(() => {
-        this.approvedUsers = this.approvedUsers.filter(u => u.id !== user.id)
-        this.$message.success(`${user.fullName} has been deleted`)
-      })
+      // Save session
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: user.id,
+        email: user.email
+      }))
+      
+      if (user.status === 'approved') {
+        this.$message.success(`Welcome back, ${user.fullName}!`)
+        if (user.isAdmin) {
+          this.$message.info('Admin privileges activated')
+        }
+      }
+    },
+    
+    handleSignOut() {
+      this.currentUser = null
+      this.userStatus = 'approved'
+      this.showAdminPanel = false
+      localStorage.removeItem('currentUser')
+      this.$message.success('Successfully signed out')
+    },
+    
+    refreshUserStatus() {
+      if (this.currentUser) {
+        const updatedUser = this.users.find(u => u.id === this.currentUser.id)
+        if (updatedUser) {
+          this.currentUser = updatedUser
+          this.userStatus = updatedUser.status
+        } else {
+          // User was deleted
+          this.handleSignOut()
+          this.$message.warning('Your account has been removed by an administrator')
+        }
+      }
+    },
+    
+    // Method to be called by child components to get/update users
+    getUsers() {
+      return this.users
+    },
+    
+    updateUser(userId, updates) {
+      const userIndex = this.users.findIndex(u => u.id === userId)
+      if (userIndex !== -1) {
+        this.users[userIndex] = { ...this.users[userIndex], ...updates }
+        return this.users[userIndex]
+      }
+      return null
+    },
+    
+    deleteUser(userId) {
+      const userIndex = this.users.findIndex(u => u.id === userId)
+      if (userIndex !== -1) {
+        this.users.splice(userIndex, 1)
+        return true
+      }
+      return false
+    },
+    
+    addUser(userData) {
+      const newUser = {
+        id: 'user-' + Date.now(),
+        ...userData,
+        createdAt: new Date().toISOString(),
+        isAdmin: false,
+        emailVerified: false,
+        status: 'pending'
+      }
+      this.users.push(newUser)
+      return newUser
+    }
+  },
+  provide() {
+    return {
+      getUsers: this.getUsers,
+      updateUser: this.updateUser,
+      deleteUser: this.deleteUser,
+      addUser: this.addUser
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 * {
   box-sizing: border-box;
   margin: 0;
@@ -438,6 +366,40 @@ export default {
   background: #f8fafc;
   min-height: 100vh;
   color: #1e293b;
+}
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #0a66c2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-header {
@@ -573,13 +535,11 @@ export default {
 }
 
 .app-main {
+  flex: 1;
   max-width: 1400px;
   margin: 0 auto;
   padding: 32px;
-  min-height: calc(100vh - 80px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
 }
 
 .welcome-content {
@@ -626,6 +586,11 @@ export default {
   line-height: 1.6;
 }
 
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+}
+
 .welcome-button {
   height: 48px;
   padding: 0 24px;
@@ -639,199 +604,106 @@ export default {
   gap: 10px;
 }
 
-.auth-form {
+.status-screen {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.auth-button {
-  height: 44px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
-  font-weight: 600;
-}
-
-.auth-toggle {
+.status-card {
   text-align: center;
-  padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
+  max-width: 500px;
+  padding: 48px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.status-card.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.status-card.rejected {
+  border-left: 4px solid #ef4444;
+}
+
+.status-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 32px;
+}
+
+.status-card.pending .status-icon {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.status-card.rejected .status-icon {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.status-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
+
+.status-description {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+.status-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.detail-item {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.toggle-button {
-  color: #0a66c2;
-  font-weight: 600;
+.detail-item i {
+  font-size: 16px;
 }
 
-.auth-message {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid;
-}
-
-.auth-message.success {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+.detail-item:not(.pending) {
   color: #16a34a;
 }
 
-.auth-message.error {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
+.detail-item.pending {
+  color: #f59e0b;
 }
 
-.message-content {
-  flex: 1;
-}
-
-.message-title {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.message-text {
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* Admin Panel Styles */
-.admin-content {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.admin-header {
-  margin-bottom: 20px;
-}
-
-.admin-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 4px;
-}
-
-.admin-header p {
-  font-size: 14px;
+.sign-out-link {
   color: #64748b;
-  margin: 0;
-}
-
-.pending-users, .approved-users {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.no-pending, .no-users {
-  text-align: center;
-  padding: 32px;
-  color: #64748b;
-}
-
-.no-pending i, .no-users i {
-  font-size: 32px;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.user-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.user-card:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.user-card.approved {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.user-avatar.approved {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-}
-
-.user-details {
-  flex: 1;
-}
-
-.user-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 2px;
-}
-
-.user-email {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 2px;
-}
-
-.user-role {
-  font-size: 13px;
-  color: #0a66c2;
   font-weight: 500;
 }
 
-.user-company {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 2px;
+.sign-out-link:hover {
+  color: #3b82f6;
 }
 
-.user-actions {
-  display: flex;
-  gap: 8px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Responsive Design */
@@ -862,326 +734,7 @@ export default {
     padding: 16px;
   }
   
-  .welcome-card {
-    padding: 32px 24px;
-    margin: 0 16px;
-  }
-  
-  .user-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .user-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
-        <div class="form-group">
-          <label>Email</label>
-          <el-input v-model="email" placeholder="Enter your email" />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <el-input v-model="password" type="password" placeholder="Enter your password" />
-        </div>
-        <el-button type="primary" @click="handleAuth" class="auth-button">
-          Sign In
-        </el-button>
-      </div>
-    </el-dialog>
-  </div>
-</template>
-
-<script>
-export default {
-  name: 'App',
-  data() {
-    return {
-      showAuthModal: false,
-      email: '',
-      password: ''
-    }
-  },
-  methods: {
-    handleAuth() {
-      console.log('Auth attempt:', this.email)
-      this.$message.success('Authentication system will be connected soon!')
-      this.showAuthModal = false
-    }
-  }
-}
-</script>
-
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-#app {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: #f8fafc;
-  min-height: 100vh;
-  color: #1e293b;
-}
-
-.app-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.header-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  height: 80px;
-  gap: 24px;
-}
-
-.brand-section {
-  display: flex;
-  align-items: center;
-}
-
-.brand-logo {
-  display: flex;
-  align-items: center;
-}
-
-.brand-title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-  margin: 0;
-  display: flex;
-  align-items: center;
-}
-
-.interview-part {
-  background: #0a66c2;
-  color: white;
-  padding: 6px 8px;
-  border-radius: 4px;
-  font-weight: 700;
-}
-
-.signal-part {
-  color: #0a66c2;
-  font-weight: 700;
-  font-size: inherit;
-  margin-left: 4px;
-}
-
-.navigation {
-  display: flex;
-  gap: 8px;
-}
-
-.nav-link {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 20px;
-  text-decoration: none;
-  color: #64748b;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  min-width: 80px;
-}
-
-.nav-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  margin-bottom: 4px;
-  transition: all 0.2s ease;
-}
-
-.nav-icon i {
-  font-size: 18px;
-}
-
-.nav-text {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
-.nav-link:hover {
-  color: #3b82f6;
-  background: #f1f5f9;
-}
-
-.nav-link:hover .nav-icon {
-  background: #dbeafe;
-  color: #3b82f6;
-}
-
-.nav-link.active {
-  color: #3b82f6;
-  background: #eff6ff;
-}
-
-.nav-link.active .nav-icon {
-  background: #dbeafe;
-  color: #3b82f6;
-}
-
-.auth-section {
-  display: flex;
-  align-items: center;
-}
-
-.sign-in-button {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.app-main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 32px;
-  min-height: calc(100vh - 80px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.welcome-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-}
-
-.welcome-card {
-  text-align: center;
-  max-width: 500px;
-  padding: 48px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-}
-
-.welcome-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px;
-  color: white;
-  font-size: 32px;
-}
-
-.welcome-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 16px 0;
-}
-
-.welcome-description {
-  font-size: 16px;
-  color: #64748b;
-  margin: 0 0 32px 0;
-  line-height: 1.6;
-}
-
-.welcome-button {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.auth-button {
-  height: 44px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
-  font-weight: 600;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .header-container {
-    padding: 0 16px;
-    height: 70px;
-  }
-  
-  .brand-title {
-    font-size: 14px;
-  }
-  
-  .navigation {
-    gap: 4px;
-  }
-  
-  .nav-link {
-    padding: 8px 12px;
-    min-width: 60px;
-  }
-  
-  .nav-text {
-    font-size: 11px;
-  }
-  
-  .app-main {
-    padding: 16px;
-  }
-  
-  .welcome-card {
+  .welcome-card, .status-card {
     padding: 32px 24px;
     margin: 0 16px;
   }

@@ -1,119 +1,115 @@
 <template>
   <el-dialog
     :visible.sync="visible"
-    :title="isLogin ? 'Sign In' : 'Create Account'"
+    :title="isLogin ? 'Sign In to InterviewSignal' : 'Create Your Account'"
     width="400px"
     :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    :show-close="false"
-    custom-class="auth-modal"
+    custom-class="auth-dialog"
+    @close="$emit('close')"
   >
-    <div class="auth-container">
-      <!-- Header -->
-      <div class="auth-header">
-        <div class="auth-icon">
-          <i :class="isLogin ? 'el-icon-user' : 'el-icon-plus'"></i>
-        </div>
-        <h3 class="auth-title">{{ isLogin ? 'Welcome Back' : 'Join InterviewSignal' }}</h3>
-        <p class="auth-subtitle">
-          {{ isLogin ? 'Sign in to continue your interview preparation' : 'Create your account to get started' }}
-        </p>
-      </div>
-
-      <!-- Form -->
-      <form @submit.prevent="handleSubmit" class="auth-form">
+    <div class="auth-form">
+      <!-- Sign In Form -->
+      <div v-if="isLogin">
         <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <el-input
-            v-model="form.email"
-            type="email"
+          <label>Email</label>
+          <el-input 
+            v-model="loginForm.email" 
             placeholder="Enter your email"
-            :disabled="loading"
+            type="email"
             class="auth-input"
-            required
           />
         </div>
-
         <div class="form-group">
-          <label class="form-label">Password</label>
-          <el-input
-            v-model="form.password"
-            type="password"
+          <label>Password</label>
+          <el-input 
+            v-model="loginForm.password" 
+            type="password" 
             placeholder="Enter your password"
-            :disabled="loading"
             show-password
             class="auth-input"
-            required
           />
         </div>
-
-        <div v-if="!isLogin" class="form-group">
-          <label class="form-label">Full Name</label>
-          <el-input
-            v-model="form.fullName"
+      </div>
+      
+      <!-- Sign Up Form -->
+      <div v-else>
+        <div class="form-group">
+          <label>Full Name *</label>
+          <el-input 
+            v-model="signupForm.fullName" 
             placeholder="Enter your full name"
-            :disabled="loading"
             class="auth-input"
-            required
           />
         </div>
-
-        <div v-if="!isLogin" class="form-group">
-          <label class="form-label">Current Role</label>
-          <el-input
-            v-model="form.currentRole"
+        <div class="form-group">
+          <label>Email Address *</label>
+          <el-input 
+            v-model="signupForm.email" 
+            type="email" 
+            placeholder="Enter your email address"
+            class="auth-input"
+          />
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <el-input 
+            v-model="signupForm.password" 
+            type="password" 
+            placeholder="Create a password"
+            show-password
+            class="auth-input"
+          />
+        </div>
+        <div class="form-group">
+          <label>Current Role *</label>
+          <el-input 
+            v-model="signupForm.role" 
             placeholder="e.g., Software Engineer, Product Manager"
-            :disabled="loading"
             class="auth-input"
           />
         </div>
-
-        <!-- Error Message -->
-        <div v-if="errorMessage" class="error-message">
-          <i class="el-icon-warning"></i>
-          <span>{{ errorMessage }}</span>
+        <div class="form-group">
+          <label>Company (Optional)</label>
+          <el-input 
+            v-model="signupForm.company" 
+            placeholder="Current or target company"
+            class="auth-input"
+          />
         </div>
-
-        <!-- Success Message -->
-        <div v-if="successMessage" class="success-message">
-          <i class="el-icon-check"></i>
-          <span>{{ successMessage }}</span>
+      </div>
+      
+      <!-- Status Messages -->
+      <div v-if="statusMessage" class="status-message" :class="statusMessage.type">
+        <i :class="statusMessage.type === 'success' ? 'el-icon-check' : 'el-icon-warning'"></i>
+        <div class="message-content">
+          <div class="message-title">{{ statusMessage.title }}</div>
+          <div class="message-text">{{ statusMessage.text }}</div>
         </div>
-
-        <!-- Submit Button -->
-        <el-button
-          type="primary"
-          :loading="loading"
-          :disabled="loading"
-          class="auth-submit-button"
-          native-type="submit"
-        >
-          <span v-if="!loading">{{ isLogin ? 'Sign In' : 'Create Account' }}</span>
-          <span v-else>{{ isLogin ? 'Signing In...' : 'Creating Account...' }}</span>
+      </div>
+      
+      <!-- Submit Button -->
+      <el-button 
+        type="primary" 
+        @click="handleSubmit" 
+        :loading="loading"
+        :disabled="loading"
+        class="auth-button"
+      >
+        {{ isLogin ? 'Sign In' : 'Create Account' }}
+      </el-button>
+      
+      <!-- Toggle between Sign In / Sign Up -->
+      <div class="auth-toggle">
+        <span>{{ isLogin ? "Don't have an account?" : "Already have an account?" }}</span>
+        <el-button type="text" @click="toggleMode" class="toggle-button">
+          {{ isLogin ? 'Sign Up' : 'Sign In' }}
         </el-button>
-
-        <!-- Toggle Mode -->
-        <div class="auth-toggle">
-          <span class="toggle-text">
-            {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
-          </span>
-          <button
-            type="button"
-            @click="toggleMode"
-            :disabled="loading"
-            class="toggle-button"
-          >
-            {{ isLogin ? 'Sign Up' : 'Sign In' }}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   </el-dialog>
 </template>
 
 <script>
-import { authHelpers } from '@/utils/supabase'
-
 export default {
   name: 'AuthModal',
   props: {
@@ -122,45 +118,50 @@ export default {
       default: false
     }
   },
+  inject: ['getUsers', 'addUser'],
   data() {
     return {
       isLogin: true,
       loading: false,
-      errorMessage: '',
-      successMessage: '',
-      form: {
+      statusMessage: null,
+      loginForm: {
+        email: '',
+        password: ''
+      },
+      signupForm: {
+        fullName: '',
         email: '',
         password: '',
-        fullName: '',
-        currentRole: ''
+        role: '',
+        company: ''
       }
     }
   },
   methods: {
     toggleMode() {
       this.isLogin = !this.isLogin
-      this.clearMessages()
-      this.resetForm()
+      this.statusMessage = null
+      this.clearForms()
     },
-
-    resetForm() {
-      this.form = {
+    
+    clearForms() {
+      this.loginForm = {
+        email: '',
+        password: ''
+      }
+      this.signupForm = {
+        fullName: '',
         email: '',
         password: '',
-        fullName: '',
-        currentRole: ''
+        role: '',
+        company: ''
       }
     },
-
-    clearMessages() {
-      this.errorMessage = ''
-      this.successMessage = ''
-    },
-
+    
     async handleSubmit() {
-      this.clearMessages()
       this.loading = true
-
+      this.statusMessage = null
+      
       try {
         if (this.isLogin) {
           await this.handleSignIn()
@@ -168,97 +169,92 @@ export default {
           await this.handleSignUp()
         }
       } catch (error) {
-        console.error('Auth error:', error)
-        this.errorMessage = 'An unexpected error occurred. Please try again.'
+        this.statusMessage = {
+          type: 'error',
+          title: 'Error',
+          text: error.message
+        }
       } finally {
         this.loading = false
       }
     },
-
+    
     async handleSignIn() {
-      const { data, error } = await authHelpers.signIn(this.form.email, this.form.password)
+      const { email, password } = this.loginForm
       
-      if (error) {
-        this.errorMessage = error.message
-        return
+      if (!email || !password) {
+        throw new Error('Please enter both email and password')
       }
-
-      if (data.user) {
-        this.successMessage = 'Successfully signed in!'
-        setTimeout(() => {
-          this.$emit('auth-success', data.user)
-          this.resetForm()
-        }, 1000)
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const users = this.getUsers()
+      const user = users.find(u => u.email === email && u.password === password)
+      
+      if (!user) {
+        throw new Error('Invalid email or password')
       }
+      
+      if (!user.emailVerified) {
+        throw new Error('Please verify your email address before signing in')
+      }
+      
+      this.$emit('auth-success', user)
+      this.clearForms()
     },
-
+    
     async handleSignUp() {
-      const userData = {
-        full_name: this.form.fullName,
-        current_role: this.form.currentRole
-      }
-
-      const { data, error } = await authHelpers.signUp(
-        this.form.email, 
-        this.form.password, 
-        userData
-      )
+      const { fullName, email, password, role, company } = this.signupForm
       
-      if (error) {
-        this.errorMessage = error.message
-        return
+      // Validation
+      if (!fullName || !email || !password || !role) {
+        throw new Error('Please fill in all required fields')
       }
-
-      if (data.user) {
-        this.successMessage = 'Account created successfully! Please check your email to verify your account.'
-        setTimeout(() => {
-          this.isLogin = true
-          this.resetForm()
-          this.clearMessages()
-        }, 3000)
+      
+      if (password.length < 6) {
+        throw new Error('Password must be at least 6 characters long')
       }
+      
+      // Check if email already exists
+      const users = this.getUsers()
+      const existingUser = users.find(u => u.email === email)
+      if (existingUser) {
+        throw new Error('An account with this email already exists')
+      }
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Create new user
+      const newUser = this.addUser({
+        email,
+        password,
+        fullName,
+        role,
+        company,
+        status: 'pending',
+        emailVerified: true // Simulate email verification
+      })
+      
+      this.statusMessage = {
+        type: 'success',
+        title: 'Account Created Successfully!',
+        text: 'Your account has been created and email verified. An administrator will review and approve your access shortly.'
+      }
+      
+      // Clear form after success
+      setTimeout(() => {
+        this.clearForms()
+        this.statusMessage = null
+        this.isLogin = true
+      }, 3000)
     }
   }
 }
 </script>
 
 <style scoped>
-.auth-container {
-  padding: 8px;
-}
-
-.auth-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.auth-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  color: white;
-  font-size: 24px;
-}
-
-.auth-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 8px 0;
-}
-
-.auth-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-  line-height: 1.5;
-}
-
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -271,18 +267,18 @@ export default {
   gap: 8px;
 }
 
-.form-label {
+.form-group label {
   font-size: 14px;
   font-weight: 600;
   color: #374151;
 }
 
 .auth-input .el-input__inner {
-  height: 48px;
-  border-radius: 12px;
+  height: 44px;
+  border-radius: 8px;
   border: 2px solid #e2e8f0;
-  padding: 0 16px;
-  font-size: 15px;
+  padding: 0 14px;
+  font-size: 14px;
   transition: all 0.2s ease;
   background: #f8fafc;
 }
@@ -293,114 +289,90 @@ export default {
   background: white;
 }
 
-.error-message {
+.status-message {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  gap: 12px;
+  padding: 16px;
   border-radius: 8px;
-  color: #dc2626;
-  font-size: 14px;
+  border: 1px solid;
 }
 
-.error-content {
+.status-message.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #16a34a;
+}
+
+.status-message.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.message-content {
   flex: 1;
 }
 
-.error-title {
+.message-title {
   font-weight: 600;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.setup-help {
-  margin-top: 8px;
-}
-
-.setup-text {
-  font-size: 13px;
-  margin: 0 0 8px 0;
-  font-weight: 500;
-}
-
-.setup-steps {
-  font-size: 12px;
-  margin: 0;
-  padding-left: 16px;
-  line-height: 1.5;
-}
-
-.setup-steps li {
   margin-bottom: 4px;
 }
 
-.success-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 8px;
-  color: #16a34a;
+.message-text {
   font-size: 14px;
+  line-height: 1.5;
 }
 
-.auth-submit-button {
-  height: 48px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
+.auth-button {
+  height: 44px;
   background: linear-gradient(135deg, #0a66c2, #004182);
   border: none;
-  margin-top: 8px;
+  font-weight: 600;
+  font-size: 15px;
 }
 
 .auth-toggle {
   text-align: center;
   padding-top: 16px;
   border-top: 1px solid #e2e8f0;
-}
-
-.toggle-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   font-size: 14px;
-  color: #64748b;
-  margin-right: 8px;
 }
 
 .toggle-button {
-  background: none;
-  border: none;
   color: #0a66c2;
-  font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
+  padding: 0;
 }
 
 .toggle-button:hover {
   color: #004182;
 }
-
-.toggle-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 </style>
 
 <style>
-.auth-modal .el-dialog {
+.auth-dialog .el-dialog {
   border-radius: 16px;
   overflow: hidden;
 }
 
-.auth-modal .el-dialog__header {
-  display: none;
+.auth-dialog .el-dialog__header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 20px 24px;
 }
 
-.auth-modal .el-dialog__body {
-  padding: 32px;
+.auth-dialog .el-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.auth-dialog .el-dialog__body {
+  padding: 24px;
 }
 </style>

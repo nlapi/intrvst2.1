@@ -1,132 +1,155 @@
 <template>
   <el-dialog
     :visible.sync="visible"
-    title="Admin Panel"
-    width="800px"
+    title="Admin Panel - User Management"
+    width="900px"
     :close-on-click-modal="false"
-    custom-class="admin-modal"
+    custom-class="admin-dialog"
+    @close="$emit('close')"
   >
-    <div class="admin-container">
-      <!-- Header -->
+    <div class="admin-content">
+      <!-- Admin Header -->
       <div class="admin-header">
-        <div class="admin-icon">
-          <i class="el-icon-key"></i>
-        </div>
-        <div class="admin-info">
-          <h3 class="admin-title">User Management</h3>
-          <p class="admin-subtitle">Manage registered users and their access</p>
-        </div>
         <div class="admin-stats">
-          <div class="stat-item">
-            <div class="stat-number">{{ users.length }}</div>
+          <div class="stat-card">
+            <div class="stat-number">{{ pendingUsers.length }}</div>
+            <div class="stat-label">Pending Approval</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ approvedUsers.length }}</div>
+            <div class="stat-label">Approved Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ allUsers.length }}</div>
             <div class="stat-label">Total Users</div>
           </div>
         </div>
       </div>
 
-      <!-- Search and Filters -->
+      <!-- Search and Controls -->
       <div class="admin-controls">
-        <div class="search-section">
-          <el-input
-            v-model="searchQuery"
-            placeholder="Search users by email or name..."
-            prefix-icon="el-icon-search"
-            class="search-input"
-            clearable
-          />
+        <el-input
+          v-model="searchQuery"
+          placeholder="Search users by name or email..."
+          prefix-icon="el-icon-search"
+          class="search-input"
+          clearable
+        />
+        <el-button
+          type="primary"
+          icon="el-icon-refresh"
+          @click="refreshData"
+          class="refresh-button"
+        >
+          Refresh
+        </el-button>
+      </div>
+
+      <!-- Pending Approvals Section -->
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="el-icon-time"></i>
+            Pending Approvals ({{ filteredPendingUsers.length }})
+          </h3>
+          <p class="section-subtitle">Users waiting for admin approval</p>
         </div>
-        <div class="filter-section">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh"
-            @click="loadUsers"
-            :loading="loading"
-            class="refresh-button"
+        
+        <div v-if="filteredPendingUsers.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <i class="el-icon-check"></i>
+          </div>
+          <p class="empty-text">No users pending approval</p>
+        </div>
+        
+        <div v-else class="user-grid">
+          <div 
+            v-for="user in filteredPendingUsers" 
+            :key="user.id" 
+            class="user-card pending"
           >
-            Refresh
-          </el-button>
+            <div class="user-info">
+              <div class="user-avatar">{{ getUserInitials(user.fullName) }}</div>
+              <div class="user-details">
+                <div class="user-name">{{ user.fullName }}</div>
+                <div class="user-email">{{ user.email }}</div>
+                <div class="user-role">{{ user.role }}</div>
+                <div class="user-company" v-if="user.company">{{ user.company }}</div>
+                <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
+              </div>
+            </div>
+            <div class="user-actions">
+              <el-button 
+                type="success" 
+                size="small" 
+                @click="approveUser(user)"
+                :loading="processingUsers.includes(user.id)"
+              >
+                <i class="el-icon-check"></i> Approve
+              </el-button>
+              <el-button 
+                type="danger" 
+                size="small" 
+                @click="rejectUser(user)"
+                :loading="processingUsers.includes(user.id)"
+              >
+                <i class="el-icon-close"></i> Reject
+              </el-button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Users Table -->
-      <div class="users-section">
-        <div v-if="loading" class="loading-state">
-          <i class="el-icon-loading"></i>
-          <span>Loading users...</span>
+      <!-- Approved Users Section -->
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="el-icon-user"></i>
+            Approved Users ({{ filteredApprovedUsers.length }})
+          </h3>
+          <p class="section-subtitle">Active users with platform access</p>
         </div>
-
-        <div v-else-if="filteredUsers.length === 0" class="empty-state">
+        
+        <div v-if="filteredApprovedUsers.length === 0" class="empty-state">
           <div class="empty-icon">
             <i class="el-icon-user"></i>
           </div>
-          <h4 class="empty-title">No Users Found</h4>
-          <p class="empty-description">
-            {{ searchQuery ? 'No users match your search criteria.' : 'No users have registered yet.' }}
-          </p>
+          <p class="empty-text">No approved users found</p>
         </div>
-
-        <div v-else class="users-table">
-          <div class="table-header">
-            <div class="header-cell user-col">User</div>
-            <div class="header-cell email-col">Email</div>
-            <div class="header-cell date-col">Joined</div>
-            <div class="header-cell status-col">Status</div>
-            <div class="header-cell actions-col">Actions</div>
-          </div>
-
-          <div class="table-body">
-            <div
-              v-for="user in filteredUsers"
-              :key="user.id"
-              class="table-row"
-              :class="{ 'admin-row': isUserAdmin(user) }"
-            >
-              <div class="table-cell user-col">
-                <div class="user-info">
-                  <div class="user-avatar">
-                    <span class="avatar-text">{{ getUserInitials(user) }}</span>
-                  </div>
-                  <div class="user-details">
-                    <div class="user-name">{{ user.user_metadata?.full_name || 'Unknown' }}</div>
-                    <div class="user-role">{{ user.user_metadata?.current_role || 'Member' }}</div>
-                  </div>
+        
+        <div v-else class="user-grid">
+          <div 
+            v-for="user in filteredApprovedUsers" 
+            :key="user.id" 
+            class="user-card approved"
+            :class="{ admin: user.isAdmin }"
+          >
+            <div class="user-info">
+              <div class="user-avatar" :class="{ admin: user.isAdmin }">
+                {{ getUserInitials(user.fullName) }}
+              </div>
+              <div class="user-details">
+                <div class="user-name">
+                  {{ user.fullName }}
+                  <span v-if="user.isAdmin" class="admin-badge">ADMIN</span>
                 </div>
+                <div class="user-email">{{ user.email }}</div>
+                <div class="user-role">{{ user.role }}</div>
+                <div class="user-company" v-if="user.company">{{ user.company }}</div>
+                <div class="user-date">Joined {{ formatDate(user.createdAt) }}</div>
               </div>
-
-              <div class="table-cell email-col">
-                <div class="email-info">
-                  <span class="email-text">{{ user.email }}</span>
-                  <span v-if="isUserAdmin(user)" class="admin-badge">ADMIN</span>
-                </div>
-              </div>
-
-              <div class="table-cell date-col">
-                <span class="date-text">{{ formatDate(user.created_at) }}</span>
-              </div>
-
-              <div class="table-cell status-col">
-                <div class="status-badge" :class="getStatusClass(user)">
-                  <div class="status-dot"></div>
-                  <span class="status-text">{{ getStatusText(user) }}</span>
-                </div>
-              </div>
-
-              <div class="table-cell actions-col">
-                <div class="action-buttons">
-                  <el-button
-                    v-if="!isUserAdmin(user)"
-                    type="danger"
-                    size="mini"
-                    icon="el-icon-delete"
-                    @click="confirmDeleteUser(user)"
-                    :loading="deletingUsers.includes(user.id)"
-                    class="delete-button"
-                  >
-                    Delete
-                  </el-button>
-                  <span v-else class="protected-text">Protected</span>
-                </div>
-              </div>
+            </div>
+            <div class="user-actions">
+              <el-button 
+                v-if="!user.isAdmin"
+                type="danger" 
+                size="small" 
+                @click="deleteUser(user)"
+                :loading="processingUsers.includes(user.id)"
+              >
+                <i class="el-icon-delete"></i> Delete
+              </el-button>
+              <span v-else class="protected-text">Protected</span>
             </div>
           </div>
         </div>
@@ -136,8 +159,6 @@
 </template>
 
 <script>
-import { supabase, authHelpers } from '@/utils/supabase'
-
 export default {
   name: 'AdminPanel',
   props: {
@@ -146,68 +167,51 @@ export default {
       default: false
     }
   },
+  inject: ['getUsers', 'updateUser', 'deleteUser'],
   data() {
     return {
-      users: [],
-      loading: false,
       searchQuery: '',
-      deletingUsers: []
+      processingUsers: []
     }
   },
   computed: {
-    filteredUsers() {
-      if (!this.searchQuery) return this.users
+    allUsers() {
+      return this.getUsers()
+    },
+    
+    pendingUsers() {
+      return this.allUsers.filter(user => user.status === 'pending')
+    },
+    
+    approvedUsers() {
+      return this.allUsers.filter(user => user.status === 'approved')
+    },
+    
+    filteredPendingUsers() {
+      if (!this.searchQuery) return this.pendingUsers
       
       const query = this.searchQuery.toLowerCase()
-      return this.users.filter(user => 
-        user.email.toLowerCase().includes(query) ||
-        (user.user_metadata?.full_name || '').toLowerCase().includes(query)
+      return this.pendingUsers.filter(user => 
+        user.fullName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+      )
+    },
+    
+    filteredApprovedUsers() {
+      if (!this.searchQuery) return this.approvedUsers
+      
+      const query = this.searchQuery.toLowerCase()
+      return this.approvedUsers.filter(user => 
+        user.fullName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
       )
     }
   },
-  watch: {
-    visible(newVal) {
-      if (newVal) {
-        this.loadUsers()
-      }
-    }
-  },
   methods: {
-    async loadUsers() {
-      this.loading = true
-      try {
-        // Note: In a real app, you'd need a server-side endpoint to list users
-        // as the Supabase client doesn't allow listing all users for security
-        // For demo purposes, we'll show a placeholder
-        this.users = [
-          {
-            id: '1',
-            email: 'nisjet.lapi@gmail.com',
-            created_at: new Date().toISOString(),
-            email_confirmed_at: new Date().toISOString(),
-            user_metadata: {
-              full_name: 'Admin User',
-              current_role: 'Administrator'
-            }
-          }
-        ]
-      } catch (error) {
-        console.error('Error loading users:', error)
-        this.$message.error('Failed to load users')
-      } finally {
-        this.loading = false
-      }
-    },
-
-    isUserAdmin(user) {
-      return authHelpers.isAdmin(user)
-    },
-
-    getUserInitials(user) {
-      const name = user.user_metadata?.full_name || user.email || 'U'
+    getUserInitials(name) {
       return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     },
-
+    
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -215,113 +219,122 @@ export default {
         day: 'numeric'
       })
     },
-
-    getStatusClass(user) {
-      return user.email_confirmed_at ? 'status-active' : 'status-pending'
+    
+    async approveUser(user) {
+      this.processingUsers.push(user.id)
+      
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        this.updateUser(user.id, { status: 'approved' })
+        this.$message.success(`${user.fullName} has been approved!`)
+      } catch (error) {
+        this.$message.error('Failed to approve user')
+      } finally {
+        this.processingUsers = this.processingUsers.filter(id => id !== user.id)
+      }
     },
-
-    getStatusText(user) {
-      return user.email_confirmed_at ? 'Active' : 'Pending'
-    },
-
-    confirmDeleteUser(user) {
+    
+    async rejectUser(user) {
       this.$confirm(
-        `This will permanently delete the user "${user.email}". Continue?`,
-        'Delete User',
+        `Reject ${user.fullName}'s application? They will not be able to access the platform.`,
+        'Reject User Application',
         {
-          confirmButtonText: 'Delete',
+          confirmButtonText: 'Reject',
           cancelButtonText: 'Cancel',
           type: 'warning',
           confirmButtonClass: 'el-button--danger'
         }
-      ).then(() => {
-        this.deleteUser(user)
-      }).catch(() => {
-        // User cancelled
+      ).then(async () => {
+        this.processingUsers.push(user.id)
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
+          this.updateUser(user.id, { status: 'rejected' })
+          this.$message.success(`${user.fullName}'s application has been rejected`)
+        } catch (error) {
+          this.$message.error('Failed to reject user')
+        } finally {
+          this.processingUsers = this.processingUsers.filter(id => id !== user.id)
+        }
       })
     },
-
+    
     async deleteUser(user) {
-      this.deletingUsers.push(user.id)
-      
-      try {
-        // Note: In a real app, you'd need a server-side endpoint to delete users
-        // as the Supabase client doesn't allow deleting other users for security
-        // For demo purposes, we'll simulate the deletion
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        this.users = this.users.filter(u => u.id !== user.id)
-        this.$message.success(`User ${user.email} has been deleted`)
-      } catch (error) {
-        console.error('Error deleting user:', error)
-        this.$message.error('Failed to delete user')
-      } finally {
-        this.deletingUsers = this.deletingUsers.filter(id => id !== user.id)
+      if (user.isAdmin) {
+        this.$message.error('Cannot delete admin accounts')
+        return
       }
+      
+      this.$confirm(
+        `Permanently delete ${user.fullName}? This action cannot be undone.`,
+        'Delete User Account',
+        {
+          confirmButtonText: 'Delete',
+          cancelButtonText: 'Cancel',
+          type: 'error',
+          confirmButtonClass: 'el-button--danger'
+        }
+      ).then(async () => {
+        this.processingUsers.push(user.id)
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
+          this.deleteUser(user.id)
+          this.$message.success(`${user.fullName} has been deleted`)
+          this.$emit('user-deleted')
+        } catch (error) {
+          this.$message.error('Failed to delete user')
+        } finally {
+          this.processingUsers = this.processingUsers.filter(id => id !== user.id)
+        }
+      })
+    },
+    
+    refreshData() {
+      this.$message.success('Data refreshed')
     }
   }
 }
 </script>
 
 <style scoped>
-.admin-container {
+.admin-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .admin-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   padding: 20px;
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
 
-.admin-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 20px;
-}
-
-.admin-info {
-  flex: 1;
-}
-
-.admin-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 4px 0;
-}
-
-.admin-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-
 .admin-stats {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-.stat-item {
+.stat-card {
   text-align: center;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .stat-number {
   font-size: 24px;
   font-weight: 700;
   color: #0a66c2;
+  margin-bottom: 4px;
 }
 
 .stat-label {
@@ -336,7 +349,7 @@ export default {
   align-items: center;
 }
 
-.search-section {
+.search-input {
   flex: 1;
 }
 
@@ -359,7 +372,35 @@ export default {
   border: none;
 }
 
-.loading-state, .empty-state {
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -367,244 +408,172 @@ export default {
   padding: 40px;
   text-align: center;
   color: #64748b;
-}
-
-.loading-state {
-  gap: 12px;
-}
-
-.loading-state i {
-  font-size: 24px;
-  animation: spin 1s linear infinite;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .empty-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .empty-icon i {
-  font-size: 28px;
+  font-size: 20px;
   color: #94a3b8;
 }
 
-.empty-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #475569;
-  margin: 0 0 8px 0;
-}
-
-.empty-description {
+.empty-text {
   font-size: 14px;
-  color: #64748b;
   margin: 0;
 }
 
-.users-table {
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: white;
-}
-
-.table-header {
+.user-grid {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 16px;
-  padding: 16px 20px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.header-cell {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.table-body {
+.user-card {
   display: flex;
   flex-direction: column;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
   gap: 16px;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background-color 0.2s ease;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
 }
 
-.table-row:hover {
-  background: #f8fafc;
+.user-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.admin-row {
-  background: #fef3e2;
+.user-card.pending {
   border-left: 4px solid #f59e0b;
+  background: #fefbf3;
 }
 
-.admin-row:hover {
-  background: #fef3e2;
+.user-card.approved {
+  border-left: 4px solid #22c55e;
+  background: #f0fdf4;
 }
 
-.table-cell {
-  display: flex;
-  align-items: center;
+.user-card.admin {
+  border-left: 4px solid #8b5cf6;
+  background: #faf5ff;
 }
 
 .user-info {
   display: flex;
-  align-items: center;
   gap: 12px;
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #0a66c2, #004182);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.user-avatar.admin {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
 
 .user-details {
-  display: flex;
-  flex-direction: column;
+  flex: 1;
   min-width: 0;
 }
 
 .user-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role {
-  font-size: 12px;
-  color: #64748b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.email-info {
+  margin-bottom: 4px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.email-text {
-  font-size: 14px;
-  color: #374151;
+  align-items: center;
+  gap: 8px;
 }
 
 .admin-badge {
   font-size: 10px;
   font-weight: 700;
-  color: #f59e0b;
-  background: #fef3e2;
+  color: #8b5cf6;
+  background: #f3f4f6;
   padding: 2px 6px;
   border-radius: 4px;
-  align-self: flex-start;
 }
 
-.date-text {
+.user-email {
   font-size: 14px;
   color: #64748b;
+  margin-bottom: 2px;
 }
 
-.status-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
+.user-role {
+  font-size: 13px;
+  color: #0a66c2;
   font-weight: 500;
+  margin-bottom: 2px;
 }
 
-.status-active {
-  background: #f0fdf4;
-  color: #16a34a;
+.user-company {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
 }
 
-.status-pending {
-  background: #fef3c7;
-  color: #d97706;
+.user-date {
+  font-size: 11px;
+  color: #94a3b8;
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.action-buttons {
+.user-actions {
   display: flex;
   gap: 8px;
-}
-
-.delete-button {
-  height: 28px;
-  padding: 0 12px;
-  font-size: 12px;
-  border-radius: 6px;
+  justify-content: flex-end;
 }
 
 .protected-text {
   font-size: 12px;
   color: #64748b;
   font-style: italic;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  align-self: center;
 }
 </style>
 
 <style>
-.admin-modal .el-dialog {
+.admin-dialog .el-dialog {
   border-radius: 16px;
   overflow: hidden;
 }
 
-.admin-modal .el-dialog__header {
+.admin-dialog .el-dialog__header {
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   padding: 20px 24px;
 }
 
-.admin-modal .el-dialog__title {
+.admin-dialog .el-dialog__title {
   font-size: 18px;
   font-weight: 600;
   color: #1e293b;
 }
 
-.admin-modal .el-dialog__body {
+.admin-dialog .el-dialog__body {
   padding: 24px;
 }
 </style>
