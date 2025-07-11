@@ -358,13 +358,13 @@ export default {
 }
 
 .resume-icon {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+  background: rgba(10, 102, 194, 0.1);
+  color: #0a66c2;
 }
 
 .job-icon {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
+  background: rgba(10, 102, 194, 0.1);
+  color: #0a66c2;
 }
 
 .card-info {
