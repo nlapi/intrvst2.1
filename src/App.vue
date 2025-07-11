@@ -702,6 +702,17 @@ export default {
   overflow: hidden;
 }
 
+/* Additional scrollbar prevention */
+body:has(.welcome-layout),
+body:has(.interview-workspace) {
+  overflow: hidden;
+}
+
+html:has(.welcome-layout),
+html:has(.interview-workspace) {
+  overflow: hidden;
+}
+
 .welcome-layout {
   display: flex;
   align-items: stretch;
