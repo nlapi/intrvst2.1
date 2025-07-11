@@ -295,7 +295,7 @@ export default {
 
 .error-message {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   padding: 12px 16px;
   background: #fef2f2;
@@ -303,6 +303,37 @@ export default {
   border-radius: 8px;
   color: #dc2626;
   font-size: 14px;
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-title {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.setup-help {
+  margin-top: 8px;
+}
+
+.setup-text {
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.setup-steps {
+  font-size: 12px;
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.5;
+}
+
+.setup-steps li {
+  margin-bottom: 4px;
 }
 
 .success-message {

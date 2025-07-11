@@ -399,6 +399,47 @@ export default {
   gap: 10px;
 }
 
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.loading-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 40px;
+}
+
+.loading-spinner {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0a66c2, #004182);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  color: white;
+  font-size: 24px;
+}
+
+.loading-spinner i {
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .header-container {
