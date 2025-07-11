@@ -1,5 +1,18 @@
 <template>
   <div id="app">
+    <!-- Supabase Configuration Notice -->
+    <div v-if="!isSupabaseConfigured" class="config-notice">
+      <div class="notice-content">
+        <div class="notice-icon">
+          <i class="el-icon-warning"></i>
+        </div>
+        <div class="notice-text">
+          <strong>Supabase Configuration Required</strong>
+          <p>To enable real email verification and authentication, please click "Connect to Supabase" in the top right corner.</p>
+        </div>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading-screen">
       <div class="loading-content">
         <div class="loading-spinner"></div>
@@ -182,6 +195,7 @@
 </template>
 
 <script>
+import { authHelpers } from '@/utils/supabase'
 import AuthModal from '@/components/AuthModal.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import AdminPanel from '@/components/AdminPanel.vue'
@@ -224,7 +238,6 @@ export default {
           company: 'Tech Corp',
           status: 'pending',
           isAdmin: false,
-          emailVerified: true,
           createdAt: new Date().toISOString()
         },
         {
@@ -242,56 +255,85 @@ export default {
       ]
     }
   },
+  computed: {
+    isSupabaseConfigured() {
+      return authHelpers.isConfigured()
+    }
+  },
   async mounted() {
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // Check for email verification in URL (simulate clicking email link)
-    const urlParams = new URLSearchParams(window.location.search)
-    const verifyEmail = urlParams.get('verify')
-    if (verifyEmail) {
-      this.handleEmailVerification(verifyEmail)
-    }
-    
-    // Check for existing session
-    const savedUser = localStorage.getItem('currentUser')
-    if (savedUser) {
+    // Check for existing Supabase session
+    if (this.isSupabaseConfigured) {
       try {
-        const userData = JSON.parse(savedUser)
-        const user = this.users.find(u => u.id === userData.id)
-        if (user) {
+        const user = await authHelpers.getCurrentUser()
+        if (user && user.email_confirmed_at) {
           this.currentUser = user
-          this.userStatus = user.status
+          this.userStatus = this.getUserStatus(user)
         }
       } catch (error) {
-        console.error('Error loading saved user:', error)
-        localStorage.removeItem('currentUser')
+        console.error('Error checking auth session:', error)
+      }
+    } else {
+      // Fallback to localStorage for demo purposes
+      const savedUser = localStorage.getItem('currentUser')
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser)
+          const user = this.users.find(u => u.id === userData.id)
+          if (user) {
+            this.currentUser = user
+            this.userStatus = user.status
+          }
+        } catch (error) {
+          console.error('Error loading saved user:', error)
+          localStorage.removeItem('currentUser')
+        }
       }
     }
     
     this.loading = false
   },
   methods: {
+    getUserStatus(user) {
+      // Check if user is admin
+      if (authHelpers.isAdmin(user)) {
+        return 'approved'
+      }
+      
+      // For now, return pending - you'll need to implement user status in your database
+      // This would typically check a user_profiles table or similar
+      return user.user_metadata?.status || 'pending'
+    },
+    
     handleAuthSuccess(user) {
       this.currentUser = user
-      this.userStatus = user.status
+      this.userStatus = this.getUserStatus(user)
       this.showAuthModal = false
       
-      // Save session
-      localStorage.setItem('currentUser', JSON.stringify({
-        id: user.id,
-        email: user.email
-      }))
+      // Save session (fallback for non-Supabase)
+      if (!this.isSupabaseConfigured) {
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: user.id,
+          email: user.email
+        }))
+      }
       
-      if (user.status === 'approved') {
-        this.$message.success(`Welcome back, ${user.fullName}!`)
-        if (user.isAdmin) {
+      if (this.userStatus === 'approved') {
+        const displayName = user.user_metadata?.full_name || user.email
+        this.$message.success(`Welcome back, ${displayName}!`)
+        if (authHelpers.isAdmin(user)) {
           this.$message.info('Admin privileges activated')
         }
       }
     },
     
-    handleSignOut() {
+    async handleSignOut() {
+      if (this.isSupabaseConfigured) {
+        await authHelpers.signOut()
+      }
+      
       this.currentUser = null
       this.userStatus = 'approved'
       this.showAdminPanel = false
@@ -301,14 +343,19 @@ export default {
     
     refreshUserStatus() {
       if (this.currentUser) {
-        const updatedUser = this.users.find(u => u.id === this.currentUser.id)
-        if (updatedUser) {
-          this.currentUser = updatedUser
-          this.userStatus = updatedUser.status
+        if (this.isSupabaseConfigured) {
+          // Refresh from Supabase
+          this.userStatus = this.getUserStatus(this.currentUser)
         } else {
-          // User was deleted
-          this.handleSignOut()
-          this.$message.warning('Your account has been removed by an administrator')
+          // Fallback to mock data
+          const updatedUser = this.users.find(u => u.id === this.currentUser.id)
+          if (updatedUser) {
+            this.currentUser = updatedUser
+            this.userStatus = updatedUser.status
+          } else {
+            this.handleSignOut()
+            this.$message.warning('Your account has been removed by an administrator')
+          }
         }
       }
     },
@@ -347,27 +394,6 @@ export default {
       }
       this.users.push(newUser)
       return newUser
-    },
-    
-    handleEmailVerification(email) {
-      try {
-        // Get AuthModal component reference and verify email
-        const authModal = this.$refs.authModal
-        if (authModal) {
-          const newUser = authModal.simulateEmailVerification(email)
-          this.$message.success(`Email verified! Your account has been created and is pending admin approval.`)
-        }
-      } catch (error) {
-        this.$message.error(`Email verification failed: ${error.message}`)
-      }
-    },
-    
-    // Helper method for testing email verification
-    testEmailVerification() {
-      const email = prompt('Enter email to verify:')
-      if (email) {
-        this.handleEmailVerification(email)
-      }
     }
   },
   provide() {
@@ -395,6 +421,41 @@ export default {
   background: #f8fafc;
   min-height: 100vh;
   color: #1e293b;
+}
+
+.config-notice {
+  background: #fef3c7;
+  border-bottom: 1px solid #f59e0b;
+  padding: 12px 0;
+}
+
+.notice-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 32px;
+}
+
+.notice-icon {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+.notice-text {
+  flex: 1;
+}
+
+.notice-text strong {
+  color: #92400e;
+  font-weight: 600;
+}
+
+.notice-text p {
+  color: #a16207;
+  font-size: 14px;
+  margin: 2px 0 0 0;
 }
 
 .loading-screen {

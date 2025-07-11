@@ -110,6 +110,8 @@
 </template>
 
 <script>
+import { authHelpers } from '@/utils/supabase'
+
 export default {
   name: 'AuthModal',
   props: {
@@ -118,7 +120,6 @@ export default {
       default: false
     }
   },
-  inject: ['getUsers', 'addUser'],
   data() {
     return {
       isLogin: true,
@@ -135,6 +136,11 @@ export default {
         role: '',
         company: ''
       }
+    }
+  },
+  computed: {
+    isSupabaseConfigured() {
+      return authHelpers.isConfigured()
     }
   },
   methods: {
@@ -159,6 +165,15 @@ export default {
     },
     
     async handleSubmit() {
+      if (!this.isSupabaseConfigured) {
+        this.statusMessage = {
+          type: 'error',
+          title: 'Configuration Required',
+          text: 'Please set up Supabase configuration to enable authentication. Click "Connect to Supabase" in the top right.'
+        }
+        return
+      }
+      
       this.loading = true
       this.statusMessage = null
       
@@ -186,21 +201,21 @@ export default {
         throw new Error('Please enter both email and password')
       }
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const { data, error } = await authHelpers.signIn(email, password)
       
-      const users = this.getUsers()
-      const user = users.find(u => u.email === email && u.password === password)
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Please verify your email address before signing in. Check your inbox for the verification link.')
+        }
+        throw new Error(error.message)
+      }
       
-      if (!user) {
+      if (!data.user) {
         throw new Error('Invalid email or password')
       }
       
-      if (!user.emailVerified) {
-        throw new Error('Please verify your email address before signing in')
-      }
-      
-      this.$emit('auth-success', user)
+      // Check if user is approved (you'll need to implement this in your database)
+      this.$emit('auth-success', data.user)
       this.clearForms()
     },
     
@@ -216,64 +231,39 @@ export default {
         throw new Error('Password must be at least 6 characters long')
       }
       
-      // Check if email already exists
-      const users = this.getUsers()
-      const existingUser = users.find(u => u.email === email)
-      if (existingUser) {
-        throw new Error('An account with this email already exists')
+      const { data, error } = await authHelpers.signUp(email, password, {
+        full_name: fullName,
+        current_role: role,
+        company: company || '',
+        status: 'pending' // Will need admin approval
+      })
+      
+      if (error) {
+        if (error.message.includes('already registered')) {
+          throw new Error('An account with this email already exists')
+        }
+        throw new Error(error.message)
       }
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      this.statusMessage = {
-        type: 'success',
-        title: 'Verification Email Sent!',
-        text: `We've sent a verification email to ${email}. Please check your inbox and click the verification link to complete your registration. Check your spam folder if you don't see it.`
+      if (data.user && !data.user.email_confirmed_at) {
+        this.statusMessage = {
+          type: 'success',
+          title: 'Verification Email Sent!',
+          text: `We've sent a verification email to ${email}. Please check your inbox and click the verification link to complete your registration. Check your spam folder if you don't see it.`
+        }
+      } else {
+        this.statusMessage = {
+          type: 'success',
+          title: 'Account Created!',
+          text: 'Your account has been created and is pending admin approval.'
+        }
       }
-      
-      // Store pending registration data temporarily
-      const pendingData = {
-        email,
-        password,
-        fullName,
-        role,
-        company,
-        timestamp: new Date().toISOString()
-      }
-      localStorage.setItem(`pending_registration_${email}`, JSON.stringify(pendingData))
       
       // Clear form after success
       setTimeout(() => {
         this.clearForms()
         this.statusMessage = null
       }, 5000)
-    },
-    
-    // Method to simulate email verification (for testing purposes)
-    simulateEmailVerification(email) {
-      const pendingData = localStorage.getItem(`pending_registration_${email}`)
-      if (!pendingData) {
-        throw new Error('No pending registration found for this email')
-      }
-      
-      const userData = JSON.parse(pendingData)
-      
-      // Create the actual user account after email verification
-      const newUser = this.addUser({
-        email: userData.email,
-        password: userData.password,
-        fullName: userData.fullName,
-        role: userData.role,
-        company: userData.company,
-        status: 'pending',
-        emailVerified: true
-      })
-      
-      // Remove pending registration data
-      localStorage.removeItem(`pending_registration_${email}`)
-      
-      return newUser
     }
   }
 }
