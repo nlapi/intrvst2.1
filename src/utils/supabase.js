@@ -41,7 +41,10 @@ export const supabase = (supabaseUrl && supabaseKey &&
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        storage: window.localStorage,
+        storageKey: 'sb-auth-token',
+        flowType: 'pkce'
       }
     })
   : null

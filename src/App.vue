@@ -287,10 +287,17 @@ export default {
       if (savedUser) {
         try {
           const userData = JSON.parse(savedUser)
-          const user = this.users.find(u => u.id === userData.id)
-          if (user) {
-            this.currentUser = user
-            this.userStatus = user.status
+          
+          // Check if session is still valid (14 days)
+          if (userData.expiresAt && Date.now() < userData.expiresAt) {
+            const user = this.users.find(u => u.id === userData.id)
+            if (user) {
+              this.currentUser = user
+              this.userStatus = user.status
+            }
+          } else {
+            // Session expired, remove it
+            localStorage.removeItem('currentUser')
           }
         } catch (error) {
           console.error('Error loading saved user:', error)
@@ -320,10 +327,13 @@ export default {
       
       // Save session (fallback for non-Supabase)
       if (!this.isSupabaseConfigured) {
-        localStorage.setItem('currentUser', JSON.stringify({
+        const sessionData = {
           id: user.id,
-          email: user.email
-        }))
+          email: user.email,
+          loginTime: Date.now(),
+          expiresAt: Date.now() + (14 * 24 * 60 * 60 * 1000) // 14 days
+        }
+        localStorage.setItem('currentUser', JSON.stringify(sessionData))
       }
       
       if (this.userStatus === 'approved') {
