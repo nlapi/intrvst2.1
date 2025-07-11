@@ -660,11 +660,13 @@ export default {
 }
 
 .welcome-info {
-  max-width: 520px;
+  max-width: 100%;
+  width: 100%;
   padding: 48px 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
 }
 
 .welcome-image {
@@ -689,8 +691,9 @@ export default {
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 20px 0;
-  text-align: left;
+  text-align: center;
   line-height: 1.2;
+  width: 100%;
 }
 
 .welcome-description {
@@ -698,7 +701,7 @@ export default {
   color: #64748b;
   margin: 0 0 36px 0;
   line-height: 1.65;
-  text-align: left;
+  text-align: center;
   max-width: 480px;
 }
 
@@ -707,6 +710,7 @@ export default {
   flex-direction: column;
   gap: 18px;
   margin-bottom: 36px;
+  max-width: 400px;
   width: 100%;
 }
 
@@ -734,7 +738,8 @@ export default {
 
 .legal-notice {
   margin-bottom: 28px;
-  max-width: 480px;
+  max-width: 500px;
+  text-align: center;
 }
 
 .legal-text {
@@ -742,6 +747,7 @@ export default {
   color: #64748b;
   line-height: 1.6;
   margin: 0;
+  text-align: center;
 }
 
 .join-section {
@@ -749,6 +755,7 @@ export default {
   align-items: center;
   gap: 4px;
   font-size: 15px;
+  justify-content: center;
 }
 
 .join-text {
@@ -874,30 +881,14 @@ export default {
   .welcome-layout {
     flex-direction: column;
     gap: 32px;
-    text-align: center;
   }
   
   .welcome-info {
     padding: 32px 20px;
-    align-items: center;
-    text-align: center;
   }
   
   .welcome-title {
-    text-align: center;
     font-size: 28px;
-  }
-  
-  .welcome-description {
-    text-align: center;
-  }
-  
-  .legal-notice {
-    text-align: center;
-  }
-  
-  .join-section {
-    justify-content: center;
   }
   
   .hero-image {
