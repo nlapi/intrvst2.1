@@ -204,7 +204,7 @@
           </el-button>
         </div>
       </div>
-  </el-dialog>
+    </el-dialog>
   </el-dialog>
 </template>
 
@@ -275,7 +275,6 @@ export default {
   },
   methods: {
     getUserInitials(user) {
-      // Safe fallback for getting user's name
       const displayName = user.fullName || 
                           (user.user_metadata && user.user_metadata.full_name) || 
                           user.email || 
@@ -305,12 +304,10 @@ export default {
       try {
         let code = this.newReferralCode.code.trim()
         
-        // Auto-generate code if not provided
         if (!code) {
           code = this.generateReferralCode()
         }
         
-        // Check if code already exists
         const existingCodes = this.referralCodes
         if (existingCodes.some(c => c.code === code)) {
           throw new Error('Referral code already exists')
@@ -395,9 +392,6 @@ export default {
           this.$message.error('Failed to delete referral code')
         } finally {
           this.processingCodes = this.processingCodes.filter(id => id !== code.id)
-        }
-      })
-    },
         }
       })
     },
