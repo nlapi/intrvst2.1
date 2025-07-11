@@ -151,7 +151,7 @@ export default {
   },
   computed: {
     isSupabaseConfigured() {
-      // Always return true for now since we have fallback authentication
+      // Always return true since we have mock authentication fallback
       return true
     }
   },
