@@ -200,6 +200,7 @@ export default {
       userStatus: 'approved', // approved, pending, rejected
       showAuthModal: false,
       showAdminPanel: false,
+      showEmailVerificationHelper: false,
       // Mock user database
       users: [
         {
@@ -244,6 +245,13 @@ export default {
   async mounted() {
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Check for email verification in URL (simulate clicking email link)
+    const urlParams = new URLSearchParams(window.location.search)
+    const verifyEmail = urlParams.get('verify')
+    if (verifyEmail) {
+      this.handleEmailVerification(verifyEmail)
+    }
     
     // Check for existing session
     const savedUser = localStorage.getItem('currentUser')
@@ -334,11 +342,32 @@ export default {
         ...userData,
         createdAt: new Date().toISOString(),
         isAdmin: false,
-        emailVerified: false,
+        emailVerified: true, // Only called after email verification
         status: 'pending'
       }
       this.users.push(newUser)
       return newUser
+    },
+    
+    handleEmailVerification(email) {
+      try {
+        // Get AuthModal component reference and verify email
+        const authModal = this.$refs.authModal
+        if (authModal) {
+          const newUser = authModal.simulateEmailVerification(email)
+          this.$message.success(`Email verified! Your account has been created and is pending admin approval.`)
+        }
+      } catch (error) {
+        this.$message.error(`Email verification failed: ${error.message}`)
+      }
+    },
+    
+    // Helper method for testing email verification
+    testEmailVerification() {
+      const email = prompt('Enter email to verify:')
+      if (email) {
+        this.handleEmailVerification(email)
+      }
     }
   },
   provide() {

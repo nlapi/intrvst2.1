@@ -226,29 +226,54 @@ export default {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
       
-      // Create new user
-      const newUser = this.addUser({
+      this.statusMessage = {
+        type: 'success',
+        title: 'Verification Email Sent!',
+        text: `We've sent a verification email to ${email}. Please check your inbox and click the verification link to complete your registration. Check your spam folder if you don't see it.`
+      }
+      
+      // Store pending registration data temporarily
+      const pendingData = {
         email,
         password,
         fullName,
         role,
         company,
-        status: 'pending',
-        emailVerified: true // Simulate email verification
-      })
-      
-      this.statusMessage = {
-        type: 'success',
-        title: 'Account Created Successfully!',
-        text: 'Your account has been created and email verified. An administrator will review and approve your access shortly.'
+        timestamp: new Date().toISOString()
       }
+      localStorage.setItem(`pending_registration_${email}`, JSON.stringify(pendingData))
       
       // Clear form after success
       setTimeout(() => {
         this.clearForms()
         this.statusMessage = null
-        this.isLogin = true
-      }, 3000)
+      }, 5000)
+    },
+    
+    // Method to simulate email verification (for testing purposes)
+    simulateEmailVerification(email) {
+      const pendingData = localStorage.getItem(`pending_registration_${email}`)
+      if (!pendingData) {
+        throw new Error('No pending registration found for this email')
+      }
+      
+      const userData = JSON.parse(pendingData)
+      
+      // Create the actual user account after email verification
+      const newUser = this.addUser({
+        email: userData.email,
+        password: userData.password,
+        fullName: userData.fullName,
+        role: userData.role,
+        company: userData.company,
+        status: 'pending',
+        emailVerified: true
+      })
+      
+      // Remove pending registration data
+      localStorage.removeItem(`pending_registration_${email}`)
+      
+      return newUser
     }
   }
 }
