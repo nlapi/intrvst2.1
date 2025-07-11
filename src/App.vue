@@ -556,7 +556,7 @@ export default {
 }
 
 .brand-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
   margin: 0;
@@ -645,16 +645,24 @@ export default {
 }
 
 .sign-in-button {
-  height: 40px;
+  height: 36px;
   padding: 0 20px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  background: linear-gradient(135deg, #0a66c2, #004182);
-  border: none;
+  background: white;
+  color: #0a66c2;
+  border: 2px solid #0a66c2;
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.sign-in-button:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(10, 102, 194, 0.2);
 }
 
 .app-main {
@@ -663,6 +671,27 @@ export default {
   margin: 0 auto;
   padding: 32px;
   width: 100%;
+}
+
+/* Prevent scrolling on welcome and interview pages */
+.app-container:has(.welcome-layout) {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container:has(.interview-workspace) {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-main:has(.welcome-layout) {
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+.app-main:has(.interview-workspace) {
+  height: calc(100vh - 80px);
+  overflow: hidden;
 }
 
 .welcome-layout {
