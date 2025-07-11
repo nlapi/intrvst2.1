@@ -61,10 +61,14 @@ export default {
     async handleCommand(command) {
       switch (command) {
         case 'profile':
-          this.$router.push('/customize')
+          if (this.$route.path !== '/customize') {
+            this.$router.push('/customize')
+          }
           break
         case 'preferences':
-          this.$router.push('/setting')
+          if (this.$route.path !== '/setting') {
+            this.$router.push('/setting')
+          }
           break
         case 'admin':
           this.$emit('show-admin')
