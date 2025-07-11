@@ -660,8 +660,11 @@ export default {
 }
 
 .welcome-info {
-  max-width: 500px;
-  padding: 48px 32px;
+  max-width: 520px;
+  padding: 48px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .welcome-image {
@@ -682,57 +685,62 @@ export default {
 }
 
 .welcome-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #1e293b;
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
   text-align: left;
+  line-height: 1.2;
 }
 
 .welcome-description {
-  font-size: 16px;
+  font-size: 17px;
   color: #64748b;
-  margin: 0 0 32px 0;
-  line-height: 1.6;
+  margin: 0 0 36px 0;
+  line-height: 1.65;
   text-align: left;
+  max-width: 480px;
 }
 
 .welcome-features {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 18px;
+  margin-bottom: 36px;
+  width: 100%;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 15px;
+  gap: 14px;
+  font-size: 16px;
   color: #374151;
   font-weight: 500;
 }
 
 .feature-item i {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(10, 102, 194, 0.1);
   color: #0a66c2;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .legal-notice {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  max-width: 480px;
 }
 
 .legal-text {
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -740,7 +748,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .join-text {
@@ -750,7 +758,7 @@ export default {
 .join-link {
   color: #0a66c2;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   transition: color 0.2s ease;
 }
 
@@ -870,14 +878,21 @@ export default {
   }
   
   .welcome-info {
-    padding: 32px 16px;
+    padding: 32px 20px;
+    align-items: center;
+    text-align: center;
   }
   
   .welcome-title {
     text-align: center;
+    font-size: 28px;
   }
   
   .welcome-description {
+    text-align: center;
+  }
+  
+  .legal-notice {
     text-align: center;
   }
   
