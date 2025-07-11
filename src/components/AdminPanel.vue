@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :visible.sync="visible"
+    :visible.sync="dialogVisible"
     title="Admin Panel - User Management"
     width="900px"
     :close-on-click-modal="false"
@@ -144,7 +144,7 @@
                 v-if="!user.isAdmin"
                 type="danger" 
                 size="small" 
-                @click="deleteUser(user)"
+                @click="handleDeleteUser(user)"
                 :loading="processingUsers.includes(user.id)"
               >
                 <i class="el-icon-delete"></i> Delete
@@ -205,6 +205,15 @@ export default {
         user.fullName.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query)
       )
+    },
+    
+    dialogVisible: {
+      get() {
+        return this.visible
+      },
+      set(value) {
+        this.$emit('update:visible', value)
+      }
     }
   },
   methods: {
@@ -261,7 +270,7 @@ export default {
       })
     },
     
-    async deleteUser(user) {
+    async handleDeleteUser(user) {
       if (user.isAdmin) {
         this.$message.error('Cannot delete admin accounts')
         return
