@@ -267,7 +267,10 @@ export default {
     }
   },
   async mounted() {
-    // Simulate loading and check auth
+    // Add body classes for scroll prevention
+    this.updateBodyClasses()
+    
+    // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000))
     
     // Check for existing Supabase session
@@ -307,9 +310,6 @@ export default {
     }
     
     this.loading = false
-    
-    // Add body classes for scroll prevention
-    this.updateBodyClasses()
   },
   watch: {
     currentUser() {
@@ -720,35 +720,34 @@ export default {
   width: 100%;
 }
 
-/* Prevent scrolling on welcome and interview pages */
-.app-container:has(.welcome-layout) {
+/* Force remove scrollbars */
+html.no-scroll-welcome,
+html.no-scroll-interview,
+body.no-scroll-welcome,
+body.no-scroll-interview {
+  overflow: hidden;
   height: 100vh;
-  overflow: hidden;
+  max-height: 100vh;
 }
 
-.app-container:has(.interview-workspace) {
+.no-scroll-welcome .app-container,
+.no-scroll-interview .app-container {
   height: 100vh;
+  max-height: 100vh;
   overflow: hidden;
 }
 
-.app-main:has(.welcome-layout) {
+.no-scroll-welcome .app-main,
+.no-scroll-interview .app-main {
   height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px);
   overflow: hidden;
 }
 
-.app-main:has(.interview-workspace) {
-  height: calc(100vh - 80px);
-  overflow: hidden;
-}
-
-/* Additional scrollbar prevention */
-body:has(.welcome-layout),
-body:has(.interview-workspace) {
-  overflow: hidden;
-}
-
-html:has(.welcome-layout),
-html:has(.interview-workspace) {
+.no-scroll-welcome .welcome-layout,
+.no-scroll-interview .interview-workspace {
+  height: 100%;
+  max-height: 100%;
   overflow: hidden;
 }
 
