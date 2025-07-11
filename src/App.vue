@@ -274,6 +274,31 @@ export default {
     // Add body classes for scroll prevention
     this.updateBodyClasses()
     
+    // Initialize referral codes if not exists
+    if (!localStorage.getItem('referralCodes')) {
+      const initialCodes = [
+        {
+          id: 'ref-001',
+          code: 'BETA2024',
+          description: 'Beta testing program',
+          active: true,
+          used: true,
+          createdAt: new Date('2024-01-01').toISOString(),
+          usedAt: new Date().toISOString()
+        },
+        {
+          id: 'ref-002',
+          code: 'WELCOME2025',
+          description: 'New year launch',
+          active: true,
+          used: false,
+          createdAt: new Date().toISOString(),
+          usedAt: null
+        }
+      ]
+      localStorage.setItem('referralCodes', JSON.stringify(initialCodes))
+    }
+    
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000))
     
@@ -458,6 +483,7 @@ export default {
         createdAt: new Date().toISOString(),
         isAdmin: false,
         emailVerified: true, // Only called after email verification
+        referralCode: 'BETA2024',
         status: 'pending'
       }
       this.users.push(newUser)
