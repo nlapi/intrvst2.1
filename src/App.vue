@@ -267,35 +267,7 @@ export default {
     }
   },
   async mounted() {
-    // Add body classes for scroll prevention
-    this.updateBodyClasses()
-  },
-  watch: {
-    currentUser() {
-      this.updateBodyClasses()
-    },
-    '$route'() {
-      this.updateBodyClasses()
-    }
-  },
-  methods: {
-    updateBodyClasses() {
-      // Remove all scroll classes first
-      document.body.classList.remove('no-scroll-welcome', 'no-scroll-interview')
-      document.documentElement.classList.remove('no-scroll-welcome', 'no-scroll-interview')
-      
-      // Add appropriate class based on current state
-      if (!this.currentUser) {
-        // Welcome/sign-in page
-        document.body.classList.add('no-scroll-welcome')
-        document.documentElement.classList.add('no-scroll-welcome')
-      } else if (this.userStatus === 'approved' && this.$route.path === '/') {
-        // Interview page
-        document.body.classList.add('no-scroll-interview')
-        document.documentElement.classList.add('no-scroll-interview')
-      }
-    },
-    // Simulate loading
+    // Simulate loading and check auth
     await new Promise(resolve => setTimeout(resolve, 1000))
     
     // Check for existing Supabase session
@@ -335,8 +307,36 @@ export default {
     }
     
     this.loading = false
+    
+    // Add body classes for scroll prevention
+    this.updateBodyClasses()
+  },
+  watch: {
+    currentUser() {
+      this.updateBodyClasses()
+    },
+    '$route'() {
+      this.updateBodyClasses()
+    }
   },
   methods: {
+    updateBodyClasses() {
+      // Remove all scroll classes first
+      document.body.classList.remove('no-scroll-welcome', 'no-scroll-interview')
+      document.documentElement.classList.remove('no-scroll-welcome', 'no-scroll-interview')
+      
+      // Add appropriate class based on current state
+      if (!this.currentUser) {
+        // Welcome/sign-in page
+        document.body.classList.add('no-scroll-welcome')
+        document.documentElement.classList.add('no-scroll-welcome')
+      } else if (this.userStatus === 'approved' && this.$route.path === '/') {
+        // Interview page
+        document.body.classList.add('no-scroll-interview')
+        document.documentElement.classList.add('no-scroll-interview')
+      }
+    },
+    
     getUserStatus(user) {
       // Check if user is admin
       if (authHelpers.isAdmin(user)) {
