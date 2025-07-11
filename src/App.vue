@@ -665,8 +665,8 @@ export default {
   padding: 48px 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .welcome-image {
@@ -691,7 +691,7 @@ export default {
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 20px 0;
-  text-align: center;
+  text-align: left;
   line-height: 1.2;
   width: 100%;
 }
@@ -701,7 +701,7 @@ export default {
   color: #64748b;
   margin: 0 0 36px 0;
   line-height: 1.65;
-  text-align: center;
+  text-align: left;
   max-width: 480px;
 }
 
@@ -739,7 +739,7 @@ export default {
 .legal-notice {
   margin-bottom: 28px;
   max-width: 500px;
-  text-align: center;
+  text-align: left;
 }
 
 .legal-text {
@@ -747,7 +747,7 @@ export default {
   color: #64748b;
   line-height: 1.6;
   margin: 0;
-  text-align: center;
+  text-align: left;
 }
 
 .join-section {
@@ -755,7 +755,7 @@ export default {
   align-items: center;
   gap: 4px;
   font-size: 15px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .join-text {
@@ -885,6 +885,24 @@ export default {
   
   .welcome-info {
     padding: 32px 20px;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .welcome-title {
+    text-align: center;
+  }
+  
+  .welcome-description {
+    text-align: center;
+  }
+  
+  .legal-text {
+    text-align: center;
+  }
+  
+  .join-section {
+    justify-content: center;
   }
   
   .welcome-title {
