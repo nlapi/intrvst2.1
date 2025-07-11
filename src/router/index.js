@@ -12,7 +12,8 @@ const routes = [
     },
     {
         path: '/setting',
-        component: () => import(/* webpackChunkName: "about" */ '../views/Setting.vue')
+        component: () => import(/* webpackChunkName: "about" */ '../views/Setting.vue'),
+        meta: { requiresAdmin: true }
     },
     {
         path: '/customize',

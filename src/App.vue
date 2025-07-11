@@ -123,7 +123,8 @@
               <span class="nav-text">Profile</span>
             </router-link>
             
-            <router-link 
+            <router-link
+              v-if="isAdmin"
               to="/setting" 
               class="nav-link"
               :class="{ active: $router.currentRoute.path === '/setting' }"
@@ -268,6 +269,9 @@ export default {
   computed: {
     isSupabaseConfigured() {
       return authHelpers.isConfigured()
+    },
+    isAdmin() {
+      return this.currentUser && authHelpers.isAdmin(this.currentUser)
     }
   },
   async mounted() {

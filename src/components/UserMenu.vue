@@ -23,7 +23,11 @@
           <span>Customize Profile</span>
         </el-dropdown-item>
         
-        <el-dropdown-item command="settings" class="dropdown-item">
+        <el-dropdown-item 
+          v-if="isAdmin" 
+          command="settings" 
+          class="dropdown-item"
+        >
           <i class="el-icon-setting"></i>
           <span>Settings</span>
         </el-dropdown-item>
@@ -197,10 +201,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 12px 20px;
   font-size: 14px;
   color: #374151;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 180px;
 }
 
 .dropdown-item:hover {
@@ -253,7 +259,9 @@ export default {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
   padding: 8px 0;
-  min-width: 200px;
+  min-width: 220px;
+  width: max-content;
+  max-width: 280px;
   margin-top: 8px;
 }
 
@@ -261,6 +269,9 @@ export default {
   padding: 0;
   line-height: normal;
   border-radius: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-dropdown-menu .el-dropdown-menu__item:hover {
