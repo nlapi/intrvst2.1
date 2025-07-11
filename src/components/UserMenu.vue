@@ -6,7 +6,7 @@
           <span class="avatar-text">{{ userInitials }}</span>
         </div>
         <div class="user-info">
-          <div class="user-name">{{ user.user_metadata?.full_name || 'User' }}</div>
+          <div class="user-name">{{ displayName }}</div>
           <div class="user-role">{{ user.user_metadata?.current_role || 'Member' }}</div>
         </div>
         <i class="el-icon-arrow-down user-dropdown-icon"></i>

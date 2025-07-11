@@ -328,7 +328,16 @@ export default {
       }
       
       if (this.userStatus === 'approved') {
-        const displayName = user.user_metadata?.full_name || user.email
+        // Get display name from customization data if available
+        const customizationData = this.getCustomizationFromStorage()
+        let displayName = user.email
+        
+        if (customizationData.personalInfo && customizationData.personalInfo.firstName) {
+          displayName = `${customizationData.personalInfo.firstName} ${customizationData.personalInfo.lastName || ''}`.trim()
+        } else if (user.user_metadata?.full_name) {
+          displayName = user.user_metadata.full_name
+        }
+        
         this.$message.success(`Welcome back, ${displayName}!`)
         if (authHelpers.isAdmin(user)) {
           this.$message.info('Admin privileges activated')
@@ -401,6 +410,23 @@ export default {
       }
       this.users.push(newUser)
       return newUser
+    },
+    
+    getCustomizationFromStorage() {
+      const saved = localStorage.getItem('interview_customization')
+      if (!saved) {
+        return { personalInfo: null }
+      }
+      
+      try {
+        const data = JSON.parse(saved)
+        return {
+          personalInfo: data.personalInfo || null
+        }
+      } catch (error) {
+        console.error('Error loading customization data:', error)
+        return { personalInfo: null }
+      }
     }
   },
   provide() {
