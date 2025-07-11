@@ -48,7 +48,7 @@
         <div class="panel-content">
           <div v-if="!currentText" class="empty-state">
             <div class="empty-icon">
-              <i class="el-icon-chat-dot-round"></i>
+              <i class="el-icon-headset"></i>
             </div>
             <h4 class="empty-title">Ready to Listen</h4>
             <p class="empty-description">Click the start button to begin recording</p>
@@ -104,7 +104,7 @@
         <div class="panel-content">
           <div v-if="!ai_result && !show_ai_thinking_effect" class="empty-state">
             <div class="empty-icon">
-              <i class="el-icon-lightbulb"></i>
+              <i class="el-icon-user-solid"></i>
             </div>
             <h4 class="empty-title">AI Coach Ready</h4>
             <p class="empty-description">Click "Get Coaching" to receive personalized interview guidance based on your profile</p>
