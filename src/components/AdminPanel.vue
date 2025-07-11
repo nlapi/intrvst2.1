@@ -274,14 +274,14 @@ export default {
     }
   },
   methods: {
-    getUserInitials(name) {
+    getUserInitials(user) {
       // Safe fallback for getting user's name
-      const name = user.fullName || 
-                   (user.user_metadata && user.user_metadata.full_name) || 
-                   user.email || 
-                   'Unknown User'
+      const displayName = user.fullName || 
+                          (user.user_metadata && user.user_metadata.full_name) || 
+                          user.email || 
+                          'Unknown User'
       
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+      return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     },
     
     getUserDisplayName(user) {
