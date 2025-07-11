@@ -307,15 +307,6 @@ export default {
     }
   }
 }
-      
-      // Clear form after success
-      setTimeout(() => {
-        this.clearForms()
-        this.statusMessage = null
-      }, 5000)
-    }
-  }
-}
 </script>
 
 <style scoped>
