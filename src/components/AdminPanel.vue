@@ -215,6 +215,10 @@ export default {
     visible: {
       type: Boolean,
       default: false
+    },
+    embedded: {
+      type: Boolean,
+      default: false
     }
   },
   inject: ['getUsers', 'updateUser', 'deleteUser'],
@@ -266,10 +270,12 @@ export default {
     
     dialogVisible: {
       get() {
-        return this.visible
+        return this.embedded ? true : this.visible
       },
       set(value) {
-        this.$emit('update:visible', value)
+        if (!this.embedded) {
+          this.$emit('update:visible', value)
+        }
       }
     }
   },

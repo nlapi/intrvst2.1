@@ -11,8 +11,8 @@ const routes = [
         component: HomeView
     },
     {
-        path: '/setting',
-        component: () => import(/* webpackChunkName: "about" */ '../views/Setting.vue'),
+        path: '/admin',
+        component: () => import(/* webpackChunkName: "admin" */ '../views/Admin.vue'),
         meta: { requiresAdmin: true }
     },
     {

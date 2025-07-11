@@ -125,23 +125,26 @@
             
             <router-link
               v-if="isAdmin"
-              to="/setting" 
+              to="/admin" 
               class="nav-link"
-              :class="{ active: $router.currentRoute.path === '/setting' }"
+              :class="{ active: $router.currentRoute.path === '/admin' }"
             >
               <div class="nav-icon">
-                <i class="el-icon-setting"></i>
+                <i class="el-icon-key"></i>
               </div>
-              <span class="nav-text">Settings</span>
+              <span class="nav-text">Admin</span>
             </router-link>
           </nav>
           
           <div class="auth-section">
-            <UserMenu 
-              :user="currentUser" 
-              @signed-out="handleSignOut"
-              @show-admin="showAdminPanel = true"
-            />
+            <el-button
+              @click="handleSignOut"
+              type="text"
+              class="sign-out-button"
+            >
+              <i class="el-icon-switch-button"></i>
+              <span>Sign Out</span>
+            </el-button>
           </div>
         </div>
       </div>
@@ -195,11 +198,6 @@
       </main>
 
       <!-- Admin Panel -->
-      <AdminPanel 
-        :visible="showAdminPanel"
-        @close="showAdminPanel = false"
-        @user-deleted="refreshUserStatus"
-      />
     </div>
   </div>
 </template>
@@ -207,15 +205,11 @@
 <script>
 import { authHelpers } from '@/utils/supabase'
 import AuthModal from '@/components/AuthModal.vue'
-import UserMenu from '@/components/UserMenu.vue'
-import AdminPanel from '@/components/AdminPanel.vue'
 
 export default {
   name: 'App',
   components: {
-    AuthModal,
-    UserMenu,
-    AdminPanel
+    AuthModal
   },
   data() {
     return {
@@ -223,7 +217,6 @@ export default {
       currentUser: null,
       userStatus: 'approved', // approved, pending, rejected
       showAuthModal: false,
-      showAdminPanel: false,
       showEmailVerificationHelper: false,
       // Mock user database
       users: [
@@ -447,7 +440,6 @@ export default {
       
       this.currentUser = null
       this.userStatus = 'approved'
-      this.showAdminPanel = false
       localStorage.removeItem('currentUser')
       
       // Update body classes after sign out
@@ -770,6 +762,24 @@ export default {
   background: #f8fafc;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(10, 102, 194, 0.2);
+}
+
+.sign-out-button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.sign-out-button:hover {
+  color: #ef4444;
+  background: #fef2f2;
 }
 
 .app-main {
