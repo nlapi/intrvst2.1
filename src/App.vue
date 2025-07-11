@@ -79,7 +79,7 @@
     </div>
     
     <main class="app-main">
-      <div v-if="!currentUser && !showAuthModal" class="auth-required-overlay">
+      <div v-if="!currentUser && !showAuthModal && !authLoading" class="auth-required-overlay">
         <div class="auth-required-content">
           <div class="auth-required-icon">
             <i class="el-icon-lock"></i>
@@ -99,7 +99,17 @@
           </el-button>
         </div>
       </div>
-      <router-view v-else/>
+      
+      <div v-if="authLoading" class="loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner">
+            <i class="el-icon-loading"></i>
+          </div>
+          <p class="loading-text">Initializing InterviewSignal...</p>
+        </div>
+      </div>
+      
+      <router-view v-if="!authLoading && (currentUser || showAuthModal)"/>
     </main>
   </div>
 </template>
@@ -131,6 +141,17 @@ export default {
   methods: {
     async initializeAuth() {
       try {
+        // Check if Supabase is configured
+        const supabaseUrl = process.env.VUE_APP_SUPABASE_URL
+        const supabaseKey = process.env.VUE_APP_SUPABASE_ANON_KEY
+        
+        if (!supabaseUrl || !supabaseKey || supabaseUrl === 'YOUR_SUPABASE_URL' || supabaseKey === 'YOUR_SUPABASE_ANON_KEY') {
+          console.log('Supabase not configured, showing auth modal')
+          this.authLoading = false
+          this.showAuthModal = true
+          return
+        }
+        
         // Get current user
         this.currentUser = await authHelpers.getCurrentUser()
         
@@ -146,6 +167,7 @@ export default {
         })
       } catch (error) {
         console.error('Auth initialization error:', error)
+        this.showAuthModal = true
       } finally {
         this.authLoading = false
       }
