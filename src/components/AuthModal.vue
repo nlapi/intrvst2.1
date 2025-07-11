@@ -168,8 +168,7 @@ export default {
       }
     },
     isSupabaseConfigured() {
-      // Always return true since we have mock authentication fallback
-      return true
+      return authHelpers.isConfigured()
     }
   },
   methods: {
@@ -196,15 +195,6 @@ export default {
     },
     
     async handleSubmit() {
-      if (!this.isSupabaseConfigured) {
-        this.statusMessage = {
-          type: 'error',
-          title: 'Configuration Required',
-          text: 'Please set up Supabase configuration to enable authentication. Click "Connect to Supabase" in the top right.'
-        }
-        return
-      }
-      
       this.loading = true
       this.statusMessage = null
       
@@ -232,21 +222,21 @@ export default {
         throw new Error('Please enter both email and password')
       }
       
-      const { data, error } = await authHelpers.signIn(email, password)
+      const result = await authHelpers.signIn(email, password)
       
-      if (error) {
-        if (error.message.includes('Email not confirmed')) {
+      if (result.error) {
+        if (result.error.message.includes('Email not confirmed')) {
           throw new Error('Please verify your email address before signing in. Check your inbox for the verification link.')
         }
-        throw new Error(error.message)
+        throw new Error(result.error.message)
       }
       
-      if (!data.user) {
+      if (!result.data.user) {
         throw new Error('Invalid email or password')
       }
       
       // Check if user is approved (you'll need to implement this in your database)
-      this.$emit('auth-success', data.user)
+      this.$emit('auth-success', result.data.user)
       this.clearForms()
     },
     
@@ -278,7 +268,7 @@ export default {
       // Mark referral code as used
       this.markReferralCodeAsUsed(referralCode)
       
-      const { data, error } = await authHelpers.signUp(email, password, {
+      const result = await authHelpers.signUp(email, password, {
         full_name: fullName,
         current_role: role,
         company: company || '',
@@ -287,15 +277,15 @@ export default {
         email_confirmed_at: new Date().toISOString()
       })
       
-      if (error) {
-        if (error.message.includes('already registered')) {
+      if (result.error) {
+        if (result.error.message.includes('already registered')) {
           throw new Error('An account with this email already exists')
         }
-        throw new Error(error.message)
+        throw new Error(result.error.message)
       }
       
       // Success - user is approved and ready to use the site
-      this.$emit('auth-success', data.user)
+      this.$emit('auth-success', result.data.user)
       this.clearForms()
     },
     

@@ -267,8 +267,7 @@ export default {
   },
   computed: {
     isSupabaseConfigured() {
-      // Always return true since we have fallback authentication
-      return true
+      return authHelpers.isConfigured()
     }
   },
   async mounted() {
@@ -318,14 +317,17 @@ export default {
     if (this.isSupabaseConfigured) {
       try {
         const user = await authHelpers.getCurrentUser()
-        if (user && user.email_confirmed_at) {
+        if (user) {
           this.currentUser = user
           this.userStatus = this.getUserStatus(user)
         }
       } catch (error) {
         console.error('Error checking auth session:', error)
       }
-    } else {
+    }
+    
+    // Always check localStorage fallback
+    if (!this.currentUser) {
       // Fallback to localStorage for demo purposes
       const savedUser = localStorage.getItem('currentUser')
       if (savedUser) {
